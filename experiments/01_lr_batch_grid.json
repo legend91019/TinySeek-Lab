@@ -1,0 +1,11 @@
+{
+  "base_config": "configs/tiny_dense.json",
+  "data": "data/toy_pretrain.jsonl",
+  "max_steps": 80,
+  "runs": [
+    {"name": "bs8_lr3e-4", "train.batch_size": 8, "train.learning_rate": 0.0003},
+    {"name": "bs8_lr6e-4", "train.batch_size": 8, "train.learning_rate": 0.0006},
+    {"name": "bs16_lr3e-4", "train.batch_size": 16, "train.learning_rate": 0.0003},
+    {"name": "bs16_lr6e-4", "train.batch_size": 16, "train.learning_rate": 0.0006}
+  ]
+}
