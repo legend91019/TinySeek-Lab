@@ -5,16 +5,18 @@
 TinySeek-Lab is a tutorial repository for learning language-model training by
 walking through a small-scale version of DeepSeek's LM research path.
 
-The goal is not to reproduce DeepSeek's results. The goal is to reproduce the
-research moves at a scale that a learner can run:
+The goal is not to reproduce DeepSeek's results. The goal is to first write the
+initial dense model code, then reproduce the research moves at a scale that a
+learner can run:
 
-1. Train a dense decoder-only base LM.
-2. Reproduce small LR / batch-size sweeps inspired by DeepSeek LLM.
-3. Upgrade the block: RMSNorm, RoPE, SwiGLU, GQA.
-4. Replace dense FFN with a small DeepSeekMoE-style routed FFN.
-5. Study MoE load balance, auxiliary loss, routing collapse, and specialization.
-6. Add an educational MLA-style low-rank KV path for KV-cache experiments.
-7. Run SFT, reasoning cold-start SFT, DPO, and rule-based GRPO mini experiments.
+1. Write the first DeepSeek-style dense decoder-only LM by hand.
+2. Train the dense baseline.
+3. Reproduce small LR / batch-size sweeps inspired by DeepSeek LLM.
+4. Upgrade the block: RMSNorm, RoPE, SwiGLU, GQA.
+5. Replace dense FFN with a small DeepSeekMoE-style routed FFN.
+6. Study MoE load balance, auxiliary loss, routing collapse, and specialization.
+7. Add an educational MLA-style low-rank KV path for KV-cache experiments.
+8. Run SFT, reasoning cold-start SFT, DPO, and rule-based GRPO mini experiments.
 
 This repo intentionally focuses on language models only. It excludes
 multimodal, vision, video, OCR, robotics, and tool-use/agent chapters from the
@@ -40,7 +42,8 @@ TinySeek-Lab turns those ideas into a sequence of small experiments.
 
 ```mermaid
 flowchart LR
-  A["Stage 0<br/>Dense LM"] --> B["Stage 1<br/>LR / Batch Sweep"]
+  Z["Code First<br/>Write Dense LM"] --> A["Stage 0<br/>Train Dense LM"]
+  A --> B["Stage 1<br/>LR / Batch Sweep"]
   B --> C["Stage 2<br/>RMSNorm + RoPE + SwiGLU + GQA"]
   C --> D["Stage 3<br/>Tiny DeepSeekMoE"]
   D --> E["Stage 4<br/>Educational MLA"]
@@ -127,13 +130,14 @@ Read these docs in order, or open the full [tutorial index](docs/README.md):
 
 1. [Project Scope](docs/00_project_scope.md)
 2. [DeepSeek Paper Map for LM Training](docs/01_deepseek_lm_paper_map.md)
-3. [Stage 0: Dense Baseline](docs/02_stage0_dense_baseline.md)
-4. [Stage 1: LR and Batch-Size Search](docs/03_stage1_lr_batch_search.md)
-5. [Stage 2: MLP and Attention Upgrades](docs/04_stage2_block_upgrades.md)
-6. [Stage 3: Tiny DeepSeekMoE](docs/05_stage3_moe.md)
-7. [Stage 4: Educational MLA](docs/06_stage4_mla.md)
-8. [Stage 5: SFT and Reasoning Cold Start](docs/07_stage5_sft_cold_start.md)
-9. [Stage 6: Rule-Based GRPO Mini](docs/08_stage6_grpo_mini.md)
+3. [Code First: Build the Initial DeepSeek-Style Dense LM](docs/12_code_first_dense_lm.md)
+4. [Stage 0: Dense Baseline](docs/02_stage0_dense_baseline.md)
+5. [Stage 1: LR and Batch-Size Search](docs/03_stage1_lr_batch_search.md)
+6. [Stage 2: MLP and Attention Upgrades](docs/04_stage2_block_upgrades.md)
+7. [Stage 3: Tiny DeepSeekMoE](docs/05_stage3_moe.md)
+8. [Stage 4: Educational MLA](docs/06_stage4_mla.md)
+9. [Stage 5: SFT and Reasoning Cold Start](docs/07_stage5_sft_cold_start.md)
+10. [Stage 6: Rule-Based GRPO Mini](docs/08_stage6_grpo_mini.md)
 
 Chinese tutorial notes:
 
@@ -141,16 +145,17 @@ Open the full [中文教程目录](docs/zh/README.md), or read in this order:
 
 1. [项目范围](docs/zh/00_project_scope.md)
 2. [DeepSeek 语言模型论文地图](docs/zh/01_deepseek_lm_paper_map.md)
-3. [阶段 0：Dense Baseline](docs/zh/02_stage0_dense_baseline.md)
-4. [阶段 1：LR 和 Batch Size 搜索](docs/zh/03_stage1_lr_batch_search.md)
-5. [阶段 2：MLP 和 Attention 升级](docs/zh/04_stage2_block_upgrades.md)
-6. [阶段 3：Tiny DeepSeekMoE](docs/zh/05_stage3_moe.md)
-7. [阶段 4：教学版 MLA](docs/zh/06_stage4_mla.md)
-8. [阶段 5：SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
-9. [阶段 6：Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
-10. [仓库路线图](docs/zh/09_repository_roadmap.md)
-11. [实验报告模板](docs/zh/10_experiment_report_template.md)
-12. [MiniMind 风格结构说明](docs/zh/11_minimind_structure_notes.md)
+3. [代码优先：从零写出最初的 DeepSeek-style Dense LM](docs/zh/12_code_first_dense_lm.md)
+4. [阶段 0：Dense Baseline](docs/zh/02_stage0_dense_baseline.md)
+5. [阶段 1：LR 和 Batch Size 搜索](docs/zh/03_stage1_lr_batch_search.md)
+6. [阶段 2：MLP 和 Attention 升级](docs/zh/04_stage2_block_upgrades.md)
+7. [阶段 3：Tiny DeepSeekMoE](docs/zh/05_stage3_moe.md)
+8. [阶段 4：教学版 MLA](docs/zh/06_stage4_mla.md)
+9. [阶段 5：SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
+10. [阶段 6：Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
+11. [仓库路线图](docs/zh/09_repository_roadmap.md)
+12. [实验报告模板](docs/zh/10_experiment_report_template.md)
+13. [MiniMind 风格结构说明](docs/zh/11_minimind_structure_notes.md)
 
 Chinese supplements:
 

@@ -4,7 +4,8 @@
 
 ```mermaid
 flowchart LR
-  A["Dense LM<br/>先有稳定基线"] --> B["训练 recipe<br/>LR / batch / warmup"]
+  Z["手写模型代码<br/>Dense LM"] --> A["Dense LM<br/>先有稳定基线"]
+  A --> B["训练 recipe<br/>LR / batch / warmup"]
   B --> C["Block 升级<br/>RMSNorm / RoPE / SwiGLU / GQA"]
   C --> D["MoE 升级<br/>Router / Experts / Load Balance"]
   D --> E["MLA 教学版<br/>KV cache 压缩"]
