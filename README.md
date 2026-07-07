@@ -123,7 +123,7 @@ python trainer/sweep_pretrain.py --sweep experiments/01_lr_batch_grid.json
 
 ## First Reading Path
 
-Read these docs in order:
+Read these docs in order, or open the full [tutorial index](docs/README.md):
 
 1. [Project Scope](docs/00_project_scope.md)
 2. [DeepSeek Paper Map for LM Training](docs/01_deepseek_lm_paper_map.md)
@@ -137,10 +137,25 @@ Read these docs in order:
 
 Chinese tutorial notes:
 
+Open the full [中文教程目录](docs/zh/README.md), or read in this order:
+
 1. [项目范围](docs/zh/00_project_scope.md)
 2. [DeepSeek 语言模型论文地图](docs/zh/01_deepseek_lm_paper_map.md)
-3. [阶段路线图](docs/zh/02_training_roadmap.md)
-4. [实验报告模板](docs/zh/03_experiment_report_template.md)
+3. [阶段 0：Dense Baseline](docs/zh/02_stage0_dense_baseline.md)
+4. [阶段 1：LR 和 Batch Size 搜索](docs/zh/03_stage1_lr_batch_search.md)
+5. [阶段 2：MLP 和 Attention 升级](docs/zh/04_stage2_block_upgrades.md)
+6. [阶段 3：Tiny DeepSeekMoE](docs/zh/05_stage3_moe.md)
+7. [阶段 4：教学版 MLA](docs/zh/06_stage4_mla.md)
+8. [阶段 5：SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
+9. [阶段 6：Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
+10. [仓库路线图](docs/zh/09_repository_roadmap.md)
+11. [实验报告模板](docs/zh/10_experiment_report_template.md)
+12. [MiniMind 风格结构说明](docs/zh/11_minimind_structure_notes.md)
+
+Chinese supplements:
+
+- [总训练路线图](docs/zh/02_training_roadmap.md)
+- [当前进度](docs/zh/04_current_progress.md)
 
 ## DeepSeek Papers Used
 
