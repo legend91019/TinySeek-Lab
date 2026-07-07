@@ -1,5 +1,7 @@
 # TinySeek-Lab
 
+[中文说明](README_zh.md) | English
+
 TinySeek-Lab is a tutorial repository for learning language-model training by
 walking through a small-scale version of DeepSeek's LM research path.
 
@@ -33,6 +35,45 @@ DeepSeek's papers are unusually useful as a curriculum:
   reasoning SFT, rejection sampling, and GRPO-style rule RL.
 
 TinySeek-Lab turns those ideas into a sequence of small experiments.
+
+## Roadmap at a Glance
+
+```mermaid
+flowchart LR
+  A["Stage 0<br/>Dense LM"] --> B["Stage 1<br/>LR / Batch Sweep"]
+  B --> C["Stage 2<br/>RMSNorm + RoPE + SwiGLU + GQA"]
+  C --> D["Stage 3<br/>Tiny DeepSeekMoE"]
+  D --> E["Stage 4<br/>Educational MLA"]
+  E --> F["Stage 5<br/>SFT + Reasoning Cold Start"]
+  F --> G["Stage 6<br/>Rule-based GRPO Mini"]
+  G --> H["Stage 7<br/>Rejection Sampling + Distillation"]
+```
+
+## Model Evolution
+
+```mermaid
+flowchart TB
+  subgraph Dense["Dense baseline"]
+    T0["Byte/BPE tokens"] --> E0["Embedding"]
+    E0 --> B0["Transformer blocks<br/>MHA/GQA + Dense SwiGLU"]
+    B0 --> L0["LM head"]
+  end
+
+  subgraph MoE["MoE upgrade"]
+    R["Router"] --> X1["Expert 1"]
+    R --> X2["Expert 2"]
+    R --> XN["Expert N"]
+    X1 --> M["Weighted sum"]
+    X2 --> M
+    XN --> M
+  end
+
+  subgraph MLA["Educational MLA"]
+    H["Hidden states"] --> Z["Low-rank latent KV"]
+    Z --> K["Reconstructed K"]
+    Z --> V["Reconstructed V"]
+  end
+```
 
 ## Repository Layout
 
@@ -93,6 +134,13 @@ Read these docs in order:
 7. [Stage 4: Educational MLA](docs/06_stage4_mla.md)
 8. [Stage 5: SFT and Reasoning Cold Start](docs/07_stage5_sft_cold_start.md)
 9. [Stage 6: Rule-Based GRPO Mini](docs/08_stage6_grpo_mini.md)
+
+Chinese tutorial notes:
+
+1. [项目范围](docs/zh/00_project_scope.md)
+2. [DeepSeek 语言模型论文地图](docs/zh/01_deepseek_lm_paper_map.md)
+3. [阶段路线图](docs/zh/02_training_roadmap.md)
+4. [实验报告模板](docs/zh/03_experiment_report_template.md)
 
 ## DeepSeek Papers Used
 
