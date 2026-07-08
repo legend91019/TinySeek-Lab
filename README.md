@@ -22,6 +22,26 @@ This repo intentionally focuses on language models only. It excludes
 multimodal, vision, video, OCR, robotics, and tool-use/agent chapters from the
 first roadmap.
 
+## Current Results
+
+TinySeek-Lab has completed the first real-GPU tutorial loop:
+
+```text
+TinyStories -> tiny base -> dense 35M/115M -> LR/batch sweep
+-> MoE -> MLA -> SFT -> GRPO mini -> mini eval -> cost and figures
+```
+
+- Experiment hub: [experiments/README.md](experiments/README.md)
+- RTX 4090 v1 report: [experiments/05_4090_v1_results.md](experiments/05_4090_v1_results.md)
+- v1 auto figures: [experiments/v1_4090_plan/auto_summary.md](experiments/v1_4090_plan/auto_summary.md)
+- Total GPU time was about `0.0867 h`, or about `0.19 CNY` at `2.18 CNY/h`.
+- Best sweep run: `v1_sweep_bs16_lr3e-4`, with mini-eval PPL around `1.93`.
+- MoE run: `235.06M` total parameters, about `84.06M` activated parameters,
+  and about `5.46 GB` peak allocated VRAM.
+
+These results validate the tutorial loop and reporting method. They do not
+claim real large-model capability.
+
 ## Why "TinySeek"
 
 DeepSeek's papers are unusually useful as a curriculum:

@@ -23,6 +23,7 @@ TinySeek-Lab 的英文教程放在 `docs/`，中文教程放在 `docs/zh/`。两
 15. [MiniMind 风格结构说明](11_minimind_structure_notes.md)
 16. [GPU 选择与成本记录](13_gpu_cost_tracking.md)
 17. [v1 训练执行手册](14_v1_training_runbook.md)
+18. [向 MiniMind 学什么](17_minimind_quality_notes.md)
 
 补充文档：
 
@@ -33,6 +34,7 @@ TinySeek-Lab 的英文教程放在 `docs/`，中文教程放在 `docs/zh/`。两
 
 - [RTX 4090 v1 正式结果](../../experiments/05_4090_v1_results_zh.md)
 - [v1 自动汇总表和图表](../../experiments/v1_4090_plan/auto_summary_zh.md)
+- [实验报告中心](../../experiments/README_zh.md)
 
 ## 一图看懂
 

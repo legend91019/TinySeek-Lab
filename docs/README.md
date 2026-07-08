@@ -25,11 +25,13 @@ written as a more explanatory tutorial for local readers.
 15. [MiniMind-Inspired Structure Notes](11_minimind_structure_notes.md)
 16. [GPU Choice and Cost Tracking](13_gpu_cost_tracking.md)
 17. [v1 Training Runbook](14_v1_training_runbook.md)
+18. [What TinySeek-Lab Learns from MiniMind](17_minimind_quality_notes.md)
 
 ## Experiment Reports
 
 - [RTX 4090 v1 Results](../experiments/05_4090_v1_results.md)
 - [Auto-generated v1 Tables and Figures](../experiments/v1_4090_plan/auto_summary.md)
+- [Experiment Report Hub](../experiments/README.md)
 
 ## Visual Roadmap
 
