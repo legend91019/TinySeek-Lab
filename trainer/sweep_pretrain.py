@@ -16,6 +16,8 @@ from trainer.utils import deep_update, load_config
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run a pretraining hyperparameter sweep")
     parser.add_argument("--sweep", required=True)
+    parser.add_argument("--hourly_rate", type=float, default=0.0, help="GPU rental price per hour, for example AutoDL RTX 4090=2.18 or RTX 3080 Ti=0.98.")
+    parser.add_argument("--currency", default="CNY")
     args = parser.parse_args()
 
     sweep = load_config(args.sweep)
@@ -42,6 +44,10 @@ def main() -> None:
             str(sweep.get("max_steps", cfg["train"]["max_steps"])),
             "--run_name",
             run["name"],
+            "--hourly_rate",
+            str(args.hourly_rate),
+            "--currency",
+            args.currency,
         ]
         print("Running:", " ".join(cmd))
         completed = subprocess.run(cmd, check=False)

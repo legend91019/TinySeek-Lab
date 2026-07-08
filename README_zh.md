@@ -106,6 +106,16 @@ python scripts/generate.py --config configs/tiny_dense.json --ckpt out/tiny_dens
 python trainer/sweep_pretrain.py --sweep experiments/01_lr_batch_grid.json
 ```
 
+训练时记录 AutoDL GPU 成本：
+
+```bash
+# RTX 4090：2.18 元/小时
+python trainer/train_pretrain.py --config configs/tiny_dense.json --data data/toy_pretrain.jsonl --hourly_rate 2.18
+
+# 汇总所有实验账本
+python scripts/summarize_costs.py --input_dir out
+```
+
 ## 中文阅读顺序
 
 完整目录见：[docs/zh/README.md](docs/zh/README.md)
@@ -123,6 +133,7 @@ python trainer/sweep_pretrain.py --sweep experiments/01_lr_batch_grid.json
 11. [仓库路线图](docs/zh/09_repository_roadmap.md)
 12. [实验报告模板](docs/zh/10_experiment_report_template.md)
 13. [MiniMind 风格结构说明](docs/zh/11_minimind_structure_notes.md)
+14. [GPU 选择与成本记录](docs/zh/13_gpu_cost_tracking.md)
 
 补充文档：
 

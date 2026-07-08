@@ -13,10 +13,18 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from dataset import ByteTokenizer, JsonlTextDataset
 from model import TinySeekConfig, TinySeekForCausalLM
+from trainer.cost_utils import collect_cost_summary, reset_gpu_peak_memory, write_cost_summary
 from trainer.utils import cosine_lr, load_config, set_seed
 
 
-def train(config_path: str, data_path: str, max_steps_override: int | None = None, run_name_override: str | None = None) -> dict:
+def train(
+    config_path: str,
+    data_path: str,
+    max_steps_override: int | None = None,
+    run_name_override: str | None = None,
+    hourly_rate: float = 0.0,
+    currency: str = "CNY",
+) -> dict:
     cfg = load_config(config_path)
     if run_name_override:
         cfg["run_name"] = run_name_override
@@ -40,12 +48,15 @@ def train(config_path: str, data_path: str, max_steps_override: int | None = Non
     out_dir = Path(train_cfg["out_dir"])
     out_dir.mkdir(parents=True, exist_ok=True)
     ckpt_path = out_dir / f"{cfg['run_name']}_last.pt"
-    print(f"model params={model.parameter_count():,} activated_estimate={model.activated_parameter_estimate():,}")
+    model_params = model.parameter_count()
+    activated_params = model.activated_parameter_estimate()
+    print(f"model params={model_params:,} activated_estimate={activated_params:,}")
     print(f"device={device} train_samples={len(train_ds)} val_samples={len(val_ds)}")
 
     model.train()
     step = 0
     start = time.time()
+    reset_gpu_peak_memory()
     pbar = tqdm(total=train_cfg["max_steps"], desc=cfg["run_name"])
     while step < train_cfg["max_steps"]:
         for input_ids, labels in loader:
@@ -76,7 +87,33 @@ def train(config_path: str, data_path: str, max_steps_override: int | None = Non
             if step >= train_cfg["max_steps"]:
                 break
     pbar.close()
-    return {"run_name": cfg["run_name"], "ckpt": str(ckpt_path), "last_loss": float(loss.item()), "val_loss": float(evaluate(model, val_loader, device))}
+    final_val_loss = float(evaluate(model, val_loader, device))
+    cost_summary = collect_cost_summary(
+        run_name=cfg["run_name"],
+        start_time=start,
+        hourly_rate=hourly_rate,
+        currency=currency,
+        step=step,
+        model_params=model_params,
+        activated_params=activated_params,
+    )
+    cost_summary.update(
+        {
+            "config_path": config_path,
+            "data_path": data_path,
+            "checkpoint_path": str(ckpt_path),
+            "last_loss": float(loss.item()),
+            "val_loss": final_val_loss,
+            "batch_size": train_cfg["batch_size"],
+            "max_seq_len": model_cfg.max_seq_len,
+            "estimated_train_tokens": step * train_cfg["batch_size"] * model_cfg.max_seq_len,
+            "estimated_training_flops": 6 * activated_params * step * train_cfg["batch_size"] * model_cfg.max_seq_len,
+            "flops_note": "Rough 6 * activated_params * tokens estimate for tutorial-scale comparison.",
+        }
+    )
+    cost_path = write_cost_summary(out_dir, cfg["run_name"], cost_summary)
+    print(f"cost_summary={cost_path} estimated_cost={cost_summary['estimated_cost']} {currency}")
+    return {"run_name": cfg["run_name"], "ckpt": str(ckpt_path), "last_loss": float(loss.item()), "val_loss": final_val_loss, "cost_summary": str(cost_path)}
 
 
 @torch.no_grad()
@@ -97,5 +134,7 @@ if __name__ == "__main__":
     parser.add_argument("--data", required=True)
     parser.add_argument("--max_steps", type=int, default=None)
     parser.add_argument("--run_name", default=None)
+    parser.add_argument("--hourly_rate", type=float, default=0.0, help="GPU rental price per hour. AutoDL examples: RTX 4090=2.18, RTX 3080 Ti=0.98.")
+    parser.add_argument("--currency", default="CNY")
     args = parser.parse_args()
-    train(args.config, args.data, args.max_steps, args.run_name)
+    train(args.config, args.data, args.max_steps, args.run_name, args.hourly_rate, args.currency)

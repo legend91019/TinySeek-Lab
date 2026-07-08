@@ -124,6 +124,16 @@ Run the LR / batch-size grid from the DeepSeek LLM-inspired chapter:
 python trainer/sweep_pretrain.py --sweep experiments/01_lr_batch_grid.json
 ```
 
+Track AutoDL GPU cost during a run:
+
+```bash
+# RTX 4090: 2.18 CNY/hour
+python trainer/train_pretrain.py --config configs/tiny_dense.json --data data/toy_pretrain.jsonl --hourly_rate 2.18
+
+# Summarize all run ledgers
+python scripts/summarize_costs.py --input_dir out
+```
+
 ## First Reading Path
 
 Read these docs in order, or open the full [tutorial index](docs/README.md):
@@ -156,6 +166,7 @@ Open the full [中文教程目录](docs/zh/README.md), or read in this order:
 11. [仓库路线图](docs/zh/09_repository_roadmap.md)
 12. [实验报告模板](docs/zh/10_experiment_report_template.md)
 13. [MiniMind 风格结构说明](docs/zh/11_minimind_structure_notes.md)
+14. [GPU 选择与成本记录](docs/zh/13_gpu_cost_tracking.md)
 
 Chinese supplements:
 
