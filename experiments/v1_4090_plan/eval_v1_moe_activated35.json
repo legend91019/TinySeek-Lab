@@ -1,0 +1,66 @@
+{
+  "checkpoint": "out/v1_moe_activated35_last.pt",
+  "device": "cuda",
+  "addition": {
+    "accuracy": 0.0,
+    "num_examples": 5,
+    "examples": [
+      {
+        "prompt": "2+3",
+        "prediction": 3,
+        "target": 5,
+        "ok": false
+      },
+      {
+        "prompt": "7+8",
+        "prediction": 8,
+        "target": 15,
+        "ok": false
+      },
+      {
+        "prompt": "12+9",
+        "prediction": 9,
+        "target": 21,
+        "ok": false
+      },
+      {
+        "prompt": "15+17",
+        "prediction": 17,
+        "target": 32,
+        "ok": false
+      },
+      {
+        "prompt": "20+22",
+        "prediction": 22,
+        "target": 42,
+        "ok": false
+      }
+    ]
+  },
+  "format": {
+    "format_score": 1.0,
+    "num_examples": 3,
+    "examples": [
+      {
+        "prompt": "Explain RMSNorm in one sentence.",
+        "ok": true,
+        "completion": "### Instruction\nExplain RMSNorm in one sentence.\n\n### Response\nTh was a bound a bon the liked to play and the p"
+      },
+      {
+        "prompt": "What does MoE routing do?",
+        "ok": true,
+        "completion": "### Instruction\nWhat does MoE routing do?\n\n### Response\n\n\n\n\n\n\n\nOne day, she lom the was a big she was a "
+      },
+      {
+        "prompt": "Why do we use a validation set?",
+        "ok": true,
+        "completion": "### Instruction\nWhy do we use a validation set?\n\n### Response\n\n\n\n\n\n\n\n\n\n\n\n\nThe lom a big was and the lom the wa"
+      }
+    ]
+  },
+  "perplexity": {
+    "loss": 1.7009421491622925,
+    "ppl": 5.4791070969010365,
+    "num_examples": 100
+  }
+}

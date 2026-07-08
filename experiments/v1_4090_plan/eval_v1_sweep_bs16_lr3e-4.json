@@ -1,0 +1,66 @@
+{
+  "checkpoint": "out/v1_sweep_bs16_lr3e-4_last.pt",
+  "device": "cuda",
+  "addition": {
+    "accuracy": 0.0,
+    "num_examples": 5,
+    "examples": [
+      {
+        "prompt": "2+3",
+        "prediction": 3,
+        "target": 5,
+        "ok": false
+      },
+      {
+        "prompt": "7+8",
+        "prediction": 8,
+        "target": 15,
+        "ok": false
+      },
+      {
+        "prompt": "12+9",
+        "prediction": 9,
+        "target": 21,
+        "ok": false
+      },
+      {
+        "prompt": "15+17",
+        "prediction": 17,
+        "target": 32,
+        "ok": false
+      },
+      {
+        "prompt": "20+22",
+        "prediction": 22,
+        "target": 42,
+        "ok": false
+      }
+    ]
+  },
+  "format": {
+    "format_score": 1.0,
+    "num_examples": 3,
+    "examples": [
+      {
+        "prompt": "Explain RMSNorm in one sentence.",
+        "ok": true,
+        "completion": "### Instruction\nExplain RMSNorm in one sentence.\n\n### Response\nous of the street and saw a big bird of colorful"
+      },
+      {
+        "prompt": "What does MoE routing do?",
+        "ok": true,
+        "completion": "### Instruction\nWhat does MoE routing do?\n\n### Response\n as she was so excited to explore the world arou"
+      },
+      {
+        "prompt": "Why do we use a validation set?",
+        "ok": true,
+        "completion": "### Instruction\nWhy do we use a validation set?\n\n### Response\ned the sun and the sun was shining and the sun w"
+      }
+    ]
+  },
+  "perplexity": {
+    "loss": 0.6559893348813057,
+    "ppl": 1.9270480704799375,
+    "num_examples": 100
+  }
+}

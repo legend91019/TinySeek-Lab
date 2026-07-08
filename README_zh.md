@@ -130,6 +130,8 @@ python trainer/train_grpo.py --config configs/tiny_grpo.json --data data/toy_grp
 [experiments/02_autodl_4090_smoke_report_zh.md](experiments/02_autodl_4090_smoke_report_zh.md)。
 v1 预训练 -> SFT -> GRPO 链路实测报告见：
 [experiments/03_v1_pipeline_smoke_report_zh.md](experiments/03_v1_pipeline_smoke_report_zh.md)。
+第一次 RTX 4090 v1 正式实验结果见：
+[experiments/05_4090_v1_results_zh.md](experiments/05_4090_v1_results_zh.md)。
 代码阅读路线见：[docs/zh/15_code_walkthrough.md](docs/zh/15_code_walkthrough.md)。
 下一次付费 GPU 正式实验计划见：
 [experiments/04_formal_experiment_plan_zh.md](experiments/04_formal_experiment_plan_zh.md)。

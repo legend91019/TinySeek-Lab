@@ -1,0 +1,66 @@
+{
+  "checkpoint": "out/v1_tiny_grpo_last.pt",
+  "device": "cuda",
+  "addition": {
+    "accuracy": 0.0,
+    "num_examples": 5,
+    "examples": [
+      {
+        "prompt": "2+3",
+        "prediction": 1,
+        "target": 5,
+        "ok": false
+      },
+      {
+        "prompt": "7+8",
+        "prediction": 1,
+        "target": 15,
+        "ok": false
+      },
+      {
+        "prompt": "12+9",
+        "prediction": 1,
+        "target": 21,
+        "ok": false
+      },
+      {
+        "prompt": "15+17",
+        "prediction": 1,
+        "target": 32,
+        "ok": false
+      },
+      {
+        "prompt": "20+22",
+        "prediction": 1,
+        "target": 42,
+        "ok": false
+      }
+    ]
+  },
+  "format": {
+    "format_score": 1.0,
+    "num_examples": 3,
+    "examples": [
+      {
+        "prompt": "Explain RMSNorm in one sentence.",
+        "ok": true,
+        "completion": "### Instruction\nExplain RMSNorm in one sentence.\n\n### Response\nolden ans ancing dated positing dates 1 ansing 1"
+      },
+      {
+        "prompt": "What does MoE routing do?",
+        "ok": true,
+        "completion": "### Instruction\nWhat does MoE routing do?\n\n### Response\nRoE routes tokens dat te dated 1 The final posit"
+      },
+      {
+        "prompt": "Why do we use a validation set?",
+        "ok": true,
+        "completion": "### Instruction\nWhy do we use a validation set?\n\n### Response\nRold 1 1 decoder dad 1 decollang datancing 1 ans"
+      }
+    ]
+  },
+  "perplexity": {
+    "loss": 2.9111067700386046,
+    "ppl": 18.377126568813217,
+    "num_examples": 100
+  }
+}
