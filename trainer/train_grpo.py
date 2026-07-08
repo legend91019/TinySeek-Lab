@@ -50,7 +50,7 @@ def train_grpo(
         param.requires_grad_(False)
 
     amp_dtype = resolve_amp_dtype(train_cfg.get("dtype", "float32"), device)
-    scaler = torch.cuda.amp.GradScaler(enabled=(amp_dtype == torch.float16))
+    scaler = torch.amp.GradScaler("cuda", enabled=(amp_dtype == torch.float16))
     dataset = JsonlPromptDataset(data_path)
     loader = DataLoader(dataset, batch_size=train_cfg["batch_size"], shuffle=True)
     optimizer = torch.optim.AdamW(policy.parameters(), lr=train_cfg["learning_rate"], weight_decay=train_cfg["weight_decay"], betas=(0.9, 0.95))
@@ -183,9 +183,14 @@ def completion_logprob(model: TinySeekForCausalLM, ids: torch.Tensor, prompt_len
 def rule_reward(completion: str, answer: str) -> float:
     pred = extract_last_number(completion)
     target = extract_last_number(answer)
+    reward = 0.0
+    if pred is not None:
+        reward += 0.1
+    if "answer" in completion.lower() or "final" in completion.lower():
+        reward += 0.1
     if pred is None or target is None:
-        return 0.0
-    return 1.0 if pred == target else 0.0
+        return reward
+    return 1.0 if pred == target else reward
 
 
 def extract_last_number(text: str) -> int | None:

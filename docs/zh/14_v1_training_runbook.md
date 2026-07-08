@@ -38,6 +38,8 @@ python trainer/train_grpo.py --config configs/tiny_grpo.json --data data/toy_grp
 
 这里实现的是教学版 GRPO 形状：同一个 prompt 采样一组答案，用可验证规则打分，组内归一化 reward，再用 reference-model KL proxy 约束 policy 更新。
 
+toy reward 对最终整数完全正确给满分；如果模型至少输出了数字或 answer/final 这类答案格式，会给少量 shaping 分数。这样可以避免模型还没学会算术时 GRPO demo 全是 0 reward。
+
 ## 5. 成本汇总
 
 ```bash

@@ -29,8 +29,18 @@ def main() -> None:
     rng = random.Random(7)
     rows = []
     for i in range(args.num_samples):
-        prompt, response = rng.choice(TEMPLATES)
-        rows.append({"prompt": prompt, "response": f"{response} This is SFT example {i}."})
+        if i % 3 == 0:
+            a = rng.randint(1, 20)
+            b = rng.randint(1, 20)
+            rows.append(
+                {
+                    "prompt": f"Compute {a} + {b}. Answer with the final integer.",
+                    "response": f"We need add {a} and {b}. The final answer is {a + b}.",
+                }
+            )
+        else:
+            prompt, response = rng.choice(TEMPLATES)
+            rows.append({"prompt": prompt, "response": f"{response} This is SFT example {i}."})
     save_jsonl(args.out, rows)
     print(f"wrote {len(rows)} samples to {args.out}")
 

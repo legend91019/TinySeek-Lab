@@ -38,7 +38,7 @@ def train(
     model_cfg = TinySeekConfig.from_dict(cfg["model"])
     model = TinySeekForCausalLM(model_cfg).to(device)
     amp_dtype = resolve_amp_dtype(train_cfg.get("dtype", "float32"), device)
-    scaler = torch.cuda.amp.GradScaler(enabled=(amp_dtype == torch.float16))
+    scaler = torch.amp.GradScaler("cuda", enabled=(amp_dtype == torch.float16))
     grad_accum_steps = int(train_cfg.get("grad_accum_steps", 1))
     dataset = JsonlTextDataset(data_path, tokenizer, model_cfg.max_seq_len)
     val_size = max(1, int(len(dataset) * 0.1))

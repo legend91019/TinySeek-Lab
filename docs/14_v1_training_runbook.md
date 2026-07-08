@@ -41,6 +41,10 @@ This is an educational GRPO shape: sample a group of answers, score with a
 verifiable rule, normalize rewards inside the group, and update the policy with
 a reference-model KL proxy.
 
+The toy reward gives full credit for the exact final integer and small shaping
+credit for producing a number or an answer-style format. This keeps the demo
+from becoming all-zero before the model has learned arithmetic.
+
 ## 5. Cost Summary
 
 ```bash
