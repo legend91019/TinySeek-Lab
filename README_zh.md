@@ -116,6 +116,9 @@ python trainer/train_pretrain.py --config configs/tiny_dense.json --data data/to
 python scripts/summarize_costs.py --input_dir out
 ```
 
+第一次 AutoDL RTX 4090 实测报告见：
+[experiments/02_autodl_4090_smoke_report_zh.md](experiments/02_autodl_4090_smoke_report_zh.md)。
+
 ## 中文阅读顺序
 
 完整目录见：[docs/zh/README.md](docs/zh/README.md)

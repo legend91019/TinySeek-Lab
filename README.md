@@ -134,6 +134,9 @@ python trainer/train_pretrain.py --config configs/tiny_dense.json --data data/to
 python scripts/summarize_costs.py --input_dir out
 ```
 
+The first AutoDL RTX 4090 validation report is in
+[experiments/02_autodl_4090_smoke_report.md](experiments/02_autodl_4090_smoke_report.md).
+
 ## First Reading Path
 
 Read these docs in order, or open the full [tutorial index](docs/README.md):

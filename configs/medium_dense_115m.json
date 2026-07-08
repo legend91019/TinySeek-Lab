@@ -1,0 +1,35 @@
+{
+  "run_name": "medium_dense_115m",
+  "model": {
+    "vocab_size": 260,
+    "max_seq_len": 256,
+    "hidden_size": 768,
+    "num_layers": 12,
+    "num_heads": 12,
+    "num_kv_heads": 12,
+    "ffn_multiplier": 4.0,
+    "activation": "swiglu",
+    "attention_impl": "mha",
+    "use_moe": false,
+    "num_experts": 4,
+    "num_shared_experts": 0,
+    "top_k": 2,
+    "moe_aux_loss_weight": 0.01,
+    "dropout": 0.0
+  },
+  "train": {
+    "batch_size": 16,
+    "grad_accum_steps": 1,
+    "learning_rate": 0.0003,
+    "min_lr_ratio": 0.1,
+    "warmup_steps": 20,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "max_steps": 100,
+    "eval_interval": 25,
+    "save_interval": 50,
+    "dtype": "float32",
+    "seed": 42,
+    "out_dir": "out"
+  }
+}
