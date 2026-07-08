@@ -14,7 +14,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from dataset import ByteTokenizer, JsonlTextDataset
 from model import TinySeekConfig, TinySeekForCausalLM
 from trainer.cost_utils import collect_cost_summary, reset_gpu_peak_memory, write_cost_summary
-from trainer.utils import cosine_lr, load_config, set_seed
+from trainer.utils import autocast_context, cosine_lr, load_config, resolve_amp_dtype, set_seed
 
 
 def train(
@@ -37,6 +37,9 @@ def train(
     tokenizer = ByteTokenizer()
     model_cfg = TinySeekConfig.from_dict(cfg["model"])
     model = TinySeekForCausalLM(model_cfg).to(device)
+    amp_dtype = resolve_amp_dtype(train_cfg.get("dtype", "float32"), device)
+    scaler = torch.cuda.amp.GradScaler(enabled=(amp_dtype == torch.float16))
+    grad_accum_steps = int(train_cfg.get("grad_accum_steps", 1))
     dataset = JsonlTextDataset(data_path, tokenizer, model_cfg.max_seq_len)
     val_size = max(1, int(len(dataset) * 0.1))
     train_size = len(dataset) - val_size
@@ -58,26 +61,39 @@ def train(
     start = time.time()
     reset_gpu_peak_memory()
     pbar = tqdm(total=train_cfg["max_steps"], desc=cfg["run_name"])
+    last_loss = torch.tensor(float("nan"))
     while step < train_cfg["max_steps"]:
+        accum_count = 0
         for input_ids, labels in loader:
             input_ids, labels = input_ids.to(device), labels.to(device)
             lr = cosine_lr(step, train_cfg["max_steps"], train_cfg["learning_rate"], train_cfg["warmup_steps"], train_cfg["min_lr_ratio"])
             for group in optimizer.param_groups:
                 group["lr"] = lr
 
-            out = model(input_ids, labels)
-            loss = out["loss"] + out["aux_loss"]
-            loss.backward()
+            with autocast_context(device, amp_dtype):
+                out = model(input_ids, labels)
+                loss = out["loss"] + out["aux_loss"]
+                scaled_loss = loss / grad_accum_steps
+            scaler.scale(scaled_loss).backward()
+            accum_count += 1
+
+            if accum_count < grad_accum_steps:
+                continue
+
+            scaler.unscale_(optimizer)
             torch.nn.utils.clip_grad_norm_(model.parameters(), train_cfg["grad_clip"])
-            optimizer.step()
+            scaler.step(optimizer)
+            scaler.update()
             optimizer.zero_grad(set_to_none=True)
+            accum_count = 0
 
             step += 1
+            last_loss = loss.detach()
             pbar.update(1)
             pbar.set_postfix(loss=f"{loss.item():.3f}", aux=f"{out['aux_loss'].item():.4f}", lr=f"{lr:.2e}")
 
             if step % train_cfg["eval_interval"] == 0 or step == train_cfg["max_steps"]:
-                val_loss = evaluate(model, val_loader, device)
+                val_loss = evaluate(model, val_loader, device, amp_dtype)
                 elapsed = time.time() - start
                 print(f"\nstep={step} train_loss={loss.item():.4f} val_loss={val_loss:.4f} lr={lr:.3e} elapsed={elapsed:.1f}s")
 
@@ -87,7 +103,7 @@ def train(
             if step >= train_cfg["max_steps"]:
                 break
     pbar.close()
-    final_val_loss = float(evaluate(model, val_loader, device))
+    final_val_loss = float(evaluate(model, val_loader, device, amp_dtype))
     cost_summary = collect_cost_summary(
         run_name=cfg["run_name"],
         start_time=start,
@@ -102,27 +118,30 @@ def train(
             "config_path": config_path,
             "data_path": data_path,
             "checkpoint_path": str(ckpt_path),
-            "last_loss": float(loss.item()),
+            "last_loss": float(last_loss.item()),
             "val_loss": final_val_loss,
             "batch_size": train_cfg["batch_size"],
+            "grad_accum_steps": grad_accum_steps,
             "max_seq_len": model_cfg.max_seq_len,
-            "estimated_train_tokens": step * train_cfg["batch_size"] * model_cfg.max_seq_len,
-            "estimated_training_flops": 6 * activated_params * step * train_cfg["batch_size"] * model_cfg.max_seq_len,
+            "dtype": train_cfg.get("dtype", "float32"),
+            "estimated_train_tokens": step * train_cfg["batch_size"] * grad_accum_steps * model_cfg.max_seq_len,
+            "estimated_training_flops": 6 * activated_params * step * train_cfg["batch_size"] * grad_accum_steps * model_cfg.max_seq_len,
             "flops_note": "Rough 6 * activated_params * tokens estimate for tutorial-scale comparison.",
         }
     )
     cost_path = write_cost_summary(out_dir, cfg["run_name"], cost_summary)
     print(f"cost_summary={cost_path} estimated_cost={cost_summary['estimated_cost']} {currency}")
-    return {"run_name": cfg["run_name"], "ckpt": str(ckpt_path), "last_loss": float(loss.item()), "val_loss": final_val_loss, "cost_summary": str(cost_path)}
+    return {"run_name": cfg["run_name"], "ckpt": str(ckpt_path), "last_loss": float(last_loss.item()), "val_loss": final_val_loss, "cost_summary": str(cost_path)}
 
 
 @torch.no_grad()
-def evaluate(model: TinySeekForCausalLM, loader: DataLoader, device: str) -> float:
+def evaluate(model: TinySeekForCausalLM, loader: DataLoader, device: str, amp_dtype: torch.dtype | None = None) -> float:
     model.eval()
     losses = []
     for input_ids, labels in loader:
         input_ids, labels = input_ids.to(device), labels.to(device)
-        out = model(input_ids, labels)
+        with autocast_context(device, amp_dtype):
+            out = model(input_ids, labels)
         losses.append((out["loss"] + out["aux_loss"]).item())
     model.train()
     return sum(losses) / max(1, len(losses))

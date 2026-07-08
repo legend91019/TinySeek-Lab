@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import math
 import random
+from contextlib import nullcontext
 from pathlib import Path
 
 import torch
@@ -42,3 +43,20 @@ def save_jsonl(path: str | Path, rows: list[dict]) -> None:
     with path.open("w", encoding="utf-8") as f:
         for row in rows:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
+def resolve_amp_dtype(dtype_name: str, device: str) -> torch.dtype | None:
+    if device != "cuda":
+        return None
+    name = dtype_name.lower()
+    if name in {"bf16", "bfloat16"}:
+        return torch.bfloat16
+    if name in {"fp16", "float16"}:
+        return torch.float16
+    return None
+
+
+def autocast_context(device: str, amp_dtype: torch.dtype | None):
+    if device == "cuda" and amp_dtype is not None:
+        return torch.autocast(device_type="cuda", dtype=amp_dtype)
+    return nullcontext()

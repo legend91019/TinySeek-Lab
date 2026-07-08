@@ -134,6 +134,16 @@ python trainer/train_pretrain.py --config configs/tiny_dense.json --data data/to
 python scripts/summarize_costs.py --input_dir out
 ```
 
+Run the post-training toy path:
+
+```bash
+python scripts/prepare_toy_sft_data.py --out data/toy_sft.jsonl
+python trainer/train_sft.py --config configs/tiny_sft.json --data data/toy_sft.jsonl --init_ckpt out/tiny_dense_last.pt --hourly_rate 2.18
+
+python scripts/prepare_toy_grpo_data.py --out data/toy_grpo.jsonl
+python trainer/train_grpo.py --config configs/tiny_grpo.json --data data/toy_grpo.jsonl --init_ckpt out/tiny_sft_last.pt --hourly_rate 2.18
+```
+
 The first AutoDL RTX 4090 validation report is in
 [experiments/02_autodl_4090_smoke_report.md](experiments/02_autodl_4090_smoke_report.md).
 

@@ -20,6 +20,7 @@ TinySeek-Lab 的英文教程放在 `docs/`，中文教程放在 `docs/zh/`。两
 12. [实验报告模板](10_experiment_report_template.md)
 13. [MiniMind 风格结构说明](11_minimind_structure_notes.md)
 14. [GPU 选择与成本记录](13_gpu_cost_tracking.md)
+15. [v1 训练执行手册](14_v1_training_runbook.md)
 
 补充文档：
 
