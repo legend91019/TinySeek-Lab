@@ -1,2 +1,5 @@
 torch>=2.1
 tqdm>=4.66
+
+# Optional: needed only for scripts/prepare_hf_dataset.py
+# datasets>=2.19

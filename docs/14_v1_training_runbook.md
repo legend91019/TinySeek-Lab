@@ -9,6 +9,18 @@ python scripts/prepare_corpus_data.py --input_dir /path/to/texts --out data/corp
 python trainer/train_pretrain.py --config configs/medium_dense_35m.json --data data/corpus_pretrain.jsonl --hourly_rate 2.18
 ```
 
+For online ready-made datasets, use:
+
+```bash
+pip install datasets
+python scripts/prepare_hf_dataset.py \
+  --dataset_name roneneldan/TinyStories \
+  --split train \
+  --text_field text \
+  --max_samples 50000 \
+  --out data/tinystories.jsonl
+```
+
 Use `configs/medium_dense_115m.json` after the 35M run is stable.
 
 ## 2. Architecture Ablations
@@ -53,3 +65,9 @@ python scripts/summarize_costs.py --input_dir out
 
 Every report should include GPU hours, peak memory, estimated cost, validation
 loss, and the exact config file.
+
+Run mini eval after a checkpoint is available:
+
+```bash
+python eval/mini_eval.py --config configs/tiny_sft.json --ckpt out/tiny_sft_last.pt --data data/toy_pretrain.jsonl
+```

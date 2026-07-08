@@ -9,6 +9,18 @@ python scripts/prepare_corpus_data.py --input_dir /path/to/texts --out data/corp
 python trainer/train_pretrain.py --config configs/medium_dense_35m.json --data data/corpus_pretrain.jsonl --hourly_rate 2.18
 ```
 
+如果用线上成品数据集：
+
+```bash
+pip install datasets
+python scripts/prepare_hf_dataset.py \
+  --dataset_name roneneldan/TinyStories \
+  --split train \
+  --text_field text \
+  --max_samples 50000 \
+  --out data/tinystories.jsonl
+```
+
 35M 跑稳以后，再切到 `configs/medium_dense_115m.json`。
 
 ## 2. 架构消融
@@ -47,3 +59,9 @@ python scripts/summarize_costs.py --input_dir out
 ```
 
 每份报告都应该写清楚 GPU 小时数、峰值显存、估算成本、验证 loss 和配置文件。
+
+有 checkpoint 后可以跑 mini eval：
+
+```bash
+python eval/mini_eval.py --config configs/tiny_sft.json --ckpt out/tiny_sft_last.pt --data data/toy_pretrain.jsonl
+```

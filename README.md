@@ -148,6 +148,9 @@ The first AutoDL RTX 4090 validation report is in
 [experiments/02_autodl_4090_smoke_report.md](experiments/02_autodl_4090_smoke_report.md).
 The v1 pretrain -> SFT -> GRPO smoke report is in
 [experiments/03_v1_pipeline_smoke_report.md](experiments/03_v1_pipeline_smoke_report.md).
+Read the code path in [docs/15_code_walkthrough.md](docs/15_code_walkthrough.md)
+and the next paid-GPU plan in
+[experiments/04_formal_experiment_plan.md](experiments/04_formal_experiment_plan.md).
 
 ## First Reading Path
 

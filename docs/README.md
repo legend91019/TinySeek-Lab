@@ -23,6 +23,7 @@ written as a more explanatory tutorial for local readers.
 13. [MiniMind-Inspired Structure Notes](11_minimind_structure_notes.md)
 14. [GPU Choice and Cost Tracking](13_gpu_cost_tracking.md)
 15. [v1 Training Runbook](14_v1_training_runbook.md)
+16. [Code Walkthrough](15_code_walkthrough.md)
 
 ## Visual Roadmap
 
