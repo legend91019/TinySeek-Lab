@@ -15,6 +15,59 @@
 - `tinyseek_dense.py`：为了教学，结构更干净，只保留 Dense LM。
 - `tinyseek.py`：为了实验，加入 MoE、educational MLA 等可切换结构。
 
+## 整个文件怎么组织
+
+`tinyseek_dense.py` 不是一串零散组件，而是从小积木一路搭到完整语言模型：
+
+```text
+DenseConfig
+RMSNorm
+RoPE helpers: precompute_rope / rotate_half / apply_rope
+repeat_kv
+Attention
+SwiGLU
+Block
+DenseCausalLM
+```
+
+依赖方向是：
+
+```mermaid
+flowchart LR
+  Config["DenseConfig"] --> Attn["Attention"]
+  Config --> Block["Block"]
+  Config --> LM["DenseCausalLM"]
+  RoPE["RoPE helpers"] --> Attn
+  Repeat["repeat_kv"] --> Attn
+  Norm["RMSNorm"] --> Block
+  Attn --> Block
+  FFN["SwiGLU"] --> Block
+  Block --> LM
+```
+
+这是第一条整体代码经验：数学工具函数在上面，可复用 layer 在中间，完整 model class 在最下面。
+
+放到整个仓库里，第一条训练路径是：
+
+```mermaid
+flowchart LR
+  Raw["raw text<br/>or HF dataset"] --> Prep["scripts/prepare_*"]
+  Prep --> Jsonl["JSONL<br/>{text: ...}"]
+  Jsonl --> Dataset["dataset/lm_dataset.py<br/>input_ids + labels"]
+  Dataset --> Trainer["trainer/train_pretrain.py"]
+  Trainer --> Model["model/tinyseek_dense.py<br/>or model/tinyseek.py"]
+  Model --> Loss["next-token loss"]
+  Loss --> Opt["AdamW step"]
+  Trainer --> Ckpt["checkpoint + cost summary"]
+  Ckpt --> Eval["eval/mini_eval.py<br/>generation"]
+```
+
+所以第一目标不是“背下每个组件”，而是先看懂一个完整闭环：
+
+```text
+文本 -> token ids -> model forward -> 右移 CE loss -> optimizer step
+```
+
 ## 总体结构
 
 ```mermaid
@@ -48,6 +101,17 @@ flowchart TB
 - `ffn_multiplier`：FFN 中间层相对 hidden size 的倍率。
 
 第一课：模型结构很大一部分就是张量形状管理。
+
+按默认教学配置：
+
+```text
+hidden_size = 192
+num_heads = 4
+head_dim = hidden_size / num_heads = 48
+num_layers = 4
+```
+
+所以每个 token 会变成 192 维向量，每个 attention head 处理其中 48 维。
 
 ## 第 2 步：RMSNorm
 
@@ -97,6 +161,40 @@ cos:  [seq, head_dim]
 
 这就是最初的 DeepSeek-style dense baseline attention。MLA 是后面的升级，不应该一开始就上。
 
+读 `Attention.forward` 的时候，要按 shape 读：
+
+```python
+bsz, seq_len, _ = x.shape
+q = self.q_proj(x).view(bsz, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+k = self.k_proj(x).view(bsz, seq_len, self.num_kv_heads, self.head_dim).transpose(1, 2)
+v = self.v_proj(x).view(bsz, seq_len, self.num_kv_heads, self.head_dim).transpose(1, 2)
+```
+
+输入是：
+
+```text
+x: [batch, seq, hidden]
+```
+
+投影和 reshape 之后：
+
+```text
+q: [batch, num_heads, seq, head_dim]
+k: [batch, num_kv_heads, seq, head_dim]
+v: [batch, num_kv_heads, seq, head_dim]
+```
+
+当 `num_kv_heads < num_heads` 时，`repeat_kv` 会复制 K/V，让每个 query head 都能 attend 到对应的 K/V。如果二者相等，`repeat_kv` 什么都不做。
+
+attention 之后再变回：
+
+```python
+y = y.transpose(1, 2).contiguous().view(bsz, seq_len, -1)
+return self.o_proj(y)
+```
+
+输出重新回到 `[batch, seq, hidden]`。这个 shape 不变量让下一个 Transformer block 可以继续处理它。
+
 ## 第 5 步：SwiGLU FFN
 
 Dense FFN 使用 SwiGLU：
@@ -107,7 +205,88 @@ down(silu(gate(x)) * up(x))
 
 这里的 Dense FFN 后面会被 MoE 替换成多个 expert。也就是说，MoE 不是凭空出现的，它首先是替换 FFN 子层。
 
-## 第 6 步：Causal LM Loss
+MoE 不是替换整个模型。在这条教程路线里，MoE 首先替换的是 FFN 子层：
+
+```text
+Dense block: attention + dense SwiGLU FFN
+MoE block:   attention + routed SwiGLU experts
+```
+
+## 第 6 步：Block
+
+`Block` 是组件第一次组成 Transformer layer 的地方：
+
+```python
+x = x + self.attn(self.attn_norm(x))
+x = x + self.ffn(self.ffn_norm(x))
+return x
+```
+
+这是 pre-norm residual 结构。shape 不变：
+
+```text
+[batch, seq, hidden] -> [batch, seq, hidden]
+```
+
+一个 block 会改变 token 向量内部的信息，但保持外部 shape 稳定。正因为这样，`DenseCausalLM` 才能用循环堆很多层。
+
+## 第 7 步：DenseCausalLM
+
+`DenseCausalLM` 是完整模型。它拥有：
+
+```python
+self.embed = nn.Embedding(config.vocab_size, config.hidden_size)
+self.blocks = nn.ModuleList([Block(config) for _ in range(config.num_layers)])
+self.norm = RMSNorm(config.hidden_size)
+self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
+```
+
+完整 forward 很短，因为每个子模块已经把自己的事情封装好了：
+
+```python
+x = self.embed(input_ids)
+for block in self.blocks:
+    x = block(x)
+logits = self.lm_head(self.norm(x))
+```
+
+逐行读就是：
+
+1. `input_ids` 是整数 token ID，还不是向量。
+2. `self.embed(input_ids)` 把每个 token ID 变成一个可学习的 hidden vector。
+3. `for block in self.blocks` 循环不断用 attention 混合上下文，再用 FFN 改造每个 token vector。
+4. 最后的 `RMSNorm` 在预测前稳定 hidden states。
+5. `lm_head` 把 hidden vector 映射回词表分数。
+
+端到端 shape：
+
+```text
+input_ids: [batch, seq]
+embedding output: [batch, seq, hidden]
+block output: [batch, seq, hidden]
+logits: [batch, seq, vocab]
+```
+
+如果取一个小例子，`batch=2`、`seq=128`、`hidden=192`、`vocab=260`：
+
+```text
+input_ids: [2, 128]
+x after embedding: [2, 128, 192]
+x after every block: [2, 128, 192]
+logits: [2, 128, 260]
+```
+
+预训练时，模型不是只输出一个答案。它会在序列中每个位置都输出一个词表分布。
+
+这一行是权重绑定：
+
+```python
+self.lm_head.weight = self.embed.weight
+```
+
+权重绑定可以节省参数，也让同一张 token 表同时负责输入查表和输出预测。
+
+## 第 8 步：Causal LM Loss
 
 语言模型预训练就是 next-token prediction：
 
@@ -117,7 +296,59 @@ loss = cross_entropy(logits[:, :-1], labels[:, 1:])
 
 这个右移非常重要。模型看到第 `t` 个 token 之前的上下文，预测第 `t+1` 个 token。
 
-## 第 7 步：从代码到实验
+右移的含义是：
+
+```text
+position 0 的 logits 预测 position 1 的 label
+position 1 的 logits 预测 position 2 的 label
+...
+```
+
+pad label 是 `-100`，PyTorch cross entropy 会忽略它们。
+
+## 第 9 步：训练脚本如何使用模型
+
+训练器只依赖一个很小的接口：
+
+```python
+out = model(input_ids, labels)
+loss = out["loss"]
+loss.backward()
+optimizer.step()
+```
+
+真实训练脚本里还有 AMP、梯度累积、验证、checkpoint 和成本记录。但概念核心就是：
+
+```python
+for input_ids, labels in loader:
+    input_ids = input_ids.to(device)
+    labels = labels.to(device)
+
+    out = model(input_ids, labels)
+    loss = out["loss"]
+
+    optimizer.zero_grad(set_to_none=True)
+    loss.backward()
+    optimizer.step()
+```
+
+`trainer/train_pretrain.py` 里多出来的部分，是为了让这个循环真正可用：
+
+- cosine learning-rate schedule 会每一步调整 `lr`。
+- AMP 在 NVIDIA GPU 上减少显存、提升速度。
+- gradient clipping 防止训练中出现不稳定尖峰。
+- validation 用 held-out text 检查训练 loss 的下降能不能迁移。
+- cost logging 记录 GPU 时间、峰值显存、token 数和粗略 FLOPs。
+
+这种分离很重要：
+
+- `model/tinyseek_dense.py` 定义数学结构。
+- `dataset/lm_dataset.py` 构造 `input_ids` 和 `labels`。
+- `trainer/train_pretrain.py` 负责优化、AMP、checkpoint 和成本记录。
+
+只要这个接口跑通，内部就可以继续升级：dense FFN 换 MoE，普通 KV 换 MLA，预训练数据换 SFT 数据。
+
+## 第 10 步：从代码到实验
 
 Dense 模型跑通以后，实验才有意义：
 
