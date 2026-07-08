@@ -128,6 +128,8 @@ python trainer/train_grpo.py --config configs/tiny_grpo.json --data data/toy_grp
 
 第一次 AutoDL RTX 4090 实测报告见：
 [experiments/02_autodl_4090_smoke_report_zh.md](experiments/02_autodl_4090_smoke_report_zh.md)。
+v1 预训练 -> SFT -> GRPO 链路实测报告见：
+[experiments/03_v1_pipeline_smoke_report_zh.md](experiments/03_v1_pipeline_smoke_report_zh.md)。
 
 ## 中文阅读顺序
 

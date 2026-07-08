@@ -146,6 +146,8 @@ python trainer/train_grpo.py --config configs/tiny_grpo.json --data data/toy_grp
 
 The first AutoDL RTX 4090 validation report is in
 [experiments/02_autodl_4090_smoke_report.md](experiments/02_autodl_4090_smoke_report.md).
+The v1 pretrain -> SFT -> GRPO smoke report is in
+[experiments/03_v1_pipeline_smoke_report.md](experiments/03_v1_pipeline_smoke_report.md).
 
 ## First Reading Path
 
