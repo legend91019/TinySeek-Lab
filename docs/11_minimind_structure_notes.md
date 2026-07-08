@@ -17,3 +17,9 @@ TinySeek-Lab differs in emphasis:
 
 The structure should remain simple enough that a reader can open one file and
 understand the corresponding stage.
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [Experiment Template](10_experiment_report_template.md) | [Tutorial Index](README.md) | Next: [GPU Cost Tracking](13_gpu_cost_tracking.md)

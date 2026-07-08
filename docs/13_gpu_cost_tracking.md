@@ -123,3 +123,9 @@ Every serious experiment report should include:
 | Validation loss | Ties cost back to model quality |
 
 TinySeek-Lab should treat cost as a real metric, not an afterthought.
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [MiniMind Structure Notes](11_minimind_structure_notes.md) | [Tutorial Index](README.md) | Next: [v1 Training Runbook](14_v1_training_runbook.md)

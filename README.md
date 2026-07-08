@@ -150,6 +150,8 @@ The v1 pretrain -> SFT -> GRPO smoke report is in
 [experiments/03_v1_pipeline_smoke_report.md](experiments/03_v1_pipeline_smoke_report.md).
 The first full RTX 4090 v1 results are in
 [experiments/05_4090_v1_results.md](experiments/05_4090_v1_results.md).
+Generated v1 tables and figures are in
+[experiments/v1_4090_plan/auto_summary.md](experiments/v1_4090_plan/auto_summary.md).
 Read the code path in [docs/15_code_walkthrough.md](docs/15_code_walkthrough.md)
 and the next paid-GPU plan in
 [experiments/04_formal_experiment_plan.md](experiments/04_formal_experiment_plan.md).
@@ -161,13 +163,15 @@ Read these docs in order, or open the full [tutorial index](docs/README.md):
 1. [Project Scope](docs/00_project_scope.md)
 2. [DeepSeek Paper Map for LM Training](docs/01_deepseek_lm_paper_map.md)
 3. [Code First: Build the Initial DeepSeek-Style Dense LM](docs/12_code_first_dense_lm.md)
-4. [Stage 0: Dense Baseline](docs/02_stage0_dense_baseline.md)
-5. [Stage 1: LR and Batch-Size Search](docs/03_stage1_lr_batch_search.md)
-6. [Stage 2: MLP and Attention Upgrades](docs/04_stage2_block_upgrades.md)
-7. [Stage 3: Tiny DeepSeekMoE](docs/05_stage3_moe.md)
-8. [Stage 4: Educational MLA](docs/06_stage4_mla.md)
-9. [Stage 5: SFT and Reasoning Cold Start](docs/07_stage5_sft_cold_start.md)
-10. [Stage 6: Rule-Based GRPO Mini](docs/08_stage6_grpo_mini.md)
+4. [Training Loop: From Config to Checkpoint](docs/16_training_loop_from_config_to_checkpoint.md)
+5. [Code Walkthrough](docs/15_code_walkthrough.md)
+6. [Stage 0: Dense Baseline](docs/02_stage0_dense_baseline.md)
+7. [Stage 1: LR and Batch-Size Search](docs/03_stage1_lr_batch_search.md)
+8. [Stage 2: MLP and Attention Upgrades](docs/04_stage2_block_upgrades.md)
+9. [Stage 3: Tiny DeepSeekMoE](docs/05_stage3_moe.md)
+10. [Stage 4: Educational MLA](docs/06_stage4_mla.md)
+11. [Stage 5: SFT and Reasoning Cold Start](docs/07_stage5_sft_cold_start.md)
+12. [Stage 6: Rule-Based GRPO Mini](docs/08_stage6_grpo_mini.md)
 
 Chinese tutorial notes:
 
@@ -176,17 +180,19 @@ Open the full [中文教程目录](docs/zh/README.md), or read in this order:
 1. [项目范围](docs/zh/00_project_scope.md)
 2. [DeepSeek 语言模型论文地图](docs/zh/01_deepseek_lm_paper_map.md)
 3. [代码优先：从零写出最初的 DeepSeek-style Dense LM](docs/zh/12_code_first_dense_lm.md)
-4. [阶段 0：Dense Baseline](docs/zh/02_stage0_dense_baseline.md)
-5. [阶段 1：LR 和 Batch Size 搜索](docs/zh/03_stage1_lr_batch_search.md)
-6. [阶段 2：MLP 和 Attention 升级](docs/zh/04_stage2_block_upgrades.md)
-7. [阶段 3：Tiny DeepSeekMoE](docs/zh/05_stage3_moe.md)
-8. [阶段 4：教学版 MLA](docs/zh/06_stage4_mla.md)
-9. [阶段 5：SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
-10. [阶段 6：Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
-11. [仓库路线图](docs/zh/09_repository_roadmap.md)
-12. [实验报告模板](docs/zh/10_experiment_report_template.md)
-13. [MiniMind 风格结构说明](docs/zh/11_minimind_structure_notes.md)
-14. [GPU 选择与成本记录](docs/zh/13_gpu_cost_tracking.md)
+4. [训练主循环：从 Config 到 Checkpoint](docs/zh/16_training_loop_from_config_to_checkpoint.md)
+5. [代码导读](docs/zh/15_code_walkthrough.md)
+6. [阶段 0：Dense Baseline](docs/zh/02_stage0_dense_baseline.md)
+7. [阶段 1：LR 和 Batch Size 搜索](docs/zh/03_stage1_lr_batch_search.md)
+8. [阶段 2：MLP 和 Attention 升级](docs/zh/04_stage2_block_upgrades.md)
+9. [阶段 3：Tiny DeepSeekMoE](docs/zh/05_stage3_moe.md)
+10. [阶段 4：教学版 MLA](docs/zh/06_stage4_mla.md)
+11. [阶段 5：SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
+12. [阶段 6：Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
+13. [仓库路线图](docs/zh/09_repository_roadmap.md)
+14. [实验报告模板](docs/zh/10_experiment_report_template.md)
+15. [MiniMind 风格结构说明](docs/zh/11_minimind_structure_notes.md)
+16. [GPU 选择与成本记录](docs/zh/13_gpu_cost_tracking.md)
 
 Chinese supplements:
 
@@ -220,7 +226,7 @@ TinySeek-Lab is a lab notebook disguised as a repo.
 
 ## Current Status
 
-v0.1 contains runnable source files for the dense/MoE/educational-MLA model,
-pretraining, generation, and LR/batch sweeps. SFT and GRPO entry points are
-present as roadmap placeholders and will be filled after the base training path
-is stable.
+v0.2 contains runnable dense/MoE/educational-MLA model code, pretraining,
+generation, LR/batch sweeps, SFT, rule-based GRPO mini, mini eval, GPU cost
+tracking, a 4090 v1 run orchestrator, and generated report figures. The GRPO
+stage is still educational rather than a serious RL reproduction.

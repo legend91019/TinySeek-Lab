@@ -37,3 +37,9 @@ TinySeek-Lab 是一个只关注语言模型训练的教程仓库。
 ## 非目标
 
 本项目不宣称复现 DeepSeek 的模型质量。我们复现的是 DeepSeek 论文中的研究问题、实验习惯和架构演进。
+
+<!-- tinyseek-nav -->
+
+---
+
+[教程目录](README.md) | 下一篇: [DeepSeek 语言模型论文地图](01_deepseek_lm_paper_map.md)

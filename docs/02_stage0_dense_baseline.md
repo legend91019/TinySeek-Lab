@@ -42,3 +42,9 @@ Metrics:
 Takeaway:
 
 If this stage is unstable, every later stage will be noisy.
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [Code Walkthrough](15_code_walkthrough.md) | [Tutorial Index](README.md) | Next: [Stage 1: LR/Batch Search](03_stage1_lr_batch_search.md)

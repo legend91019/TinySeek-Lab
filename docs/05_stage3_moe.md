@@ -23,6 +23,8 @@ Implemented:
 - optional shared experts;
 - auxiliary load-balance proxy loss;
 - total vs activated parameter estimate.
+- lightweight expert-load snapshots in `*_history.jsonl` and
+  `*_cost_summary.json`.
 
 ## Experiments
 
@@ -37,3 +39,13 @@ Implemented:
 - Which experts get most tokens?
 - Does auxiliary loss improve load balance?
 - Is validation loss better at equal activated params?
+
+The expert-load snapshot records per-layer expert counts from the latest
+forward pass. It is not a full routing trace, but it is enough to spot obvious
+routing collapse during tutorial-scale experiments.
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [Stage 2: Block Upgrades](04_stage2_block_upgrades.md) | [Tutorial Index](README.md) | Next: [Stage 4: MLA](06_stage4_mla.md)

@@ -35,3 +35,9 @@ DeepSeek-R1 使用 GRPO，并大量利用可验证任务的规则奖励。最典
 ## 关键提醒
 
 RL 不是魔法。小模型上尤其容易出现 reward hacking，所以每个 reward 都要配失败案例分析。
+
+<!-- tinyseek-nav -->
+
+---
+
+上一篇: [阶段 5：SFT](07_stage5_sft_cold_start.md) | [教程目录](README.md) | 下一篇: [仓库路线图](09_repository_roadmap.md)

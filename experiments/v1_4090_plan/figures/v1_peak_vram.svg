@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="512" viewBox="0 0 980 512">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="24" y="34" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#1f2933">Peak allocated VRAM by run</text>
+<text x="24" y="81" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_tiny_base</text>
+<rect x="210" y="64" width="24.9" height="24" rx="3" fill="#2f6f9f"/>
+<text x="242.9" y="81" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.2134 GB</text>
+<text x="24" y="117" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_dense35</text>
+<rect x="210" y="100" width="307.1" height="24" rx="3" fill="#d95f59"/>
+<text x="525.1" y="117" font-family="Arial, sans-serif" font-size="13" fill="#102a43">2.636 GB</text>
+<text x="24" y="153" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_dense115</text>
+<rect x="210" y="136" width="459.9" height="24" rx="3" fill="#5f8f3f"/>
+<text x="677.9" y="153" font-family="Arial, sans-serif" font-size="13" fill="#102a43">3.948 GB</text>
+<text x="24" y="189" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_sweep_bs16_lr3e-4</text>
+<rect x="210" y="172" width="180.2" height="24" rx="3" fill="#9b6fb3"/>
+<text x="398.2" y="189" font-family="Arial, sans-serif" font-size="13" fill="#102a43">1.547 GB</text>
+<text x="24" y="225" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_sweep_bs16_lr6e-4</text>
+<rect x="210" y="208" width="180.2" height="24" rx="3" fill="#d18b2c"/>
+<text x="398.2" y="225" font-family="Arial, sans-serif" font-size="13" fill="#102a43">1.547 GB</text>
+<text x="24" y="261" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_sweep_bs32_lr3e-4</text>
+<rect x="210" y="244" width="307.1" height="24" rx="3" fill="#4c7c7b"/>
+<text x="525.1" y="261" font-family="Arial, sans-serif" font-size="13" fill="#102a43">2.636 GB</text>
+<text x="24" y="297" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_sweep_bs32_lr6e-4</text>
+<rect x="210" y="280" width="307.1" height="24" rx="3" fill="#2f6f9f"/>
+<text x="525.1" y="297" font-family="Arial, sans-serif" font-size="13" fill="#102a43">2.636 GB</text>
+<text x="24" y="333" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_moe_activated35</text>
+<rect x="210" y="316" width="636.0" height="24" rx="3" fill="#d95f59"/>
+<text x="854.0" y="333" font-family="Arial, sans-serif" font-size="13" fill="#102a43">5.459 GB</text>
+<text x="24" y="369" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_tiny_mla</text>
+<rect x="210" y="352" width="24.9" height="24" rx="3" fill="#5f8f3f"/>
+<text x="242.9" y="369" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.2137 GB</text>
+<text x="24" y="405" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_tiny_sft</text>
+<rect x="210" y="388" width="17.5" height="24" rx="3" fill="#9b6fb3"/>
+<text x="235.5" y="405" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.15 GB</text>
+<text x="24" y="441" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_tiny_grpo</text>
+<rect x="210" y="424" width="16.4" height="24" rx="3" fill="#d18b2c"/>
+<text x="234.4" y="441" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.1407 GB</text>
+</svg>

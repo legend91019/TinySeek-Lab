@@ -89,3 +89,11 @@ def write_cost_summary(out_dir: str | Path, run_name: str, summary: dict) -> Pat
         json.dump(summary, f, ensure_ascii=False, indent=2)
         f.write("\n")
     return path
+
+
+def append_jsonl(path: str | Path, row: dict) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as f:
+        json.dump(row, f, ensure_ascii=False, sort_keys=True)
+        f.write("\n")

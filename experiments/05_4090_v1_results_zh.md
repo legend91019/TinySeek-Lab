@@ -51,6 +51,20 @@ python scripts/run_4090_v1.py --execute --skip_data_prepare --hourly_rate 2.18
 - 估算成本：0.19 元
 
 完整机器可读结果在 [`experiments/v1_4090_plan`](v1_4090_plan/)。
+自动生成的表格和图表在
+[`experiments/v1_4090_plan/auto_summary_zh.md`](v1_4090_plan/auto_summary_zh.md)。
+
+## 图表
+
+![Mini-eval perplexity](v1_4090_plan/figures/v1_ppl.svg)
+
+![峰值 allocated 显存](v1_4090_plan/figures/v1_peak_vram.svg)
+
+![LR / batch sweep validation loss](v1_4090_plan/figures/v1_sweep_val_loss.svg)
+
+![GPU 成本](v1_4090_plan/figures/v1_cost.svg)
+
+![VRAM versus PPL](v1_4090_plan/figures/v1_vram_vs_ppl.svg)
 
 ## Mini Eval
 
@@ -81,6 +95,6 @@ python scripts/run_4090_v1.py --execute --skip_data_prepare --hourly_rate 2.18
 ## 下一步
 
 - 在 GRPO 前加入更强的小型算术 SFT 数据。
-- 写一个自动报告生成器，合并 `cost_summary.csv` 和 `eval_*.json`。
+- 自动报告生成器已加入：`scripts/generate_v1_report_assets.py`。
 - 增加 MoE routing histogram 和 expert-load 汇总。
 - 如果要产出更稳定的教程 checkpoint，优先加长 35M dense baseline。

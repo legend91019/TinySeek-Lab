@@ -365,3 +365,9 @@ Dense 模型跑通以后，实验才有意义：
 ```
 
 这条线比“直接运行脚本”更适合真正理解大模型训练。
+
+<!-- tinyseek-nav -->
+
+---
+
+上一篇: [DeepSeek 语言模型论文地图](01_deepseek_lm_paper_map.md) | [教程目录](README.md) | 下一篇: [训练主循环](16_training_loop_from_config_to_checkpoint.md)

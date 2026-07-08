@@ -3,6 +3,10 @@
 This chapter is the code-reading path. Read it after the high-level roadmap and
 before running larger experiments.
 
+If chapter 12 explains how the initial model is built, chapter 16 explains how
+the training program turns that model into checkpoints and reports. This chapter
+is the map between those two views.
+
 ## Reading Order
 
 1. `model/tinyseek_dense.py`: the smallest dense decoder-only LM.
@@ -12,6 +16,8 @@ before running larger experiments.
 5. `trainer/train_sft.py`: supervised fine-tuning and cold-start formatting.
 6. `trainer/train_grpo.py`: rule-based GRPO mini.
 7. `eval/mini_eval.py`: small checks for loss, addition, and format following.
+8. `scripts/generate_v1_report_assets.py`: convert machine-readable results
+   into tables and SVG figures.
 
 ## `model/tinyseek_dense.py`
 
@@ -166,6 +172,10 @@ This is the base-model training loop:
 Cost summaries record GPU name, peak memory, elapsed time, estimated cost,
 tokens, and rough FLOPs. This makes every experiment reportable.
 
+The trainer also writes `out/<run_name>_history.jsonl` at validation points.
+Those rows are intentionally simple JSON so later chapters can draw loss curves
+without depending on an external experiment tracker.
+
 ## `trainer/train_sft.py`
 
 SFT reuses the same model and optimizer pattern, but swaps the dataset:
@@ -207,6 +217,9 @@ It is not a benchmark. It is a sanity check for tutorial experiments.
 
 ## What to Read After This
 
+For the full end-to-end program flow, read
+[Training Loop: From Config to Checkpoint](16_training_loop_from_config_to_checkpoint.md).
+
 After reading the code once, run the v1 runbook:
 
 ```bash
@@ -215,3 +228,9 @@ python trainer/train_pretrain.py --config configs/tiny_dense.json --data data/to
 python scripts/prepare_toy_sft_data.py --out data/toy_sft.jsonl
 python trainer/train_sft.py --config configs/tiny_sft.json --data data/toy_sft.jsonl --init_ckpt out/tiny_dense_last.pt --max_steps 20
 ```
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [Training Loop](16_training_loop_from_config_to_checkpoint.md) | [Tutorial Index](README.md) | Next: [Stage 0: Dense Baseline](02_stage0_dense_baseline.md)

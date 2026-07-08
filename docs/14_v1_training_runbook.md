@@ -102,3 +102,9 @@ Run mini eval after a checkpoint is available:
 ```bash
 python eval/mini_eval.py --config configs/tiny_sft.json --ckpt out/tiny_sft_last.pt --data data/toy_pretrain.jsonl
 ```
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [GPU Cost Tracking](13_gpu_cost_tracking.md) | [Tutorial Index](README.md)

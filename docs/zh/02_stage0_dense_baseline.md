@@ -51,3 +51,9 @@ python trainer/train_pretrain.py --config configs/tiny_dense.json --data data/to
 - 数据是否太短或全是重复内容。
 
 这一章的原则是：先让一条最普通的训练链路跑通。
+
+<!-- tinyseek-nav -->
+
+---
+
+上一篇: [代码导读](15_code_walkthrough.md) | [教程目录](README.md) | 下一篇: [阶段 1：LR/Batch 搜索](03_stage1_lr_batch_search.md)

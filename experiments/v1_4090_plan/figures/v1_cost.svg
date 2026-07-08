@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="512" viewBox="0 0 980 512">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="24" y="34" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#1f2933">Estimated GPU cost by run</text>
+<text x="24" y="81" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_tiny_base</text>
+<rect x="210" y="64" width="127.2" height="24" rx="3" fill="#2f6f9f"/>
+<text x="345.2" y="81" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.0063 CNY</text>
+<text x="24" y="117" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_dense35</text>
+<rect x="210" y="100" width="205.9" height="24" rx="3" fill="#d95f59"/>
+<text x="423.9" y="117" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.0102 CNY</text>
+<text x="24" y="153" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_dense115</text>
+<rect x="210" y="136" width="337.2" height="24" rx="3" fill="#5f8f3f"/>
+<text x="555.2" y="153" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.0167 CNY</text>
+<text x="24" y="189" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_sweep_bs16_lr3e-4</text>
+<rect x="210" y="172" width="609.8" height="24" rx="3" fill="#9b6fb3"/>
+<text x="827.8" y="189" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.0302 CNY</text>
+<text x="24" y="225" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_sweep_bs16_lr6e-4</text>
+<rect x="210" y="208" width="636.0" height="24" rx="3" fill="#d18b2c"/>
+<text x="854.0" y="225" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.0315 CNY</text>
+<text x="24" y="261" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_sweep_bs32_lr3e-4</text>
+<rect x="210" y="244" width="397.8" height="24" rx="3" fill="#4c7c7b"/>
+<text x="615.8" y="261" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.0197 CNY</text>
+<text x="24" y="297" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_sweep_bs32_lr6e-4</text>
+<rect x="210" y="280" width="482.6" height="24" rx="3" fill="#2f6f9f"/>
+<text x="700.6" y="297" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.0239 CNY</text>
+<text x="24" y="333" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_moe_activated35</text>
+<rect x="210" y="316" width="609.8" height="24" rx="3" fill="#d95f59"/>
+<text x="827.8" y="333" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.0302 CNY</text>
+<text x="24" y="369" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_tiny_mla</text>
+<rect x="210" y="352" width="135.3" height="24" rx="3" fill="#5f8f3f"/>
+<text x="353.3" y="369" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.0067 CNY</text>
+<text x="24" y="405" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_tiny_sft</text>
+<rect x="210" y="388" width="84.8" height="24" rx="3" fill="#9b6fb3"/>
+<text x="302.8" y="405" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.0042 CNY</text>
+<text x="24" y="441" font-family="Arial, sans-serif" font-size="13" fill="#243b53">v1_tiny_grpo</text>
+<rect x="210" y="424" width="191.8" height="24" rx="3" fill="#d18b2c"/>
+<text x="409.8" y="441" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.0095 CNY</text>
+</svg>

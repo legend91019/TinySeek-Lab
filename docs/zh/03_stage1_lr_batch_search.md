@@ -46,3 +46,9 @@ warmup: 1%, 2%, 5%
 - 每次只改少数变量。
 - 记录失败实验。
 - 在加复杂结构之前，先确认训练 recipe 是稳定的。
+
+<!-- tinyseek-nav -->
+
+---
+
+上一篇: [阶段 0：Dense Baseline](02_stage0_dense_baseline.md) | [教程目录](README.md) | 下一篇: [阶段 2：Block 升级](04_stage2_block_upgrades.md)

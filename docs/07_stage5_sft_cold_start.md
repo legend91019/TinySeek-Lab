@@ -28,3 +28,9 @@ Implementation status:
 
 - SFT script skeleton comes next.
 - Dataset format will use chat-style JSONL.
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [Stage 4: MLA](06_stage4_mla.md) | [Tutorial Index](README.md) | Next: [Stage 6: GRPO Mini](08_stage6_grpo_mini.md)

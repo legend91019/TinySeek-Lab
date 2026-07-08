@@ -36,3 +36,9 @@ python trainer/train_pretrain.py --config configs/tiny_mla.json --data data/toy_
 ## 关键理解
 
 MLA 不是简单的推理时外挂技巧。模型需要在训练中适应这种 K/V 表示方式。TinySeek 第一版先把概念讲清楚，后续再逐步增加 cached generation 和更接近论文的结构。
+
+<!-- tinyseek-nav -->
+
+---
+
+上一篇: [阶段 3：MoE](05_stage3_moe.md) | [教程目录](README.md) | 下一篇: [阶段 5：SFT](07_stage5_sft_cold_start.md)

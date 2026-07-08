@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="260" viewBox="0 0 980 260">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="24" y="34" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#1f2933">LR / batch sweep validation loss</text>
+<text x="24" y="54" font-family="Arial, sans-serif" font-size="12" fill="#52606d">Lower is better</text>
+<text x="24" y="81" font-family="Arial, sans-serif" font-size="13" fill="#243b53">bs16_lr3e-4</text>
+<rect x="210" y="64" width="599.5" height="24" rx="3" fill="#2f6f9f"/>
+<text x="817.5" y="81" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.6547</text>
+<text x="24" y="117" font-family="Arial, sans-serif" font-size="13" fill="#243b53">bs16_lr6e-4</text>
+<rect x="210" y="100" width="607.4" height="24" rx="3" fill="#d95f59"/>
+<text x="825.4" y="117" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.6633</text>
+<text x="24" y="153" font-family="Arial, sans-serif" font-size="13" fill="#243b53">bs32_lr3e-4</text>
+<rect x="210" y="136" width="636.0" height="24" rx="3" fill="#5f8f3f"/>
+<text x="854.0" y="153" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.6946</text>
+<text x="24" y="189" font-family="Arial, sans-serif" font-size="13" fill="#243b53">bs32_lr6e-4</text>
+<rect x="210" y="172" width="633.7" height="24" rx="3" fill="#9b6fb3"/>
+<text x="851.7" y="189" font-family="Arial, sans-serif" font-size="13" fill="#102a43">0.692</text>
+</svg>

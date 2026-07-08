@@ -59,3 +59,9 @@ What should the next experiment change?
 ## Failure Cases
 
 Record broken runs too. Failed runs are often the most useful part of the lab.
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [Repository Roadmap](09_repository_roadmap.md) | [Tutorial Index](README.md) | Next: [MiniMind Structure Notes](11_minimind_structure_notes.md)

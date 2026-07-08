@@ -57,3 +57,9 @@
 ## 失败案例
 
 失败的 run 也要记录。训练研究里，失败记录经常比成功结果更有价值。
+
+<!-- tinyseek-nav -->
+
+---
+
+上一篇: [仓库路线图](09_repository_roadmap.md) | [教程目录](README.md) | 下一篇: [MiniMind 结构说明](11_minimind_structure_notes.md)

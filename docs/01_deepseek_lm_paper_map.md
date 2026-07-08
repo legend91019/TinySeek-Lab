@@ -53,3 +53,9 @@ This map filters the local paper folder down to the LM training path.
 - DeepSeek-OCR / OCR-2.
 
 These are good papers, but not part of this LM-only tutorial.
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [Project Scope](00_project_scope.md) | [Tutorial Index](README.md) | Next: [Code First Dense LM](12_code_first_dense_lm.md)

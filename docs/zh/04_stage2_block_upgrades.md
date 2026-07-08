@@ -38,3 +38,9 @@ DeepSeek LLM 使用 RMSNorm、RoPE 和 SwiGLU，大模型上也使用 GQA 来优
 - `SwiGLU`
 
 `num_kv_heads` 控制 GQA。当 `num_kv_heads < num_heads` 时，就进入 grouped-query attention 的设置。
+
+<!-- tinyseek-nav -->
+
+---
+
+上一篇: [阶段 1：LR/Batch 搜索](03_stage1_lr_batch_search.md) | [教程目录](README.md) | 下一篇: [阶段 3：MoE](05_stage3_moe.md)

@@ -13,7 +13,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from dataset import ByteTokenizer, JsonlInstructionDataset
 from model import TinySeekConfig, TinySeekForCausalLM
-from trainer.cost_utils import collect_cost_summary, reset_gpu_peak_memory, write_cost_summary
+from trainer.cost_utils import append_jsonl, collect_cost_summary, reset_gpu_peak_memory, write_cost_summary
 from trainer.utils import autocast_context, cosine_lr, load_config, resolve_amp_dtype, set_seed
 
 
@@ -57,6 +57,9 @@ def train_sft(
     out_dir = Path(train_cfg["out_dir"])
     out_dir.mkdir(parents=True, exist_ok=True)
     ckpt_path = out_dir / f"{cfg['run_name']}_last.pt"
+    history_path = out_dir / f"{cfg['run_name']}_history.jsonl"
+    if history_path.exists():
+        history_path.unlink()
     model_params = model.parameter_count()
     activated_params = model.activated_parameter_estimate()
     print(f"model params={model_params:,} activated_estimate={activated_params:,}")
@@ -100,6 +103,19 @@ def train_sft(
                 val_loss = evaluate(model, val_loader, device, amp_dtype)
                 elapsed = time.time() - start
                 print(f"\nstep={step} sft_loss={loss.item():.4f} val_loss={val_loss:.4f} lr={lr:.3e} elapsed={elapsed:.1f}s")
+                append_jsonl(
+                    history_path,
+                    {
+                        "stage": "sft",
+                        "run_name": cfg["run_name"],
+                        "step": step,
+                        "train_loss": float(loss.item()),
+                        "val_loss": float(val_loss),
+                        "aux_loss": float(out["aux_loss"].item()),
+                        "learning_rate": float(lr),
+                        "elapsed_seconds": round(elapsed, 4),
+                    },
+                )
 
             if step % train_cfg["save_interval"] == 0 or step == train_cfg["max_steps"]:
                 torch.save({"config": cfg, "model": model.state_dict(), "step": step, "init_ckpt": init_ckpt}, ckpt_path)
@@ -123,6 +139,7 @@ def train_sft(
             "config_path": config_path,
             "data_path": data_path,
             "checkpoint_path": str(ckpt_path),
+            "history_path": str(history_path),
             "init_ckpt": init_ckpt,
             "last_loss": float(last_loss.item()),
             "val_loss": final_val_loss,

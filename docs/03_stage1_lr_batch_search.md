@@ -42,3 +42,9 @@ warmup: 1%, 2%, 5%
 
 The most important habit is not the exact best LR. It is learning to run
 controlled sweeps before adding architectural complexity.
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [Stage 0: Dense Baseline](02_stage0_dense_baseline.md) | [Tutorial Index](README.md) | Next: [Stage 2: Block Upgrades](04_stage2_block_upgrades.md)

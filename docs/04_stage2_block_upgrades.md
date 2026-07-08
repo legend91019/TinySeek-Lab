@@ -31,3 +31,9 @@ The current model has:
 - `SwiGLU`
 
 GQA is controlled by `num_kv_heads`.
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [Stage 1: LR/Batch Search](03_stage1_lr_batch_search.md) | [Tutorial Index](README.md) | Next: [Stage 3: MoE](05_stage3_moe.md)

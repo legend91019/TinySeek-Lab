@@ -30,3 +30,9 @@ TinySeek-Lab 更偏研究教程：
 5. 看哪些指标。
 
 这也是为什么仓库没有一开始就堆太多框架抽象。先让学习路径清楚，再逐步增加工程能力。
+
+<!-- tinyseek-nav -->
+
+---
+
+上一篇: [实验报告模板](10_experiment_report_template.md) | [教程目录](README.md) | 下一篇: [GPU 成本记录](13_gpu_cost_tracking.md)

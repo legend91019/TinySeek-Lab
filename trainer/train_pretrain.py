@@ -13,7 +13,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from dataset import ByteTokenizer, JsonlTextDataset
 from model import TinySeekConfig, TinySeekForCausalLM
-from trainer.cost_utils import collect_cost_summary, reset_gpu_peak_memory, write_cost_summary
+from trainer.cost_utils import append_jsonl, collect_cost_summary, reset_gpu_peak_memory, write_cost_summary
 from trainer.utils import autocast_context, cosine_lr, load_config, resolve_amp_dtype, set_seed
 
 
@@ -51,6 +51,9 @@ def train(
     out_dir = Path(train_cfg["out_dir"])
     out_dir.mkdir(parents=True, exist_ok=True)
     ckpt_path = out_dir / f"{cfg['run_name']}_last.pt"
+    history_path = out_dir / f"{cfg['run_name']}_history.jsonl"
+    if history_path.exists():
+        history_path.unlink()
     model_params = model.parameter_count()
     activated_params = model.activated_parameter_estimate()
     print(f"model params={model_params:,} activated_estimate={activated_params:,}")
@@ -96,6 +99,20 @@ def train(
                 val_loss = evaluate(model, val_loader, device, amp_dtype)
                 elapsed = time.time() - start
                 print(f"\nstep={step} train_loss={loss.item():.4f} val_loss={val_loss:.4f} lr={lr:.3e} elapsed={elapsed:.1f}s")
+                append_jsonl(
+                    history_path,
+                    {
+                        "stage": "pretrain",
+                        "run_name": cfg["run_name"],
+                        "step": step,
+                        "train_loss": float(loss.item()),
+                        "val_loss": float(val_loss),
+                        "aux_loss": float(out["aux_loss"].item()),
+                        "learning_rate": float(lr),
+                        "elapsed_seconds": round(elapsed, 4),
+                        "expert_load": model.expert_load_summary(),
+                    },
+                )
 
             if step % train_cfg["save_interval"] == 0 or step == train_cfg["max_steps"]:
                 torch.save({"config": cfg, "model": model.state_dict(), "step": step}, ckpt_path)
@@ -118,6 +135,7 @@ def train(
             "config_path": config_path,
             "data_path": data_path,
             "checkpoint_path": str(ckpt_path),
+            "history_path": str(history_path),
             "last_loss": float(last_loss.item()),
             "val_loss": final_val_loss,
             "batch_size": train_cfg["batch_size"],
@@ -127,6 +145,7 @@ def train(
             "estimated_train_tokens": step * train_cfg["batch_size"] * grad_accum_steps * model_cfg.max_seq_len,
             "estimated_training_flops": 6 * activated_params * step * train_cfg["batch_size"] * grad_accum_steps * model_cfg.max_seq_len,
             "flops_note": "Rough 6 * activated_params * tokens estimate for tutorial-scale comparison.",
+            "expert_load": model.expert_load_summary(),
         }
     )
     cost_path = write_cost_summary(out_dir, cfg["run_name"], cost_summary)

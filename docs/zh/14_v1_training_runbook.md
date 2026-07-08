@@ -89,3 +89,9 @@ python scripts/summarize_costs.py --input_dir out
 ```bash
 python eval/mini_eval.py --config configs/tiny_sft.json --ckpt out/tiny_sft_last.pt --data data/toy_pretrain.jsonl
 ```
+
+<!-- tinyseek-nav -->
+
+---
+
+上一篇: [GPU 成本记录](13_gpu_cost_tracking.md) | [教程目录](README.md)

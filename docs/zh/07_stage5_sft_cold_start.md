@@ -41,3 +41,9 @@ Cold-start SFT 相当于先告诉模型：
 
 - `trainer/train_sft.py` 还是占位。
 - 数据格式和训练代码将在后续版本补齐。
+
+<!-- tinyseek-nav -->
+
+---
+
+上一篇: [阶段 4：MLA](06_stage4_mla.md) | [教程目录](README.md) | 下一篇: [阶段 6：GRPO Mini](08_stage6_grpo_mini.md)

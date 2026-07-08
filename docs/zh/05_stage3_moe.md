@@ -23,6 +23,7 @@ python trainer/train_pretrain.py --config configs/tiny_moe.json --data data/toy_
 - optional shared experts。
 - auxiliary load-balance proxy loss。
 - total params 和 activated params 估算。
+- 在 `*_history.jsonl` 和 `*_cost_summary.json` 中记录轻量 expert-load 快照。
 
 ## 建议实验
 
@@ -38,4 +39,12 @@ python trainer/train_pretrain.py --config configs/tiny_moe.json --data data/toy_
 - aux loss 太大时是否伤害 LM loss？
 - MoE 是否真的带来更好的参数效率？
 
-这章后续要补一个 routing histogram，把每个 expert 收到的 token 数画出来。
+expert-load 快照会记录最近一次 forward 里每层 expert 的分配计数。它不是完整
+routing trace，但足够发现教程规模实验里的明显 routing collapse。后续可以在
+这个基础上继续做 routing histogram。
+
+<!-- tinyseek-nav -->
+
+---
+
+上一篇: [阶段 2：Block 升级](04_stage2_block_upgrades.md) | [教程目录](README.md) | 下一篇: [阶段 4：MLA](06_stage4_mla.md)

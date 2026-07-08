@@ -52,6 +52,20 @@ Total:
 - Estimated cost: 0.19 CNY
 
 Full machine-readable files are in [`experiments/v1_4090_plan`](v1_4090_plan/).
+Auto-generated tables and figures are in
+[`experiments/v1_4090_plan/auto_summary.md`](v1_4090_plan/auto_summary.md).
+
+## Figures
+
+![Mini-eval perplexity](v1_4090_plan/figures/v1_ppl.svg)
+
+![Peak allocated VRAM](v1_4090_plan/figures/v1_peak_vram.svg)
+
+![LR / batch sweep validation loss](v1_4090_plan/figures/v1_sweep_val_loss.svg)
+
+![GPU cost](v1_4090_plan/figures/v1_cost.svg)
+
+![VRAM versus PPL](v1_4090_plan/figures/v1_vram_vs_ppl.svg)
 
 ## Mini Eval
 
@@ -91,6 +105,6 @@ Full machine-readable files are in [`experiments/v1_4090_plan`](v1_4090_plan/).
 
 - Add a stronger small arithmetic SFT dataset before running GRPO.
 - Add a report generator that merges `cost_summary.csv` and `eval_*.json`
-  automatically.
+  automatically. Done in `scripts/generate_v1_report_assets.py`.
 - Add MoE routing histograms and expert-load summaries.
 - Run a longer 35M dense baseline if we want a more stable tutorial checkpoint.

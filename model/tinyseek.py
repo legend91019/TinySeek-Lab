@@ -161,6 +161,10 @@ class MoEFFN(nn.Module):
         probs = F.softmax(logits, dim=-1)
         top_p, top_i = torch.topk(probs, k=self.config.top_k, dim=-1)
         top_p = top_p / top_p.sum(dim=-1, keepdim=True)
+        with torch.no_grad():
+            counts = torch.bincount(top_i.reshape(-1), minlength=self.config.num_experts)
+            self.last_expert_counts = counts.detach().cpu().tolist()
+            self.last_expert_fractions = (counts.float() / max(1, int(counts.sum().item()))).detach().cpu().tolist()
 
         out = torch.zeros_like(flat)
         for expert_id, expert in enumerate(self.experts):
@@ -257,3 +261,26 @@ class TinySeekForCausalLM(nn.Module):
         expert_params = sum(p.numel() for block in self.blocks for expert in block.ffn.experts for p in expert.parameters())
         active_expert_params = expert_params * self.config.top_k // self.config.num_experts
         return total - expert_params + active_expert_params
+
+    def expert_load_summary(self) -> dict | None:
+        if not self.config.use_moe:
+            return None
+        per_layer = []
+        totals = [0 for _ in range(self.config.num_experts)]
+        for layer_idx, block in enumerate(self.blocks):
+            counts = getattr(block.ffn, "last_expert_counts", None)
+            if counts is None:
+                continue
+            counts = [int(v) for v in counts]
+            total = max(1, sum(counts))
+            fractions = [v / total for v in counts]
+            per_layer.append({"layer": layer_idx, "counts": counts, "fractions": fractions})
+            totals = [a + b for a, b in zip(totals, counts)]
+        total_assignments = max(1, sum(totals))
+        return {
+            "top_k": self.config.top_k,
+            "num_experts": self.config.num_experts,
+            "total_counts": totals,
+            "total_fractions": [v / total_assignments for v in totals],
+            "per_layer": per_layer,
+        }

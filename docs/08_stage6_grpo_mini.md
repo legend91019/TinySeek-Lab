@@ -35,3 +35,9 @@ The first implementation can be slow and small. Clarity beats throughput.
 2. RL after cold-start reasoning SFT.
 3. Reward with format term vs correctness-only reward.
 4. Group size 4 vs 8 vs 16.
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [Stage 5: SFT](07_stage5_sft_cold_start.md) | [Tutorial Index](README.md) | Next: [Repository Roadmap](09_repository_roadmap.md)

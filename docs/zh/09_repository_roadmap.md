@@ -41,3 +41,9 @@
 - multi-token prediction。
 - auxiliary-loss-free balancing 的 toy 实验。
 - 蒸馏小模型。
+
+<!-- tinyseek-nav -->
+
+---
+
+上一篇: [阶段 6：GRPO Mini](08_stage6_grpo_mini.md) | [教程目录](README.md) | 下一篇: [实验报告模板](10_experiment_report_template.md)

@@ -39,3 +39,9 @@ The repo should produce:
 
 We do not claim to reproduce DeepSeek model quality. We reproduce the training
 questions and architecture moves at toy scale.
+
+<!-- tinyseek-nav -->
+
+---
+
+[Tutorial Index](README.md) | Next: [DeepSeek LM Paper Map](01_deepseek_lm_paper_map.md)

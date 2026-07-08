@@ -132,6 +132,8 @@ v1 预训练 -> SFT -> GRPO 链路实测报告见：
 [experiments/03_v1_pipeline_smoke_report_zh.md](experiments/03_v1_pipeline_smoke_report_zh.md)。
 第一次 RTX 4090 v1 正式实验结果见：
 [experiments/05_4090_v1_results_zh.md](experiments/05_4090_v1_results_zh.md)。
+v1 自动汇总表和图表见：
+[experiments/v1_4090_plan/auto_summary_zh.md](experiments/v1_4090_plan/auto_summary_zh.md)。
 代码阅读路线见：[docs/zh/15_code_walkthrough.md](docs/zh/15_code_walkthrough.md)。
 下一次付费 GPU 正式实验计划见：
 [experiments/04_formal_experiment_plan_zh.md](experiments/04_formal_experiment_plan_zh.md)。
@@ -143,17 +145,19 @@ v1 预训练 -> SFT -> GRPO 链路实测报告见：
 1. [项目范围](docs/zh/00_project_scope.md)
 2. [DeepSeek 语言模型论文地图](docs/zh/01_deepseek_lm_paper_map.md)
 3. [代码优先：从零写出最初的 DeepSeek-style Dense LM](docs/zh/12_code_first_dense_lm.md)
-4. [阶段 0：Dense Baseline](docs/zh/02_stage0_dense_baseline.md)
-5. [阶段 1：LR 和 Batch Size 搜索](docs/zh/03_stage1_lr_batch_search.md)
-6. [阶段 2：MLP 和 Attention 升级](docs/zh/04_stage2_block_upgrades.md)
-7. [阶段 3：Tiny DeepSeekMoE](docs/zh/05_stage3_moe.md)
-8. [阶段 4：教学版 MLA](docs/zh/06_stage4_mla.md)
-9. [阶段 5：SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
-10. [阶段 6：Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
-11. [仓库路线图](docs/zh/09_repository_roadmap.md)
-12. [实验报告模板](docs/zh/10_experiment_report_template.md)
-13. [MiniMind 风格结构说明](docs/zh/11_minimind_structure_notes.md)
-14. [GPU 选择与成本记录](docs/zh/13_gpu_cost_tracking.md)
+4. [训练主循环：从 Config 到 Checkpoint](docs/zh/16_training_loop_from_config_to_checkpoint.md)
+5. [代码导读](docs/zh/15_code_walkthrough.md)
+6. [阶段 0：Dense Baseline](docs/zh/02_stage0_dense_baseline.md)
+7. [阶段 1：LR 和 Batch Size 搜索](docs/zh/03_stage1_lr_batch_search.md)
+8. [阶段 2：MLP 和 Attention 升级](docs/zh/04_stage2_block_upgrades.md)
+9. [阶段 3：Tiny DeepSeekMoE](docs/zh/05_stage3_moe.md)
+10. [阶段 4：教学版 MLA](docs/zh/06_stage4_mla.md)
+11. [阶段 5：SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
+12. [阶段 6：Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
+13. [仓库路线图](docs/zh/09_repository_roadmap.md)
+14. [实验报告模板](docs/zh/10_experiment_report_template.md)
+15. [MiniMind 风格结构说明](docs/zh/11_minimind_structure_notes.md)
+16. [GPU 选择与成本记录](docs/zh/13_gpu_cost_tracking.md)
 
 补充文档：
 
@@ -164,13 +168,16 @@ v1 预训练 -> SFT -> GRPO 链路实测报告见：
 
 ## 当前状态
 
-v0.1 已经包含：
+v0.2 已经包含：
 
 - Dense / MoE / educational MLA 模型代码。
 - byte-level tokenizer 和 JSONL 文本数据集。
 - 预训练脚本。
 - 生成脚本。
 - LR / batch size sweep 入口。
-- DeepSeek LM 路线相关教程文档。
+- SFT、rule-based GRPO mini 和 mini eval。
+- GPU 成本、显存、token、粗略 FLOPs 记录。
+- RTX 4090 v1 编排脚本、实测报告和自动图表。
+- DeepSeek LM 路线相关双语教程文档。
 
-SFT、cold start、DPO、GRPO 目前是路线和入口占位，后续会逐步实现。
+GRPO 当前仍是教学版，用来讲清算法形状；它不是严肃 RL 性能复现。

@@ -38,3 +38,9 @@ Metrics:
 
 MLA is easiest to understand as an inference-efficiency move that has to be
 trained into the model, not merely bolted onto a trained MHA model.
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [Stage 3: MoE](05_stage3_moe.md) | [Tutorial Index](README.md) | Next: [Stage 5: SFT](07_stage5_sft_cold_start.md)

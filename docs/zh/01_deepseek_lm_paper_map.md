@@ -44,3 +44,9 @@
 - DeepSeek-OCR / OCR-2。
 
 这些论文很有价值，但不属于第一版 LM-only 教程主线。
+
+<!-- tinyseek-nav -->
+
+---
+
+上一篇: [项目范围](00_project_scope.md) | [教程目录](README.md) | 下一篇: [代码优先 Dense LM](12_code_first_dense_lm.md)

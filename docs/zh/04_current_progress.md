@@ -1,56 +1,69 @@
 # 04. 当前进度
 
-更新时间：2026-07-07
+更新时间：2026-07-08
+
+TinySeek-Lab 现在已经从“原型仓库”推进到“v1 教程闭环可运行”的状态。它已经能在真实文本数据上跑完：
+
+```text
+TinyStories -> dense baseline -> LR/batch sweep -> MoE -> MLA
+-> SFT -> GRPO mini -> mini eval -> 成本和图表报告
+```
 
 ## 已完成
 
-- 仓库结构已创建，并参考 MiniMind 的分层方式组织为 `model/`、`dataset/`、`trainer/`、`scripts/`、`configs/`、`experiments/`、`docs/`。
-- 已添加英文 README 和中文 README。
-- 已添加中文教程入口：项目范围、论文地图、阶段路线图、实验报告模板。
-- 已添加 Mermaid 图示：训练路线图、模型升级路线图。
-- 已实现 Dense / MoE / educational MLA 三种模型路径。
-- 已实现 byte-level tokenizer。
-- 已实现 JSONL 文本数据集。
-- 已实现预训练脚本。
-- 已实现生成脚本。
-- 已实现 LR / batch size sweep 入口。
-- 已添加 SFT 和 GRPO 的阶段占位脚本。
-- 已推送初版到 GitHub。
+- 中英双语 README、教程目录和主要章节。
+- 代码优先章节：先写最初的 DeepSeek-style dense decoder-only LM。
+- 完整训练主循环讲解：config、JSONL、dataset、trainer、checkpoint、history、eval、report。
+- Dense / MoE / educational MLA 三种模型路径。
+- byte-level tokenizer 和 JSONL 数据集。
+- 预训练、SFT、rule-based GRPO mini 三条训练入口。
+- LR / batch size sweep 入口。
+- mini eval：perplexity、加法 exact match、格式遵循分。
+- GPU 成本记录：GPU 小时、费用、峰值显存、token、粗略 FLOPs。
+- 4090 v1 编排脚本：`scripts/run_4090_v1.py`。
+- 4090 v1 实测报告和机器可读原始结果。
+- 自动报告资产生成器：`scripts/generate_v1_report_assets.py`。
+- 自动生成 SVG 图表：PPL、峰值显存、成本、sweep loss、VRAM-vs-PPL。
+- 每章末尾的上一篇 / 下一篇 / 目录导航。
 
-## 部分完成
+## 当前实验结论
 
-- DeepSeek 论文锚点已经写入文档，但还需要继续补更细的章节级引用和实验对应表。
-- MoE 已有基础 top-k routing 和辅助负载均衡损失，但还缺专家路由统计和可视化。
-- MLA 是教学版，能表达 KV latent 压缩思想，但还不是 DeepSeek-V2 的完整实现。
+- v1 全流程已在 RTX 4090 上跑通。
+- 总 GPU 时间约 0.0867 小时，按 2.18 元/小时估算约 0.19 元。
+- 35M dense 的 5M-token sweep 中，`bs16_lr3e-4` 最好。
+- 115M 短训效果不如 35M 短训，说明 token budget 不足时模型更大不一定更好。
+- MoE 235M 总参数、约 84M 激活参数，4090 峰值 allocated 显存约 5.46 GB。
+- 教学版 MLA 能跑通 KV latent 思想，但不是 DeepSeek-V2 生产级 MLA 复刻。
+- SFT 能学到 toy SFT 格式，但会损害 TinyStories PPL。
+- GRPO mini 有非零 reward，但没有解出算术 mini eval；它目前用于讲算法形状。
 
-## 尚未完成
+## 仍需加强
 
-- 真实 BPE tokenizer 训练。
-- packed dataset / streaming dataset。
-- CSV/WandB/SwanLab 日志。
-- loss 曲线自动出图。
-- MoE routing histogram。
-- SFT 数据集和训练脚本实装。
-- reasoning cold-start 数据构造。
-- DPO。
-- rule-based GRPO mini。
-- rejection sampling。
-- 蒸馏。
-- CI / GitHub Actions。
-- 真实 torch smoke test，因为当前本地 Python 环境还没装 `torch`。
+- 更强的算术/推理 cold-start SFT 数据，再接 GRPO。
+- MoE routing histogram、expert load 统计和 routing collapse 分析。
+- 更长的 35M dense baseline，作为更稳定的教程 checkpoint。
+- 更细的逐文件逐段代码讲解，尤其是 SFT masking 和 GRPO objective。
+- 可选：真实 BPE tokenizer、packed dataset、streaming dataset。
+- 可选：CI / GitHub Actions。
 
-## 粗略进度
+## 粗略完成度
 
-| 模块 | 进度 |
-|---|---:|
+| 维度 | 进度 |
+| --- | ---: |
 | 仓库骨架 | 100% |
-| 双语入口 | 60% |
-| 图示化 | 35% |
-| Dense/MoE/MLA 模型骨架 | 70% |
-| 预训练最小链路 | 65% |
-| DeepSeek LLM sweep 复现入口 | 50% |
-| SFT / Cold Start | 15% |
-| GRPO / RL | 10% |
-| 实验报告体系 | 40% |
+| 双语入口和章节 | 90% |
+| 代码主线教学 | 85% |
+| Dense/MoE/MLA 模型代码 | 85% |
+| 预训练和 sweep 链路 | 90% |
+| SFT / Cold Start 教学链路 | 70% |
+| GRPO / RL 教学链路 | 55% |
+| 实验报告和图表 | 80% |
+| 精品教程 polish | 75% |
 
-整体来看，当前大约处在 **v0.1 原型完成，v0.2 教程化和实验化开始** 的状态。
+整体判断：作为 GitHub 上可学习、可运行的 v1 教程仓库，约 **85%-90%**；作为更强研究复现和精品课程，还需要继续加强后训练数据、MoE 分析和更长实验。
+
+<!-- tinyseek-nav -->
+
+---
+
+[教程目录](README.md)

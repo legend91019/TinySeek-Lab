@@ -31,3 +31,9 @@
 - MoE routing dashboards.
 - Expert specialization probes.
 - Cached generation and KV-cache measurements.
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [Stage 6: GRPO Mini](08_stage6_grpo_mini.md) | [Tutorial Index](README.md) | Next: [Experiment Template](10_experiment_report_template.md)

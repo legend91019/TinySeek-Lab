@@ -377,3 +377,9 @@ The learning order should be:
 ```text
 write dense code -> train dense baseline -> run recipe sweep -> upgrade model
 ```
+
+<!-- tinyseek-nav -->
+
+---
+
+Previous: [DeepSeek LM Paper Map](01_deepseek_lm_paper_map.md) | [Tutorial Index](README.md) | Next: [Training Loop](16_training_loop_from_config_to_checkpoint.md)
