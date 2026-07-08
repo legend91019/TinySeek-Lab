@@ -2,6 +2,37 @@
 
 This is the practical runbook for a single RTX 4090 session.
 
+## 0. One-Command Orchestrator
+
+Before renting the GPU, preview the whole paid run locally:
+
+```bash
+python scripts/run_4090_v1.py
+```
+
+This prints the full plan and does not start training. If you want a saved
+command manifest before renting the GPU, run:
+
+```bash
+python scripts/run_4090_v1.py --write_manifest
+```
+
+This writes `experiments/v1_4090_plan/COMMANDS.md`. On the RTX 4090 machine,
+run:
+
+```bash
+python scripts/run_4090_v1.py --execute --hourly_rate 2.18
+```
+
+The orchestrator prepares an online dataset, trains the dense baselines, runs a
+real-data LR/batch sweep, runs MoE and MLA comparison runs, executes the tiny
+SFT/GRPO teaching path, runs mini evals, and writes a cost summary.
+
+The post-training path intentionally uses the tiny base checkpoint
+`out/v1_tiny_base_last.pt`, because `configs/tiny_sft.json` and
+`configs/tiny_grpo.json` must match the checkpoint shape. The 35M/115M runs are
+for pretraining and architecture experiments.
+
 ## 1. Pretrain
 
 ```bash

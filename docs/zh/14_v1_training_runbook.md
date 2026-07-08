@@ -2,6 +2,30 @@
 
 这是一张 RTX 4090 上的实操路线。
 
+## 0. 一条命令总控
+
+租卡前，先在本地预览完整付费训练计划：
+
+```bash
+python scripts/run_4090_v1.py
+```
+
+这只会打印完整计划，不会开始训练。如果想在租卡前保存命令清单，运行：
+
+```bash
+python scripts/run_4090_v1.py --write_manifest
+```
+
+这会写出 `experiments/v1_4090_plan/COMMANDS.md`。到 RTX 4090 机器上以后再运行：
+
+```bash
+python scripts/run_4090_v1.py --execute --hourly_rate 2.18
+```
+
+总控脚本会准备线上数据集，训练 dense baseline，跑真实数据 LR/batch sweep，跑 MoE 和 MLA 对照，执行 tiny SFT/GRPO 教学闭环，运行 mini eval，并生成成本汇总。
+
+post-training 路线会刻意使用 tiny base checkpoint `out/v1_tiny_base_last.pt`，因为 `configs/tiny_sft.json` 和 `configs/tiny_grpo.json` 必须和 checkpoint 的模型形状一致。35M/115M 路线用于预训练和架构实验。
+
 ## 1. 预训练
 
 ```bash

@@ -28,7 +28,7 @@
     "max_steps": 100,
     "eval_interval": 25,
     "save_interval": 50,
-    "dtype": "float32",
+    "dtype": "bfloat16",
     "seed": 42,
     "out_dir": "out"
   }
