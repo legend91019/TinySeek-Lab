@@ -1,6 +1,6 @@
 # 04. 当前进度
 
-更新时间：2026-07-08
+更新时间：2026-07-14
 
 TinySeek-Lab 现在已经从“原型仓库”推进到“v1 教程闭环可运行”的状态。它已经能在真实文本数据上跑完：
 
@@ -18,12 +18,16 @@ TinyStories -> dense baseline -> LR/batch sweep -> MoE -> MLA
 - byte-level tokenizer 和 JSONL 数据集。
 - 预训练、SFT、rule-based GRPO mini 三条训练入口。
 - LR / batch size sweep 入口。
-- mini eval：perplexity、加法 exact match、格式遵循分。
+- mini eval：perplexity、加法 exact match、copy accuracy、关键词 QA、格式遵循分。
 - GPU 成本记录：GPU 小时、费用、峰值显存、token、粗略 FLOPs。
 - 4090 v1 编排脚本：`scripts/run_4090_v1.py`。
 - 4090 v1 实测报告和机器可读原始结果。
 - 自动报告资产生成器：`scripts/generate_v1_report_assets.py`。
 - 自动生成 SVG 图表：PPL、峰值显存、成本、sweep loss、VRAM-vs-PPL。
+- MoE routing 报告生成器：`scripts/generate_moe_routing_report.py`。
+- 实验报告中心：`experiments/README_zh.md` / `experiments/README.md`。
+- 上卡前最终 checklist：`docs/zh/18_gpu_fill_only_checklist.md`。
+- SFT masking 和 GRPO objective 代码细读章节。
 - 每章末尾的上一篇 / 下一篇 / 目录导航。
 
 ## 当前实验结论
@@ -39,10 +43,10 @@ TinyStories -> dense baseline -> LR/batch sweep -> MoE -> MLA
 
 ## 仍需加强
 
-- 更强的算术/推理 cold-start SFT 数据，再接 GRPO。
-- MoE routing histogram、expert load 统计和 routing collapse 分析。
-- 更长的 35M dense baseline，作为更稳定的教程 checkpoint。
-- 更细的逐文件逐段代码讲解，尤其是 SFT masking 和 GRPO objective。
+- 更强的算术/推理 cold-start SFT 数据，再接 GRPO，需要上卡跑结果。
+- MoE routing histogram 的生成器已完成，但真实 expert-load 图表需要下一次 MoE 训练数据。
+- 更长的 35M dense baseline，需要 GPU 时间。
+- 新增 Copy / QA mini eval 后，需要用新 checkpoint 重新评测。
 - 可选：真实 BPE tokenizer、packed dataset、streaming dataset。
 - 可选：CI / GitHub Actions。
 
@@ -51,16 +55,16 @@ TinyStories -> dense baseline -> LR/batch sweep -> MoE -> MLA
 | 维度 | 进度 |
 | --- | ---: |
 | 仓库骨架 | 100% |
-| 双语入口和章节 | 90% |
-| 代码主线教学 | 85% |
+| 双语入口和章节 | 95% |
+| 代码主线教学 | 90% |
 | Dense/MoE/MLA 模型代码 | 85% |
 | 预训练和 sweep 链路 | 90% |
-| SFT / Cold Start 教学链路 | 70% |
-| GRPO / RL 教学链路 | 55% |
-| 实验报告和图表 | 80% |
-| 精品教程 polish | 75% |
+| SFT / Cold Start 教学链路 | 80% |
+| GRPO / RL 教学链路 | 65% |
+| 实验报告和图表 | 88% |
+| 精品教程 polish | 85% |
 
-整体判断：作为 GitHub 上可学习、可运行的 v1 教程仓库，约 **85%-90%**；作为更强研究复现和精品课程，还需要继续加强后训练数据、MoE 分析和更长实验。
+整体判断：作为 GitHub 上可学习、可运行的 v1 教程仓库，约 **90%**；作为更强研究复现和精品课程，约 **80%-85%**。不开卡能补的结构、入口、报告生成器和代码讲解已经基本完成；剩下的关键差距主要是 GPU 训练数据和由真实结果支撑的新结论。
 
 <!-- tinyseek-nav -->
 

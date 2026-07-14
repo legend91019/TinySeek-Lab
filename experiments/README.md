@@ -20,6 +20,7 @@ report should answer:
 | [v1 Pipeline Smoke Report](03_v1_pipeline_smoke_report.md) | Done | Pretrain -> SFT -> GRPO mini pipeline sanity check |
 | [AutoDL 4090 Smoke Report](02_autodl_4090_smoke_report.md) | Done | RTX 4090 environment and minimal training validation |
 | [Next Formal Experiment Plan](04_formal_experiment_plan.md) | Planned | Longer baseline, MoE analysis, and stronger GRPO follow-ups |
+| [Final GPU Checklist](../docs/18_gpu_fill_only_checklist.md) | Done | Commands and report steps for the next rented-GPU run |
 
 ## v1 Headline
 
@@ -72,6 +73,7 @@ TinySeek-Lab should keep moving in that direction:
 
 ```bash
 python scripts/generate_v1_report_assets.py --run_dir experiments/v1_4090_plan
+python scripts/generate_moe_routing_report.py --input_dir out --out experiments/moe_routing_report.md
 ```
 
 It reads:
@@ -84,6 +86,7 @@ It writes:
 - `experiments/v1_4090_plan/auto_summary.md`
 - `experiments/v1_4090_plan/auto_summary_zh.md`
 - `experiments/v1_4090_plan/figures/*.svg`
+- `experiments/moe_routing_report.md`
 
 ## Report Template
 

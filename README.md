@@ -42,6 +42,19 @@ TinyStories -> tiny base -> dense 35M/115M -> LR/batch sweep
 These results validate the tutorial loop and reporting method. They do not
 claim real large-model capability.
 
+## Three Quick Paths
+
+| Path | Best for | Entry command |
+| --- | --- | --- |
+| CPU smoke | Check that the code path runs | `python trainer/train_pretrain.py --config configs/tiny_dense.json --data data/toy_pretrain.jsonl --max_steps 5` |
+| Small GPU teaching run | Try tiny dense -> SFT -> GRPO | [Final GPU checklist](docs/18_gpu_fill_only_checklist.md) |
+| RTX 4090 formal run | Reproduce the report path | `python scripts/run_4090_v1.py --execute --skip_data_prepare --hourly_rate 2.18` |
+
+Recommended reading order: start with
+[Code First Dense LM](docs/12_code_first_dense_lm.md), then read
+[Training Loop](docs/16_training_loop_from_config_to_checkpoint.md), then follow
+the [Final GPU checklist](docs/18_gpu_fill_only_checklist.md).
+
 ## Why "TinySeek"
 
 DeepSeek's papers are unusually useful as a curriculum:

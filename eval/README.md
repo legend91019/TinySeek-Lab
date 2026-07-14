@@ -7,6 +7,8 @@ Metrics:
 
 - Perplexity on a JSONL text file.
 - Addition exact match for a few verifiable prompts.
+- Exact-copy accuracy for short strings.
+- Keyword QA accuracy for simple LM-training concepts.
 - Format-following score for instruction-style prompts.
 
 Example:

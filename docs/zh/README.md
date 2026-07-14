@@ -24,6 +24,8 @@ TinySeek-Lab 的英文教程放在 `docs/`，中文教程放在 `docs/zh/`。两
 16. [GPU 选择与成本记录](13_gpu_cost_tracking.md)
 17. [v1 训练执行手册](14_v1_training_runbook.md)
 18. [向 MiniMind 学什么](17_minimind_quality_notes.md)
+19. [上卡前最终 Checklist](18_gpu_fill_only_checklist.md)
+20. [后训练代码细读：SFT Masking 和 GRPO Objective](19_posttraining_code_walkthrough.md)
 
 补充文档：
 

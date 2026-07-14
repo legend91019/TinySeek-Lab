@@ -60,6 +60,50 @@ def eval_addition(model: TinySeekForCausalLM, tokenizer: ByteTokenizer, device: 
     return {"accuracy": correct / len(cases), "num_examples": len(cases), "examples": rows}
 
 
+def completion_after_response(text: str) -> str:
+    marker = "### Response"
+    if marker not in text:
+        return text
+    return text.split(marker, 1)[-1].strip()
+
+
+def eval_copy(model: TinySeekForCausalLM, tokenizer: ByteTokenizer, device: str, max_new_tokens: int) -> dict:
+    cases = [
+        "TINYSEEK-42",
+        "MoE routes tokens",
+        "RMSNorm before attention",
+    ]
+    correct = 0
+    rows = []
+    for target in cases:
+        prompt = format_prompt(f"Repeat exactly: {target}")
+        text = generate_text(model, tokenizer, prompt, device, max_new_tokens)
+        completion = completion_after_response(text)
+        ok = target in completion
+        correct += int(ok)
+        rows.append({"target": target, "ok": ok, "completion": completion[-160:]})
+    return {"accuracy": correct / len(cases), "num_examples": len(cases), "examples": rows}
+
+
+def eval_keyword_qa(model: TinySeekForCausalLM, tokenizer: ByteTokenizer, device: str, max_new_tokens: int) -> dict:
+    cases = [
+        ("What does RMSNorm normalize?", ["root", "mean", "square", "rms"]),
+        ("What does MoE routing choose?", ["expert", "experts", "route", "routing"]),
+        ("Why keep a validation set?", ["held", "validation", "general", "overfit"]),
+    ]
+    correct = 0
+    rows = []
+    for prompt_text, keywords in cases:
+        text = generate_text(model, tokenizer, format_prompt(prompt_text), device, max_new_tokens)
+        completion = completion_after_response(text)
+        lowered = completion.lower()
+        hits = [word for word in keywords if word in lowered]
+        ok = bool(hits)
+        correct += int(ok)
+        rows.append({"prompt": prompt_text, "keywords": keywords, "hits": hits, "ok": ok, "completion": completion[-200:]})
+    return {"accuracy": correct / len(cases), "num_examples": len(cases), "examples": rows}
+
+
 def eval_format(model: TinySeekForCausalLM, tokenizer: ByteTokenizer, device: str, max_new_tokens: int) -> dict:
     prompts = [
         "Explain RMSNorm in one sentence.",
@@ -99,6 +143,8 @@ def main() -> None:
         "checkpoint": args.ckpt,
         "device": device,
         "addition": eval_addition(model, tokenizer, device, args.max_new_tokens),
+        "copy": eval_copy(model, tokenizer, device, args.max_new_tokens),
+        "keyword_qa": eval_keyword_qa(model, tokenizer, device, args.max_new_tokens),
         "format": eval_format(model, tokenizer, device, args.max_new_tokens),
     }
     if args.data:

@@ -26,6 +26,8 @@ written as a more explanatory tutorial for local readers.
 16. [GPU Choice and Cost Tracking](13_gpu_cost_tracking.md)
 17. [v1 Training Runbook](14_v1_training_runbook.md)
 18. [What TinySeek-Lab Learns from MiniMind](17_minimind_quality_notes.md)
+19. [Final Checklist Before Renting a GPU](18_gpu_fill_only_checklist.md)
+20. [Post-Training Code Walkthrough](19_posttraining_code_walkthrough.md)
 
 ## Experiment Reports
 

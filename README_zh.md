@@ -37,6 +37,18 @@ TinyStories -> tiny base -> dense 35M/115M -> LR/batch sweep
 
 注意：这些结果用于验证教程闭环和实验方法，不代表模型已经具备真实大模型能力。
 
+## 三档快速路径
+
+| 路径 | 适合谁 | 命令入口 |
+| --- | --- | --- |
+| CPU smoke | 只想确认代码能跑 | `python trainer/train_pretrain.py --config configs/tiny_dense.json --data data/toy_pretrain.jsonl --max_steps 5` |
+| 小 GPU 教学 run | 想体验 tiny dense -> SFT -> GRPO | [上卡前最终 Checklist](docs/zh/18_gpu_fill_only_checklist.md) |
+| RTX 4090 正式 run | 想复现实验报告 | `python scripts/run_4090_v1.py --execute --skip_data_prepare --hourly_rate 2.18` |
+
+最推荐的学习顺序是：先读 [代码优先 Dense LM](docs/zh/12_code_first_dense_lm.md)，再读
+[训练主循环](docs/zh/16_training_loop_from_config_to_checkpoint.md)，然后按
+[上卡前最终 Checklist](docs/zh/18_gpu_fill_only_checklist.md) 跑实验。
+
 ## 一图看懂路线
 
 ```mermaid

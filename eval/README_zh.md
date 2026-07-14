@@ -6,6 +6,8 @@
 
 - JSONL 文本上的 perplexity。
 - 加法题 exact match。
+- 精确复述 copy accuracy。
+- 简单关键词 QA accuracy。
 - 指令格式遵循分数。
 
 示例：
