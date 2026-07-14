@@ -26,7 +26,7 @@ Cold-start SFT 相当于先告诉模型：
 
 然后再用可验证奖励优化正确率。
 
-## TinySeek 计划
+## TinySeek 已实现的路径
 
 1. 先做普通 SFT，把 base model 变成 chat model。
 2. 做 reasoning cold-start SFT。
@@ -37,10 +37,18 @@ Cold-start SFT 相当于先告诉模型：
 - direct RL 可能 reward 上升但表达混乱。
 - cold-start + RL 的输出应该更规整。
 
-当前状态：
+代码已经完整接通：
 
-- `trainer/train_sft.py` 还是占位。
-- 数据格式和训练代码将在后续版本补齐。
+- [`dataset/lm_dataset.py`](../../dataset/lm_dataset.py) 把 prompt token 的 label 设为 `-100`，只训练 response。
+- [`trainer/train_sft.py`](../../trainer/train_sft.py) 从 base checkpoint 加载权重并做 SFT。
+- [`scripts/prepare_toy_sft_data.py`](../../scripts/prepare_toy_sft_data.py) 生成最小 cold-start 教学数据。
+
+```bash
+python scripts/prepare_toy_sft_data.py --out data/toy_sft.jsonl
+python trainer/train_sft.py --config configs/tiny_sft.json --data data/toy_sft.jsonl --init_ckpt out/tiny_dense_last.pt --hourly_rate 2.18
+```
+
+更细的 masking 与训练目标见[后训练代码细读](19_posttraining_code_walkthrough.md)。当前 4090 v1 证明 SFT 链路能运行并学习 toy 格式，但它损害了 TinyStories PPL；这说明小而窄的 SFT 数据会改变分布，不能把“格式学会了”写成“综合能力提高了”。
 
 <!-- tinyseek-nav -->
 

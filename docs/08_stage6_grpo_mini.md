@@ -29,6 +29,20 @@ For each prompt:
 
 The first implementation can be slow and small. Clarity beats throughput.
 
+## Implemented Code Path
+
+- [`JsonlPromptDataset`](../dataset/lm_dataset.py) reads prompts and verifiable answers.
+- [`sample_group`](../trainer/train_grpo.py) samples multiple completions per prompt.
+- `rule_reward` scores final-integer correctness and format shaping.
+- Group-normalized rewards become advantages, combined with a reference KL proxy.
+
+```bash
+python scripts/prepare_toy_grpo_data.py --out data/toy_grpo.jsonl
+python trainer/train_grpo.py --config configs/tiny_grpo.json --data data/toy_grpo.jsonl --init_ckpt out/tiny_sft_last.pt --hourly_rate 2.18
+```
+
+The v1 run produced non-zero reward but still had zero addition exact match. The supported conclusion is that the educational GRPO shape runs, not that RL taught the small model reasoning. See the [post-training code walkthrough](19_posttraining_code_walkthrough.md).
+
 ## Experiments
 
 1. Direct RL from base.

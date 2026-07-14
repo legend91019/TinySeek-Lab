@@ -36,6 +36,20 @@ DeepSeek-R1 使用 GRPO，并大量利用可验证任务的规则奖励。最典
 
 RL 不是魔法。小模型上尤其容易出现 reward hacking，所以每个 reward 都要配失败案例分析。
 
+## 代码已经怎样接通
+
+- [`JsonlPromptDataset`](../../dataset/lm_dataset.py) 读取 prompt 和可验证 answer。
+- [`sample_group`](../../trainer/train_grpo.py) 对同一 prompt 采样一组 completion。
+- `rule_reward` 给最终整数正确性和格式 shaping 打分。
+- 组内 reward 标准化后得到 advantage，再结合 reference KL proxy 更新 policy。
+
+```bash
+python scripts/prepare_toy_grpo_data.py --out data/toy_grpo.jsonl
+python trainer/train_grpo.py --config configs/tiny_grpo.json --data data/toy_grpo.jsonl --init_ckpt out/tiny_sft_last.pt --hourly_rate 2.18
+```
+
+当前 v1 得到非零 reward，但加法 exact match 仍为 0。正确结论是“教学版 GRPO 形状跑通”，不是“RL 已让小模型学会推理”。完整目标与简化项见[后训练代码细读](19_posttraining_code_walkthrough.md)。
+
 <!-- tinyseek-nav -->
 
 ---

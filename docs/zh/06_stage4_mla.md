@@ -2,6 +2,8 @@
 
 目标：理解 DeepSeek-V2 为什么重视 KV cache 压缩。
 
+完整代码课见：[从 DeepSeekMoE 到 DeepSeek-V2](22_from_moe_to_deepseek_v2.md)。那里逐行解释 content/rope 拆分、latent 重建和训练 forward 与 cached decoding 的边界。
+
 ## DeepSeek 对应关系
 
 DeepSeek-V2 引入 Multi-head Latent Attention，论文里强调它能把 KV cache 压缩到 latent vector，从而提升推理效率。
@@ -36,6 +38,15 @@ python trainer/train_pretrain.py --config configs/tiny_mla.json --data data/toy_
 ## 关键理解
 
 MLA 不是简单的推理时外挂技巧。模型需要在训练中适应这种 K/V 表示方式。TinySeek 第一版先把概念讲清楚，后续再逐步增加 cached generation 和更接近论文的结构。
+
+## 单变量对照
+
+```bash
+python trainer/train_pretrain.py --config configs/architecture_lab/v2_attention_control.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/v2_mla.json --data data/tinystories.jsonl --hourly_rate 2.18
+```
+
+当前能严谨比较的是 validation loss、训练成本和理论 KV 元素；没有 production latent cache 前，不能把训练显存当作 MLA 推理缓存收益。待填结果见[架构演进实验计划](../../experiments/06_architecture_evolution_plan_zh.md)。
 
 <!-- tinyseek-nav -->
 

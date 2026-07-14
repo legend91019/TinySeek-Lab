@@ -2,6 +2,8 @@
 
 Goal: replace dense FFN with routed experts.
 
+Read the complete code lesson first: [Dense LM to DeepSeekMoE](21_from_dense_to_deepseek_moe.md). It follows the full model forward pass and explains routing, dispatch, shared experts, and parameter accounting. This chapter is the experiment lab.
+
 ## DeepSeek Anchor
 
 DeepSeekMoE argues for expert specialization and discusses load balance. The
@@ -43,6 +45,15 @@ Implemented:
 The expert-load snapshot records per-layer expert counts from the latest
 forward pass. It is not a full routing trace, but it is enough to spot obvious
 routing collapse during tutorial-scale experiments.
+
+## Formal Matched Run
+
+```bash
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_aux.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_bias.json --data data/tinystories.jsonl --hourly_rate 2.18
+```
+
+Report activated parameters, expert load, auxiliary loss, validation loss, tokens/s, and peak memory together. Keep results pending until measured; see the [architecture evolution plan](../experiments/06_architecture_evolution_plan.md).
 
 <!-- tinyseek-nav -->
 

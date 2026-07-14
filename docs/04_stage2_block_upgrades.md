@@ -2,6 +2,8 @@
 
 Goal: upgrade the block before upgrading the whole training pipeline.
 
+> This is now a **component ablation lab**. RMSNorm, RoPE, and SwiGLU already belong to the DeepSeek LLM Dense baseline; they are not a later DeepSeek generation. See the complete [`stage0_deepseek_llm.py`](../model/stages/stage0_deepseek_llm.py).
+
 ## Components
 
 - RMSNorm: stable pre-norm normalization.
@@ -31,6 +33,17 @@ The current model has:
 - `SwiGLU`
 
 GQA is controlled by `num_kv_heads`.
+
+## Beginner MHA/GQA Experiment
+
+```bash
+python trainer/train_pretrain.py --config configs/architecture_lab/dense_mha.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/dense_gqa.json --data data/tinystories.jsonl --hourly_rate 2.18
+```
+
+Only `num_kv_heads` changes. First calculate per-layer cache elements as `2 * num_kv_heads * head_dim`, then compare validation loss and throughput. The trainer has no cached decoding path, so theoretical cache reduction is not a measured generation speedup.
+
+Continue with the [four-generation architecture map](20_architecture_evolution_overview.md) and the complete Dense-to-MoE code change.
 
 <!-- tinyseek-nav -->
 

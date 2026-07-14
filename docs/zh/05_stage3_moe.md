@@ -2,6 +2,8 @@
 
 目标：把 Dense FFN 替换成 routed experts，开始研究稀疏激活。
 
+先读完整代码课：[从 Dense LM 到 DeepSeekMoE](21_from_dense_to_deepseek_moe.md)。它会从整模 `forward` 出发解释 router、dispatch、shared experts 和参数计算，本章只负责实验。
+
 ## DeepSeek 对应关系
 
 DeepSeekMoE 的核心问题是：如何让不同 expert 形成分工，同时避免 routing collapse。
@@ -42,6 +44,15 @@ python trainer/train_pretrain.py --config configs/tiny_moe.json --data data/toy_
 expert-load 快照会记录最近一次 forward 里每层 expert 的分配计数。它不是完整
 routing trace，但足够发现教程规模实验里的明显 routing collapse。后续可以在
 这个基础上继续做 routing histogram。
+
+## 正式对照入口
+
+```bash
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_aux.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_bias.json --data data/tinystories.jsonl --hourly_rate 2.18
+```
+
+不要只报告总参数。至少同时报告 activated parameters、expert load、aux loss、validation loss、tokens/s 和峰值显存。结果未运行前保持“待上卡”，见[架构演进实验计划](../../experiments/06_architecture_evolution_plan_zh.md)。
 
 <!-- tinyseek-nav -->
 

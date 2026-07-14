@@ -2,6 +2,8 @@
 
 目标：在 Dense baseline 稳定后，逐步升级 Transformer block。
 
+> 这一章现在作为**组件消融实验课**。RMSNorm、RoPE、SwiGLU 本来就是 DeepSeek LLM Dense 基线的一部分，不应被误画成 DeepSeek 的下一代产品。完整起点代码见 [`stage0_deepseek_llm.py`](../../model/stages/stage0_deepseek_llm.py)。
+
 ## 组件
 
 这一章关注四个现代 LM 常见组件：
@@ -38,6 +40,24 @@ DeepSeek LLM 使用 RMSNorm、RoPE 和 SwiGLU，大模型上也使用 GQA 来优
 - `SwiGLU`
 
 `num_kv_heads` 控制 GQA。当 `num_kv_heads < num_heads` 时，就进入 grouped-query attention 的设置。
+
+## 初学者先做 MHA/GQA 单变量实验
+
+```bash
+python trainer/train_pretrain.py --config configs/architecture_lab/dense_mha.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/dense_gqa.json --data data/tinystories.jsonl --hourly_rate 2.18
+```
+
+这两个配置只改变 `num_kv_heads`。先手算单层每 token 的 KV 元素：
+
+```text
+MHA: 2 * num_heads * head_dim
+GQA: 2 * num_kv_heads * head_dim
+```
+
+再比较 validation loss 和训练吞吐。训练脚本没有 cached decoding，因此这里的理论 KV 减少不能直接写成实际生成加速。
+
+下一步不是再堆组件，而是读[四代架构演进总览](20_architecture_evolution_overview.md)，然后把 Dense FFN 改成完整 DeepSeekMoE。
 
 <!-- tinyseek-nav -->
 
