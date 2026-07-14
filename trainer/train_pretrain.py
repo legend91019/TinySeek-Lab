@@ -87,13 +87,19 @@ def train(
             torch.nn.utils.clip_grad_norm_(model.parameters(), train_cfg["grad_clip"])
             scaler.step(optimizer)
             scaler.update()
+            model.update_router_bias()
             optimizer.zero_grad(set_to_none=True)
             accum_count = 0
 
             step += 1
             last_loss = loss.detach()
             pbar.update(1)
-            pbar.set_postfix(loss=f"{loss.item():.3f}", aux=f"{out['aux_loss'].item():.4f}", lr=f"{lr:.2e}")
+            pbar.set_postfix(
+                loss=f"{loss.item():.3f}",
+                mtp=f"{out['mtp_loss'].item():.3f}",
+                aux=f"{out['aux_loss'].item():.4f}",
+                lr=f"{lr:.2e}",
+            )
 
             if step % train_cfg["eval_interval"] == 0 or step == train_cfg["max_steps"]:
                 val_loss = evaluate(model, val_loader, device, amp_dtype)
@@ -106,6 +112,8 @@ def train(
                         "run_name": cfg["run_name"],
                         "step": step,
                         "train_loss": float(loss.item()),
+                        "lm_loss": float(out["lm_loss"].item()),
+                        "mtp_loss": float(out["mtp_loss"].item()),
                         "val_loss": float(val_loss),
                         "aux_loss": float(out["aux_loss"].item()),
                         "learning_rate": float(lr),
@@ -142,6 +150,9 @@ def train(
             "grad_accum_steps": grad_accum_steps,
             "max_seq_len": model_cfg.max_seq_len,
             "dtype": train_cfg.get("dtype", "float32"),
+            "router_balance_strategy": model_cfg.router_balance_strategy,
+            "mtp_depth": model_cfg.mtp_depth,
+            "mtp_loss_weight": model_cfg.mtp_loss_weight,
             "estimated_train_tokens": step * train_cfg["batch_size"] * grad_accum_steps * model_cfg.max_seq_len,
             "estimated_training_flops": 6 * activated_params * step * train_cfg["batch_size"] * grad_accum_steps * model_cfg.max_seq_len,
             "flops_note": "Rough 6 * activated_params * tokens estimate for tutorial-scale comparison.",

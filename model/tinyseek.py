@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Optional
 
 import math
@@ -26,6 +26,10 @@ class TinySeekConfig:
     num_shared_experts: int = 0
     top_k: int = 2
     moe_aux_loss_weight: float = 0.01
+    router_balance_strategy: str = "aux"
+    router_bias_update_rate: float = 0.001
+    mtp_depth: int = 0
+    mtp_loss_weight: float = 0.1
     dropout: float = 0.0
 
     @classmethod
@@ -153,18 +157,33 @@ class MoEFFN(nn.Module):
         self.gate = nn.Linear(config.hidden_size, config.num_experts, bias=False)
         self.experts = nn.ModuleList([SwiGLU(config.hidden_size, hidden_dim) for _ in range(config.num_experts)])
         self.shared = nn.ModuleList([SwiGLU(config.hidden_size, hidden_dim) for _ in range(config.num_shared_experts)])
+        self.register_buffer("expert_bias", torch.zeros(config.num_experts), persistent=False)
+        self.register_buffer(
+            "last_expert_counts",
+            torch.zeros(config.num_experts, dtype=torch.long),
+            persistent=False,
+        )
 
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         shape = x.shape
         flat = x.reshape(-1, shape[-1])
         logits = self.gate(flat)
-        probs = F.softmax(logits, dim=-1)
-        top_p, top_i = torch.topk(probs, k=self.config.top_k, dim=-1)
+        if self.config.router_balance_strategy == "bias":
+            probs = torch.sigmoid(logits)
+            selection_scores = probs + self.expert_bias.to(probs.dtype)
+            top_i = torch.topk(selection_scores, k=self.config.top_k, dim=-1).indices
+            top_p = probs.gather(1, top_i)
+        elif self.config.router_balance_strategy == "aux":
+            probs = F.softmax(logits, dim=-1)
+            top_p, top_i = torch.topk(probs, k=self.config.top_k, dim=-1)
+        else:
+            raise ValueError(
+                f"Unknown router_balance_strategy: {self.config.router_balance_strategy}"
+            )
         top_p = top_p / top_p.sum(dim=-1, keepdim=True)
         with torch.no_grad():
             counts = torch.bincount(top_i.reshape(-1), minlength=self.config.num_experts)
-            self.last_expert_counts = counts.detach().cpu().tolist()
-            self.last_expert_fractions = (counts.float() / max(1, int(counts.sum().item()))).detach().cpu().tolist()
+            self.last_expert_counts.copy_(counts.detach())
 
         out = torch.zeros_like(flat)
         for expert_id, expert in enumerate(self.experts):
@@ -180,10 +199,22 @@ class MoEFFN(nn.Module):
 
         # Switch-style load balancing proxy: encourage probability mass and
         # actual token assignment to agree and stay near-uniform.
-        importance = probs.mean(dim=0)
-        assignment = F.one_hot(top_i[:, 0], num_classes=self.config.num_experts).float().mean(dim=0)
-        aux_loss = self.config.num_experts * torch.sum(importance * assignment)
-        return out.view(shape), aux_loss * self.config.moe_aux_loss_weight
+        aux_loss = flat.new_zeros(())
+        if self.config.moe_aux_loss_weight > 0:
+            importance = probs.mean(dim=0)
+            assignment = F.one_hot(top_i[:, 0], num_classes=self.config.num_experts).float().mean(dim=0)
+            aux_loss = self.config.num_experts * torch.sum(importance * assignment)
+            aux_loss = aux_loss * self.config.moe_aux_loss_weight
+        return out.view(shape), aux_loss
+
+    @torch.no_grad()
+    def update_bias(self) -> None:
+        if self.config.router_balance_strategy != "bias":
+            return
+        counts = self.last_expert_counts.float()
+        direction = torch.sign(counts.mean() - counts)
+        self.expert_bias.add_(self.config.router_bias_update_rate * direction)
+        self.expert_bias.sub_(self.expert_bias.mean())
 
 
 class TinySeekBlock(nn.Module):
@@ -201,6 +232,24 @@ class TinySeekBlock(nn.Module):
         return x, aux_loss
 
 
+class MultiTokenPredictionModule(nn.Module):
+    def __init__(self, config: TinySeekConfig):
+        super().__init__()
+        self.previous_norm = RMSNorm(config.hidden_size)
+        self.token_norm = RMSNorm(config.hidden_size)
+        self.concat_proj = nn.Linear(2 * config.hidden_size, config.hidden_size, bias=False)
+        dense_config = replace(config, use_moe=False, mtp_depth=0)
+        self.block = TinySeekBlock(dense_config)
+
+    def forward(self, previous_hidden: torch.Tensor, future_token_embed: torch.Tensor) -> torch.Tensor:
+        combined = torch.cat(
+            (self.previous_norm(previous_hidden), self.token_norm(future_token_embed)),
+            dim=-1,
+        )
+        hidden, _ = self.block(self.concat_proj(combined))
+        return hidden
+
+
 class TinySeekForCausalLM(nn.Module):
     def __init__(self, config: TinySeekConfig):
         super().__init__()
@@ -208,6 +257,9 @@ class TinySeekForCausalLM(nn.Module):
         self.embed = nn.Embedding(config.vocab_size, config.hidden_size)
         self.blocks = nn.ModuleList([TinySeekBlock(config) for _ in range(config.num_layers)])
         self.norm = RMSNorm(config.hidden_size)
+        self.mtp_modules = nn.ModuleList(
+            [MultiTokenPredictionModule(config) for _ in range(config.mtp_depth)]
+        )
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
         self.lm_head.weight = self.embed.weight
         self.apply(self._init_weights)
@@ -218,6 +270,15 @@ class TinySeekForCausalLM(nn.Module):
         elif isinstance(module, nn.Embedding):
             nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
+    @staticmethod
+    def _masked_cross_entropy(logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        flat_targets = targets.reshape(-1)
+        valid = flat_targets != -100
+        if not valid.any():
+            return logits.new_zeros(())
+        flat_logits = logits.reshape(-1, logits.size(-1))
+        return F.cross_entropy(flat_logits[valid], flat_targets[valid])
+
     def forward(self, input_ids: torch.Tensor, labels: Optional[torch.Tensor] = None) -> dict:
         x = self.embed(input_ids)
         aux_losses = []
@@ -227,11 +288,39 @@ class TinySeekForCausalLM(nn.Module):
         x = self.norm(x)
         logits = self.lm_head(x)
 
+        lm_loss = None
+        mtp_loss = logits.new_zeros(())
         loss = None
         if labels is not None:
-            loss = F.cross_entropy(logits[:, :-1].reshape(-1, logits.size(-1)), labels[:, 1:].reshape(-1), ignore_index=-100)
+            lm_loss = self._masked_cross_entropy(logits[:, :-1], labels[:, 1:])
+            mtp_losses = []
+            previous_hidden = x
+            for depth, module in enumerate(self.mtp_modules):
+                if previous_hidden.size(1) < 3:
+                    break
+                future_embed = self.embed(input_ids[:, depth + 1 :])
+                previous_hidden = module(previous_hidden[:, :-1], future_embed)
+                mtp_logits = self.lm_head(self.norm(previous_hidden[:, :-1]))
+                mtp_targets = labels[:, depth + 2 :]
+                mtp_losses.append(self._masked_cross_entropy(mtp_logits, mtp_targets))
+            if mtp_losses:
+                mtp_loss = torch.stack(mtp_losses).mean()
+            loss = lm_loss + self.config.mtp_loss_weight * mtp_loss
         aux_loss = torch.stack([a for a in aux_losses]).sum() if aux_losses else logits.new_zeros(())
-        return {"logits": logits, "loss": loss, "aux_loss": aux_loss}
+        return {
+            "logits": logits,
+            "loss": loss,
+            "lm_loss": lm_loss,
+            "mtp_loss": mtp_loss,
+            "aux_loss": aux_loss,
+        }
+
+    @torch.no_grad()
+    def update_router_bias(self) -> None:
+        if not self.config.use_moe:
+            return
+        for block in self.blocks:
+            block.ffn.update_bias()
 
     @torch.no_grad()
     def generate(self, input_ids: torch.Tensor, max_new_tokens: int = 80, temperature: float = 0.8, top_k: int = 40) -> torch.Tensor:
@@ -271,10 +360,17 @@ class TinySeekForCausalLM(nn.Module):
             counts = getattr(block.ffn, "last_expert_counts", None)
             if counts is None:
                 continue
-            counts = [int(v) for v in counts]
+            counts = [int(v) for v in counts.detach().cpu().tolist()]
             total = max(1, sum(counts))
             fractions = [v / total for v in counts]
-            per_layer.append({"layer": layer_idx, "counts": counts, "fractions": fractions})
+            per_layer.append(
+                {
+                    "layer": layer_idx,
+                    "counts": counts,
+                    "fractions": fractions,
+                    "selection_bias": block.ffn.expert_bias.detach().cpu().tolist(),
+                }
+            )
             totals = [a + b for a, b in zip(totals, counts)]
         total_assignments = max(1, sum(totals))
         return {
