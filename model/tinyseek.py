@@ -18,6 +18,7 @@ class TinySeekConfig:
     num_heads: int = 4
     num_kv_heads: int = 4
     ffn_multiplier: float = 4.0
+    expert_ffn_multiplier: Optional[float] = None
     activation: str = "swiglu"
     attention_impl: str = "mha"
     mla_latent_size: int = 64
@@ -153,7 +154,12 @@ class MoEFFN(nn.Module):
     def __init__(self, config: TinySeekConfig):
         super().__init__()
         self.config = config
-        hidden_dim = int(config.hidden_size * config.ffn_multiplier)
+        expert_multiplier = (
+            config.ffn_multiplier
+            if config.expert_ffn_multiplier is None
+            else config.expert_ffn_multiplier
+        )
+        hidden_dim = int(config.hidden_size * expert_multiplier)
         self.gate = nn.Linear(config.hidden_size, config.num_experts, bias=False)
         self.experts = nn.ModuleList([SwiGLU(config.hidden_size, hidden_dim) for _ in range(config.num_experts)])
         self.shared = nn.ModuleList([SwiGLU(config.hidden_size, hidden_dim) for _ in range(config.num_shared_experts)])
