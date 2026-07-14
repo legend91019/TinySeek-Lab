@@ -1,23 +1,27 @@
+<div align="center">
+
 # TinySeek-Lab
+
+**用几百 M 以内的小语言模型，重走 DeepSeek 的 LM 研究路线**
 
 中文 | [English](README.md)
 
-TinySeek-Lab 是一个面向大模型训练入门和研究复现的教程仓库。它的主题是：
+</div>
 
-> 用几百 M 以内的小语言模型，重走 DeepSeek 的 LM 研究路线。
+TinySeek-Lab 是一套从代码、训练到实验报告的双语教程。你不会只调用现成模型，而是先写出完整 Dense LM，再沿论文路线逐代改造成 DeepSeekMoE、DeepSeek-V2 和 DeepSeek-V3，最后进入 R1 风格的 SFT 与 GRPO 教学实验。
 
-注意：本项目不是复现 DeepSeek 的最终效果，而是先教你写出最初的 dense 模型代码，再复现它的研究路径：
+本仓只做语言模型，不进入多模态、视觉、视频、OCR、具身和 Agent 主线。目标是复现研究问题与实验方法，不是复现 DeepSeek 的参数规模或最终能力。
 
-1. 从零写出 DeepSeek-style dense decoder-only LM。
-2. 训练 Dense baseline。
-3. 复现 DeepSeek LLM 风格的 batch size / learning rate 小规模网格搜索。
-4. 升级基础 block：RMSNorm、RoPE、SwiGLU、GQA。
-5. 把 Dense FFN 替换成 DeepSeekMoE 风格的 routed experts。
-6. 研究 MoE 的负载均衡、辅助损失、routing collapse 和专家分化。
-7. 加入教学版 MLA，理解 KV cache 压缩的动机。
-8. 继续做 SFT、reasoning cold start、DPO、rule-based GRPO mini。
+## 四代模型，一条代码主线
 
-本项目第一阶段只关注语言模型，不碰多模态、视觉、视频、OCR、具身智能和 agent/tool-use 主线。
+| 代际 | 你会写出的完整模型 | 核心变化 | 深入代码课 |
+| --- | --- | --- | --- |
+| DeepSeek LLM | [`stage0_deepseek_llm.py`](model/stages/stage0_deepseek_llm.py) | Dense、RMSNorm、RoPE、SwiGLU、GQA | [从零写完整 LM](docs/zh/12_code_first_dense_lm.md) |
+| DeepSeekMoE | [`stage1_deepseek_moe.py`](model/stages/stage1_deepseek_moe.py) | 细粒度 routed experts + shared experts | [Dense -> MoE](docs/zh/21_from_dense_to_deepseek_moe.md) |
+| DeepSeek-V2 | [`stage2_deepseek_v2.py`](model/stages/stage2_deepseek_v2.py) | MoE + 教学版 MLA | [MoE -> V2](docs/zh/22_from_moe_to_deepseek_v2.md) |
+| DeepSeek-V3 | [`stage3_deepseek_v3.py`](model/stages/stage3_deepseek_v3.py) | 无辅助损失路由 bias + MTP | [V2 -> V3](docs/zh/23_from_v2_to_deepseek_v3.md) |
+
+先读[架构演进总览](docs/zh/20_architecture_evolution_overview.md)，再按表格从上到下跟写。正式训练使用统一模型 [`model/tinyseek.py`](model/tinyseek.py)，阶段文件负责教学，统一模型负责公平实验。
 
 ## 当前成果
 
@@ -37,30 +41,28 @@ TinyStories -> tiny base -> dense 35M/115M -> LR/batch sweep
 
 注意：这些结果用于验证教程闭环和实验方法，不代表模型已经具备真实大模型能力。
 
+![RTX 4090 v1 困惑度对比](experiments/v1_4090_plan/figures/v1_ppl.svg)
+
+新的 V3 架构代码已经完成，但 aux/bias、MTP off/on 和 MLA 公平对照仍待下一次 GPU 运行。计划与结果空表见[架构演进公平实验](experiments/06_architecture_evolution_plan_zh.md)，未测数据不会提前写结论。
+
 ## 三档快速路径
 
 | 路径 | 适合谁 | 命令入口 |
 | --- | --- | --- |
-| CPU smoke | 只想确认代码能跑 | `python trainer/train_pretrain.py --config configs/tiny_dense.json --data data/toy_pretrain.jsonl --max_steps 5` |
+| CPU 代码课 | 想先看懂四代模型和 shape | `python scripts/inspect_stage_models.py` |
 | 小 GPU 教学 run | 想体验 tiny dense -> SFT -> GRPO | [上卡前最终 Checklist](docs/zh/18_gpu_fill_only_checklist.md) |
-| RTX 4090 正式 run | 想复现实验报告 | `python scripts/run_4090_v1.py --execute --skip_data_prepare --hourly_rate 2.18` |
+| RTX 4090 研究 run | 想复现结果并填 V3 对照 | [实验报告中心](experiments/README_zh.md) |
 
-最推荐的学习顺序是：先读 [代码优先 Dense LM](docs/zh/12_code_first_dense_lm.md)，再读
-[训练主循环](docs/zh/16_training_loop_from_config_to_checkpoint.md)，然后按
-[上卡前最终 Checklist](docs/zh/18_gpu_fill_only_checklist.md) 跑实验。
+最推荐顺序：先读[架构演进总览](docs/zh/20_architecture_evolution_overview.md)，跟写四个 stage 文件，再读[训练主循环](docs/zh/16_training_loop_from_config_to_checkpoint.md)，最后按[公平架构实验计划](experiments/06_architecture_evolution_plan_zh.md)上卡。
 
 ## 一图看懂路线
 
 ```mermaid
 flowchart LR
-  Z["代码优先<br/>手写 Dense LM"] --> A["阶段 0<br/>训练 Dense LM"]
-  A --> B["阶段 1<br/>LR / Batch 网格搜索"]
-  B --> C["阶段 2<br/>RMSNorm + RoPE + SwiGLU + GQA"]
-  C --> D["阶段 3<br/>Tiny DeepSeekMoE"]
-  D --> E["阶段 4<br/>教学版 MLA"]
-  E --> F["阶段 5<br/>SFT + 推理冷启动"]
-  F --> G["阶段 6<br/>Rule-based GRPO Mini"]
-  G --> H["阶段 7<br/>拒绝采样 + 蒸馏"]
+  A["DeepSeek LLM<br/>Dense"] --> B["DeepSeekMoE<br/>稀疏 FFN"]
+  B --> C["DeepSeek-V2<br/>MLA"]
+  C --> D["DeepSeek-V3<br/>Bias + MTP"]
+  D --> E["DeepSeek-R1<br/>SFT + GRPO"]
 ```
 
 ## 模型升级路线
@@ -98,9 +100,10 @@ TinySeek-Lab/
   docs/                 英文教程章节
   docs/zh/              中文教程章节
   experiments/          sweep 计划和实验模板
-  model/                Dense LM、MoE FFN、教学版 MLA
+  model/stages/         四代完整教学模型
+  model/tinyseek.py     正式实验统一模型
   scripts/              数据准备和生成脚本
-  trainer/              预训练、SFT、sweep、DPO/GRPO 入口
+  trainer/              预训练、SFT、sweep、GRPO 入口
   tests/                smoke tests
 ```
 
@@ -174,20 +177,14 @@ v1 自动汇总表和图表见：
 
 1. [项目范围](docs/zh/00_project_scope.md)
 2. [DeepSeek 语言模型论文地图](docs/zh/01_deepseek_lm_paper_map.md)
-3. [代码优先：从零写出最初的 DeepSeek-style Dense LM](docs/zh/12_code_first_dense_lm.md)
-4. [训练主循环：从 Config 到 Checkpoint](docs/zh/16_training_loop_from_config_to_checkpoint.md)
-5. [代码导读](docs/zh/15_code_walkthrough.md)
-6. [阶段 0：Dense Baseline](docs/zh/02_stage0_dense_baseline.md)
-7. [阶段 1：LR 和 Batch Size 搜索](docs/zh/03_stage1_lr_batch_search.md)
-8. [阶段 2：MLP 和 Attention 升级](docs/zh/04_stage2_block_upgrades.md)
-9. [阶段 3：Tiny DeepSeekMoE](docs/zh/05_stage3_moe.md)
-10. [阶段 4：教学版 MLA](docs/zh/06_stage4_mla.md)
-11. [阶段 5：SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
-12. [阶段 6：Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
-13. [仓库路线图](docs/zh/09_repository_roadmap.md)
-14. [实验报告模板](docs/zh/10_experiment_report_template.md)
-15. [MiniMind 风格结构说明](docs/zh/11_minimind_structure_notes.md)
-16. [GPU 选择与成本记录](docs/zh/13_gpu_cost_tracking.md)
+3. [四代架构演进总览](docs/zh/20_architecture_evolution_overview.md)
+4. [从零写 DeepSeek LLM Dense 基线](docs/zh/12_code_first_dense_lm.md)
+5. [从 Dense 改到 DeepSeekMoE](docs/zh/21_from_dense_to_deepseek_moe.md)
+6. [从 MoE 改到 DeepSeek-V2](docs/zh/22_from_moe_to_deepseek_v2.md)
+7. [从 V2 改到 DeepSeek-V3](docs/zh/23_from_v2_to_deepseek_v3.md)
+8. [训练主循环：从 Config 到 Checkpoint](docs/zh/16_training_loop_from_config_to_checkpoint.md)
+9. [SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
+10. [Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
 
 补充文档：
 
@@ -198,9 +195,10 @@ v1 自动汇总表和图表见：
 
 ## 当前状态
 
-v0.2 已经包含：
+当前版本已经包含：
 
-- Dense / MoE / educational MLA 模型代码。
+- DeepSeek LLM / DeepSeekMoE / V2 / V3 四份完整教学模型。
+- 统一模型中的细粒度 expert、aux/bias 路由和 MTP 开关。
 - byte-level tokenizer 和 JSONL 文本数据集。
 - 预训练脚本。
 - 生成脚本。
@@ -209,5 +207,6 @@ v0.2 已经包含：
 - GPU 成本、显存、token、粗略 FLOPs 记录。
 - RTX 4090 v1 编排脚本、实测报告和自动图表。
 - DeepSeek LM 路线相关双语教程文档。
+- 8 份单变量架构实验配置与待上卡结果表。
 
 GRPO 当前仍是教学版，用来讲清算法形状；它不是严肃 RL 性能复现。

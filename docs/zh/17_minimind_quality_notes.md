@@ -61,4 +61,4 @@ DeepSeek 的 LM 研究路径。因此有些取舍要保留：
 
 ---
 
-上一篇: [v1 训练执行手册](14_v1_training_runbook.md) | [教程目录](README.md)
+上一篇: [v1 训练执行手册](14_v1_training_runbook.md) | [教程目录](README.md) | 下一篇: [上卡前 Checklist](18_gpu_fill_only_checklist.md)

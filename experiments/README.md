@@ -20,6 +20,7 @@ report should answer:
 | [v1 Pipeline Smoke Report](03_v1_pipeline_smoke_report.md) | Done | Pretrain -> SFT -> GRPO mini pipeline sanity check |
 | [AutoDL 4090 Smoke Report](02_autodl_4090_smoke_report.md) | Done | RTX 4090 environment and minimal training validation |
 | [Next Formal Experiment Plan](04_formal_experiment_plan.md) | Planned | Longer baseline, MoE analysis, and stronger GRPO follow-ups |
+| [Fair DeepSeek Architecture Experiments](06_architecture_evolution_plan.md) | Code ready, GPU pending | MHA/GQA, auxiliary/bias routing, MTP off/on, and GQA/MLA matched runs |
 | [Final GPU Checklist](../docs/18_gpu_fill_only_checklist.md) | Done | Commands and report steps for the next rented-GPU run |
 
 ## v1 Headline
@@ -67,7 +68,7 @@ TinySeek-Lab should keep moving in that direction:
 | Post-training | Runnable SFT and GRPO mini | Strengthen cold-start SFT before GRPO |
 | MoE analysis | Expert-load snapshots | Generate routing histograms and expert-load figures |
 | Cost story | GPU hours and cost logged | Show "what cost buys what result" on the front page |
-| Code teaching | Model and training-loop walkthroughs | Keep adding file-by-file and block-by-block explanations |
+| Code teaching | Four complete model stages and adjacent-version lessons | Fill V3 ablation conclusions with new GPU data |
 
 ## Regenerate Figures
 

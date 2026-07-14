@@ -49,4 +49,4 @@
 
 ---
 
-上一篇: [项目范围](00_project_scope.md) | [教程目录](README.md) | 下一篇: [代码优先 Dense LM](12_code_first_dense_lm.md)
+上一篇: [项目范围](00_project_scope.md) | [教程目录](README.md) | 下一篇: [四代架构演进总览](20_architecture_evolution_overview.md)

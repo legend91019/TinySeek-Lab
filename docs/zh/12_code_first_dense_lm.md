@@ -370,4 +370,4 @@ Dense 模型跑通以后，实验才有意义：
 
 ---
 
-上一篇: [DeepSeek 语言模型论文地图](01_deepseek_lm_paper_map.md) | [教程目录](README.md) | 下一篇: [训练主循环](16_training_loop_from_config_to_checkpoint.md)
+上一篇: [四代架构演进总览](20_architecture_evolution_overview.md) | [教程目录](README.md) | 下一篇: [Dense 到 DeepSeekMoE](21_from_dense_to_deepseek_moe.md)

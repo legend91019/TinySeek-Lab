@@ -288,4 +288,4 @@ Continue to [Code Walkthrough](15_code_walkthrough.md), or return to the
 
 ---
 
-Previous: [Code First Dense LM](12_code_first_dense_lm.md) | [Tutorial Index](README.md) | Next: [Code Walkthrough](15_code_walkthrough.md)
+Previous: [DeepSeek-V2 to DeepSeek-V3](23_from_v2_to_deepseek_v3.md) | [Tutorial Index](README.md) | Next: [Code Walkthrough](15_code_walkthrough.md)

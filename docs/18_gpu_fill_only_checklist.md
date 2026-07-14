@@ -108,4 +108,4 @@ Then inspect:
 
 ---
 
-Previous: [What TinySeek-Lab Learns from MiniMind](17_minimind_quality_notes.md) | [Tutorial Index](README.md)
+Previous: [MiniMind Quality Notes](17_minimind_quality_notes.md) | [Tutorial Index](README.md)

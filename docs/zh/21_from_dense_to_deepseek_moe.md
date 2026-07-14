@@ -221,4 +221,4 @@ python trainer/train_pretrain.py --config configs/architecture_lab/moe_bias.json
 
 ---
 
-上一篇: [从零写 DeepSeek LLM](12_code_first_dense_lm.md) | [教程目录](README.md) | 下一篇: [从 MoE 到 DeepSeek-V2](22_from_moe_to_deepseek_v2.md)
+上一篇: [代码优先 Dense LM](12_code_first_dense_lm.md) | [教程目录](README.md) | 下一篇: [DeepSeekMoE 到 DeepSeek-V2](22_from_moe_to_deepseek_v2.md)

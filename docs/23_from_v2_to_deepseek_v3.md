@@ -123,4 +123,4 @@ The base-model architecture path now reaches V3. R1 changes how that base model 
 
 ---
 
-Previous: [MoE to DeepSeek-V2](22_from_moe_to_deepseek_v2.md) | [Tutorial Index](README.md) | Next: [Training Loop](16_training_loop_from_config_to_checkpoint.md)
+Previous: [DeepSeekMoE to DeepSeek-V2](22_from_moe_to_deepseek_v2.md) | [Tutorial Index](README.md) | Next: [Training Loop](16_training_loop_from_config_to_checkpoint.md)

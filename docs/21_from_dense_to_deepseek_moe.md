@@ -131,4 +131,4 @@ See the [architecture experiment plan](../experiments/06_architecture_evolution_
 
 ---
 
-Previous: [Build DeepSeek LLM](12_code_first_dense_lm.md) | [Tutorial Index](README.md) | Next: [MoE to DeepSeek-V2](22_from_moe_to_deepseek_v2.md)
+Previous: [Code First Dense LM](12_code_first_dense_lm.md) | [Tutorial Index](README.md) | Next: [DeepSeekMoE to DeepSeek-V2](22_from_moe_to_deepseek_v2.md)

@@ -62,4 +62,4 @@ to teach DeepSeek-style LM research moves. So it should keep these boundaries:
 
 ---
 
-Previous: [v1 Training Runbook](14_v1_training_runbook.md) | [Tutorial Index](README.md)
+Previous: [v1 Training Runbook](14_v1_training_runbook.md) | [Tutorial Index](README.md) | Next: [GPU Checklist](18_gpu_fill_only_checklist.md)

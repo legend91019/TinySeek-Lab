@@ -34,7 +34,26 @@ def test_old_chapters_are_current() -> None:
     assert "trainer/train_sft.py" in en_sft
 
 
+def test_readme_and_indexes_expose_the_course() -> None:
+    for path in (ROOT / "README.md", ROOT / "README_zh.md"):
+        text = path.read_text(encoding="utf-8")
+        assert "stage0_deepseek_llm.py" in text
+        assert "stage3_deepseek_v3.py" in text
+        assert "v1_ppl.svg" in text
+        assert "06_architecture_evolution_plan" in text
+    for path in (ROOT / "docs" / "README.md", ROOT / "docs" / "zh" / "README.md"):
+        text = path.read_text(encoding="utf-8")
+        positions = [text.index(name) for name in CHAPTERS]
+        assert positions == sorted(positions)
+    nav_source = (ROOT / "scripts" / "refresh_doc_nav.py").read_text(encoding="utf-8")
+    for name in CHAPTERS:
+        assert nav_source.count(name) == 2
+    for path in (ROOT / "experiments" / "README.md", ROOT / "experiments" / "README_zh.md"):
+        assert "06_architecture_evolution_plan" in path.read_text(encoding="utf-8")
+
+
 if __name__ == "__main__":
     test_bilingual_architecture_chapters()
     test_old_chapters_are_current()
+    test_readme_and_indexes_expose_the_course()
     print("docs contract ok")

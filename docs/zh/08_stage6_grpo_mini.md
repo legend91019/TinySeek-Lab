@@ -54,4 +54,4 @@ python trainer/train_grpo.py --config configs/tiny_grpo.json --data data/toy_grp
 
 ---
 
-上一篇: [阶段 5：SFT](07_stage5_sft_cold_start.md) | [教程目录](README.md) | 下一篇: [仓库路线图](09_repository_roadmap.md)
+上一篇: [阶段 5：SFT](07_stage5_sft_cold_start.md) | [教程目录](README.md) | 下一篇: [后训练代码细读](19_posttraining_code_walkthrough.md)

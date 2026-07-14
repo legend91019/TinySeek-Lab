@@ -189,4 +189,4 @@ if pred == target:
 
 ---
 
-上一篇: [上卡前最终 Checklist](18_gpu_fill_only_checklist.md) | [教程目录](README.md)
+上一篇: [阶段 6：GRPO Mini](08_stage6_grpo_mini.md) | [教程目录](README.md) | 下一篇: [仓库路线图](09_repository_roadmap.md)

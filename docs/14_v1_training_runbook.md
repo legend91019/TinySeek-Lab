@@ -107,4 +107,4 @@ python eval/mini_eval.py --config configs/tiny_sft.json --ckpt out/tiny_sft_last
 
 ---
 
-Previous: [GPU Cost Tracking](13_gpu_cost_tracking.md) | [Tutorial Index](README.md)
+Previous: [GPU Cost Tracking](13_gpu_cost_tracking.md) | [Tutorial Index](README.md) | Next: [MiniMind Quality Notes](17_minimind_quality_notes.md)

@@ -58,4 +58,4 @@ These are good papers, but not part of this LM-only tutorial.
 
 ---
 
-Previous: [Project Scope](00_project_scope.md) | [Tutorial Index](README.md) | Next: [Code First Dense LM](12_code_first_dense_lm.md)
+Previous: [Project Scope](00_project_scope.md) | [Tutorial Index](README.md) | Next: [Architecture Evolution Map](20_architecture_evolution_overview.md)

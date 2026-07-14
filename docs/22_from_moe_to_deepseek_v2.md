@@ -108,4 +108,4 @@ Only `attention_impl` changes. Record validation loss, theoretical KV elements, 
 
 ---
 
-Previous: [Dense to DeepSeekMoE](21_from_dense_to_deepseek_moe.md) | [Tutorial Index](README.md) | Next: [V2 to V3](23_from_v2_to_deepseek_v3.md)
+Previous: [Dense to DeepSeekMoE](21_from_dense_to_deepseek_moe.md) | [Tutorial Index](README.md) | Next: [DeepSeek-V2 to DeepSeek-V3](23_from_v2_to_deepseek_v3.md)

@@ -105,4 +105,4 @@ python scripts/generate_moe_routing_report.py --input_dir out --out experiments/
 
 ---
 
-上一篇: [向 MiniMind 学什么](17_minimind_quality_notes.md) | [教程目录](README.md)
+上一篇: [MiniMind 质量说明](17_minimind_quality_notes.md) | [教程目录](README.md)

@@ -189,4 +189,4 @@ python trainer/train_pretrain.py --config configs/architecture_lab/v2_mla.json -
 
 ---
 
-上一篇: [从 Dense 到 DeepSeekMoE](21_from_dense_to_deepseek_moe.md) | [教程目录](README.md) | 下一篇: [从 V2 到 V3](23_from_v2_to_deepseek_v3.md)
+上一篇: [Dense 到 DeepSeekMoE](21_from_dense_to_deepseek_moe.md) | [教程目录](README.md) | 下一篇: [DeepSeek-V2 到 DeepSeek-V3](23_from_v2_to_deepseek_v3.md)

@@ -193,4 +193,4 @@ After the next post-training run, the report should add:
 
 ---
 
-Previous: [Final Checklist Before Renting a GPU](18_gpu_fill_only_checklist.md) | [Tutorial Index](README.md)
+Previous: [Stage 6: GRPO Mini](08_stage6_grpo_mini.md) | [Tutorial Index](README.md) | Next: [Repository Roadmap](09_repository_roadmap.md)

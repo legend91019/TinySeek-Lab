@@ -1,26 +1,27 @@
+<div align="center">
+
 # TinySeek-Lab
+
+**Walk the DeepSeek LM research path with language models under a few hundred million parameters**
 
 [中文说明](README_zh.md) | English
 
-TinySeek-Lab is a tutorial repository for learning language-model training by
-walking through a small-scale version of DeepSeek's LM research path.
+</div>
 
-The goal is not to reproduce DeepSeek's results. The goal is to first write the
-initial dense model code, then reproduce the research moves at a scale that a
-learner can run:
+TinySeek-Lab is a bilingual, code-first course from model implementation through training and experiment reports. You write a complete Dense LM, evolve it into DeepSeekMoE, DeepSeek-V2, and DeepSeek-V3, then connect that base model to R1-style SFT and educational GRPO.
 
-1. Write the first DeepSeek-style dense decoder-only LM by hand.
-2. Train the dense baseline.
-3. Reproduce small LR / batch-size sweeps inspired by DeepSeek LLM.
-4. Upgrade the block: RMSNorm, RoPE, SwiGLU, GQA.
-5. Replace dense FFN with a small DeepSeekMoE-style routed FFN.
-6. Study MoE load balance, auxiliary loss, routing collapse, and specialization.
-7. Add an educational MLA-style low-rank KV path for KV-cache experiments.
-8. Run SFT, reasoning cold-start SFT, DPO, and rule-based GRPO mini experiments.
+This repository is language-model-only. It excludes multimodal, vision, video, OCR, embodied, and agent tracks. The goal is to reproduce research questions and experimental method, not DeepSeek scale or final capability.
 
-This repo intentionally focuses on language models only. It excludes
-multimodal, vision, video, OCR, robotics, and tool-use/agent chapters from the
-first roadmap.
+## Four Generations, One Code Path
+
+| Generation | Complete model you build | Main change | Code lesson |
+| --- | --- | --- | --- |
+| DeepSeek LLM | [`stage0_deepseek_llm.py`](model/stages/stage0_deepseek_llm.py) | Dense, RMSNorm, RoPE, SwiGLU, GQA | [Build the complete LM](docs/12_code_first_dense_lm.md) |
+| DeepSeekMoE | [`stage1_deepseek_moe.py`](model/stages/stage1_deepseek_moe.py) | fine-grained routed and shared experts | [Dense to MoE](docs/21_from_dense_to_deepseek_moe.md) |
+| DeepSeek-V2 | [`stage2_deepseek_v2.py`](model/stages/stage2_deepseek_v2.py) | MoE plus educational MLA | [MoE to V2](docs/22_from_moe_to_deepseek_v2.md) |
+| DeepSeek-V3 | [`stage3_deepseek_v3.py`](model/stages/stage3_deepseek_v3.py) | auxiliary-loss-free routing bias and MTP | [V2 to V3](docs/23_from_v2_to_deepseek_v3.md) |
+
+Start with the [architecture evolution map](docs/20_architecture_evolution_overview.md). Stage files teach the code; the unified [`model/tinyseek.py`](model/tinyseek.py) runs matched formal experiments.
 
 ## Current Results
 
@@ -42,18 +43,19 @@ TinyStories -> tiny base -> dense 35M/115M -> LR/batch sweep
 These results validate the tutorial loop and reporting method. They do not
 claim real large-model capability.
 
+![RTX 4090 v1 perplexity comparison](experiments/v1_4090_plan/figures/v1_ppl.svg)
+
+The V3 code path is ready, while auxiliary/bias routing, MTP off/on, and MLA matched runs still require the next GPU pass. See the [fair architecture experiment plan](experiments/06_architecture_evolution_plan.md); pending cells remain explicitly pending.
+
 ## Three Quick Paths
 
 | Path | Best for | Entry command |
 | --- | --- | --- |
-| CPU smoke | Check that the code path runs | `python trainer/train_pretrain.py --config configs/tiny_dense.json --data data/toy_pretrain.jsonl --max_steps 5` |
+| CPU code course | Inspect four complete models and their shapes | `python scripts/inspect_stage_models.py` |
 | Small GPU teaching run | Try tiny dense -> SFT -> GRPO | [Final GPU checklist](docs/18_gpu_fill_only_checklist.md) |
-| RTX 4090 formal run | Reproduce the report path | `python scripts/run_4090_v1.py --execute --skip_data_prepare --hourly_rate 2.18` |
+| RTX 4090 research run | Reproduce results and fill V3 comparisons | [Experiment hub](experiments/README.md) |
 
-Recommended reading order: start with
-[Code First Dense LM](docs/12_code_first_dense_lm.md), then read
-[Training Loop](docs/16_training_loop_from_config_to_checkpoint.md), then follow
-the [Final GPU checklist](docs/18_gpu_fill_only_checklist.md).
+Recommended order: read the [architecture map](docs/20_architecture_evolution_overview.md), write the four stage models, study the [training loop](docs/16_training_loop_from_config_to_checkpoint.md), then run the [fair architecture plan](experiments/06_architecture_evolution_plan.md).
 
 ## Why "TinySeek"
 
@@ -75,14 +77,10 @@ TinySeek-Lab turns those ideas into a sequence of small experiments.
 
 ```mermaid
 flowchart LR
-  Z["Code First<br/>Write Dense LM"] --> A["Stage 0<br/>Train Dense LM"]
-  A --> B["Stage 1<br/>LR / Batch Sweep"]
-  B --> C["Stage 2<br/>RMSNorm + RoPE + SwiGLU + GQA"]
-  C --> D["Stage 3<br/>Tiny DeepSeekMoE"]
-  D --> E["Stage 4<br/>Educational MLA"]
-  E --> F["Stage 5<br/>SFT + Reasoning Cold Start"]
-  F --> G["Stage 6<br/>Rule-based GRPO Mini"]
-  G --> H["Stage 7<br/>Rejection Sampling + Distillation"]
+  A["DeepSeek LLM<br/>Dense"] --> B["DeepSeekMoE<br/>Sparse FFN"]
+  B --> C["DeepSeek-V2<br/>MLA"]
+  C --> D["DeepSeek-V3<br/>Bias + MTP"]
+  D --> E["DeepSeek-R1<br/>SFT + GRPO"]
 ```
 
 ## Model Evolution
@@ -119,9 +117,10 @@ TinySeek-Lab/
   dataset/              Dataset wrappers and byte tokenizer
   docs/                 Chapter-style tutorial notes
   experiments/          Sweep plans and report templates
-  model/                Dense LM, MoE FFN, educational MLA path
+  model/stages/         Four complete teaching models
+  model/tinyseek.py     Unified formal experiment model
   scripts/              Data prep and generation helpers
-  trainer/              Pretrain, SFT, sweep, DPO/GRPO skeletons
+  trainer/              Pretrain, SFT, sweep, and GRPO entry points
   tests/                Smoke tests
 ```
 
@@ -195,16 +194,14 @@ Read these docs in order, or open the full [tutorial index](docs/README.md):
 
 1. [Project Scope](docs/00_project_scope.md)
 2. [DeepSeek Paper Map for LM Training](docs/01_deepseek_lm_paper_map.md)
-3. [Code First: Build the Initial DeepSeek-Style Dense LM](docs/12_code_first_dense_lm.md)
-4. [Training Loop: From Config to Checkpoint](docs/16_training_loop_from_config_to_checkpoint.md)
-5. [Code Walkthrough](docs/15_code_walkthrough.md)
-6. [Stage 0: Dense Baseline](docs/02_stage0_dense_baseline.md)
-7. [Stage 1: LR and Batch-Size Search](docs/03_stage1_lr_batch_search.md)
-8. [Stage 2: MLP and Attention Upgrades](docs/04_stage2_block_upgrades.md)
-9. [Stage 3: Tiny DeepSeekMoE](docs/05_stage3_moe.md)
-10. [Stage 4: Educational MLA](docs/06_stage4_mla.md)
-11. [Stage 5: SFT and Reasoning Cold Start](docs/07_stage5_sft_cold_start.md)
-12. [Stage 6: Rule-Based GRPO Mini](docs/08_stage6_grpo_mini.md)
+3. [Four-Generation Architecture Map](docs/20_architecture_evolution_overview.md)
+4. [Build the DeepSeek LLM Dense Baseline](docs/12_code_first_dense_lm.md)
+5. [Dense to DeepSeekMoE](docs/21_from_dense_to_deepseek_moe.md)
+6. [MoE to DeepSeek-V2](docs/22_from_moe_to_deepseek_v2.md)
+7. [V2 to DeepSeek-V3](docs/23_from_v2_to_deepseek_v3.md)
+8. [Training Loop: From Config to Checkpoint](docs/16_training_loop_from_config_to_checkpoint.md)
+9. [SFT and Reasoning Cold Start](docs/07_stage5_sft_cold_start.md)
+10. [Rule-Based GRPO Mini](docs/08_stage6_grpo_mini.md)
 
 Chinese tutorial notes:
 
@@ -212,20 +209,14 @@ Open the full [中文教程目录](docs/zh/README.md), or read in this order:
 
 1. [项目范围](docs/zh/00_project_scope.md)
 2. [DeepSeek 语言模型论文地图](docs/zh/01_deepseek_lm_paper_map.md)
-3. [代码优先：从零写出最初的 DeepSeek-style Dense LM](docs/zh/12_code_first_dense_lm.md)
-4. [训练主循环：从 Config 到 Checkpoint](docs/zh/16_training_loop_from_config_to_checkpoint.md)
-5. [代码导读](docs/zh/15_code_walkthrough.md)
-6. [阶段 0：Dense Baseline](docs/zh/02_stage0_dense_baseline.md)
-7. [阶段 1：LR 和 Batch Size 搜索](docs/zh/03_stage1_lr_batch_search.md)
-8. [阶段 2：MLP 和 Attention 升级](docs/zh/04_stage2_block_upgrades.md)
-9. [阶段 3：Tiny DeepSeekMoE](docs/zh/05_stage3_moe.md)
-10. [阶段 4：教学版 MLA](docs/zh/06_stage4_mla.md)
-11. [阶段 5：SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
-12. [阶段 6：Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
-13. [仓库路线图](docs/zh/09_repository_roadmap.md)
-14. [实验报告模板](docs/zh/10_experiment_report_template.md)
-15. [MiniMind 风格结构说明](docs/zh/11_minimind_structure_notes.md)
-16. [GPU 选择与成本记录](docs/zh/13_gpu_cost_tracking.md)
+3. [四代架构演进总览](docs/zh/20_architecture_evolution_overview.md)
+4. [从零写 DeepSeek LLM Dense 基线](docs/zh/12_code_first_dense_lm.md)
+5. [从 Dense 改到 DeepSeekMoE](docs/zh/21_from_dense_to_deepseek_moe.md)
+6. [从 MoE 改到 DeepSeek-V2](docs/zh/22_from_moe_to_deepseek_v2.md)
+7. [从 V2 改到 DeepSeek-V3](docs/zh/23_from_v2_to_deepseek_v3.md)
+8. [训练主循环](docs/zh/16_training_loop_from_config_to_checkpoint.md)
+9. [SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
+10. [Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
 
 Chinese supplements:
 
@@ -259,7 +250,8 @@ TinySeek-Lab is a lab notebook disguised as a repo.
 
 ## Current Status
 
-v0.2 contains runnable dense/MoE/educational-MLA model code, pretraining,
-generation, LR/batch sweeps, SFT, rule-based GRPO mini, mini eval, GPU cost
-tracking, a 4090 v1 run orchestrator, and generated report figures. The GRPO
-stage is still educational rather than a serious RL reproduction.
+The current version contains four complete DeepSeek LLM/MoE/V2/V3 teaching
+models, a unified configurable experiment model with routing bias and MTP,
+pretraining, sweeps, SFT, educational GRPO, mini eval, GPU cost tracking,
+measured 4090 v1 reports, and eight matched architecture configurations. GRPO
+and MLA remain educational rather than production reproductions.

@@ -46,4 +46,4 @@
 
 ---
 
-上一篇: [阶段 6：GRPO Mini](08_stage6_grpo_mini.md) | [教程目录](README.md) | 下一篇: [实验报告模板](10_experiment_report_template.md)
+上一篇: [后训练代码细读](19_posttraining_code_walkthrough.md) | [教程目录](README.md) | 下一篇: [实验报告模板](10_experiment_report_template.md)

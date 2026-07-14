@@ -93,4 +93,4 @@ The next code chapter starts with the FFN: how one token reaches two experts, an
 
 ---
 
-Previous: [DeepSeek LM Paper Map](01_deepseek_lm_paper_map.md) | [Tutorial Index](README.md) | Next: [Build DeepSeek LLM](12_code_first_dense_lm.md)
+Previous: [DeepSeek LM Paper Map](01_deepseek_lm_paper_map.md) | [Tutorial Index](README.md) | Next: [Code First Dense LM](12_code_first_dense_lm.md)

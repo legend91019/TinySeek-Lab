@@ -36,4 +36,4 @@
 
 ---
 
-Previous: [Stage 6: GRPO Mini](08_stage6_grpo_mini.md) | [Tutorial Index](README.md) | Next: [Experiment Template](10_experiment_report_template.md)
+Previous: [Post-Training Code Walkthrough](19_posttraining_code_walkthrough.md) | [Tutorial Index](README.md) | Next: [Experiment Template](10_experiment_report_template.md)

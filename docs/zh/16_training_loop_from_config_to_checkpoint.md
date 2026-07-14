@@ -283,4 +283,4 @@ python scripts/generate_v1_report_assets.py --run_dir experiments/v1_4090_plan
 
 ---
 
-上一篇: [代码优先 Dense LM](12_code_first_dense_lm.md) | [教程目录](README.md) | 下一篇: [代码导读](15_code_walkthrough.md)
+上一篇: [DeepSeek-V2 到 DeepSeek-V3](23_from_v2_to_deepseek_v3.md) | [教程目录](README.md) | 下一篇: [代码导读](15_code_walkthrough.md)
