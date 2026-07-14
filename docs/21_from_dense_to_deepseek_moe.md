@@ -6,6 +6,25 @@ Prerequisite: [`12_code_first_dense_lm.md`](12_code_first_dense_lm.md). This cha
 - New model: [`stage1_deepseek_moe.py`](../model/stages/stage1_deepseek_moe.py)
 - Formal implementation: [`MoEFFN`](../model/tinyseek.py)
 
+## Research Card: MoE Is Not an Automatic Upgrade
+
+Separate two questions:
+
+1. **Dense -> sparse MoE:** can parameter capacity be decoupled from per-token activation? Compare total and activated parameters, LM loss, tokens/s, and memory.
+2. **ordinary MoE -> DeepSeekMoE:** with matched expert-FFN capacity and active width, do fine-grained segmentation and shared-expert isolation add value?
+
+The second question uses three configurations:
+
+| Candidate | routed x width | shared x width | active width/token | total expert-FFN capacity |
+| --- | ---: | ---: | ---: | ---: |
+| coarse ordinary MoE | `2 x 4D`, top-1 | `0` | `4D` | `8D` |
+| fine-grained MoE | `8 x 1D`, top-4 | `0` | `4D` | `8D` |
+| shared isolation | `7 x 1D`, top-3 | `1 x 1D` | `4D` | `8D` |
+
+Use [`moe_coarse.json`](../configs/architecture_lab/moe_coarse.json), [`moe_fine_grained.json`](../configs/architecture_lab/moe_fine_grained.json), and [`moe_shared.json`](../configs/architecture_lab/moe_shared.json). Router parameters differ slightly with expert count, so reports must still list actual total parameters; the table matches the dominant expert-FFN capacity and active width.
+
+**Decision gate:** first rule out routing collapse, then compare multi-seed validation LM loss/PPL. Keep the simpler MoE if fine-grained or shared variants show no stable benefit, or if throughput cost outweighs quality. More experts alone are not evidence of an effective innovation.
+
 ## 1. What the Dense Stage Cannot Separate
 
 A Dense block runs the same SwiGLU FFN for every token. Widening that FFN increases parameter capacity and per-token computation together. MoE separates them: store many expert FFNs, but activate only top-k experts for each token.
@@ -118,7 +137,15 @@ activated_params < total_params
 logits remain [B, T, V]
 ```
 
-Then run the matched routing comparison:
+First run the DeepSeekMoE innovation chain:
+
+```bash
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_coarse.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_fine_grained.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_shared.json --data data/tinystories.jsonl --hourly_rate 2.18
+```
+
+Auxiliary loss versus selection bias is the later V3 balancing experiment; do not mix it into the DeepSeekMoE structural ablation:
 
 ```bash
 python trainer/train_pretrain.py --config configs/architecture_lab/moe_aux.json --data data/tinystories.jsonl --hourly_rate 2.18
@@ -126,6 +153,8 @@ python trainer/train_pretrain.py --config configs/architecture_lab/moe_bias.json
 ```
 
 See the [architecture experiment plan](../experiments/06_architecture_evolution_plan.md). Earlier 4090 MoE results prove that the old pipeline runs; they do not replace the new fine-grained matched comparison.
+
+Write conclusions as observation, decision, and next action. If the fine-grained run has healthy loads, consistently lower PPL, and acceptable throughput, proceed to shared isolation. If only one seed improves, run repeats instead of declaring an upgrade.
 
 <!-- tinyseek-nav -->
 

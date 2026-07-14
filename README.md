@@ -1,3 +1,5 @@
+> This repository was created while studying the DeepSeek papers, as a practical aid for understanding them.
+
 <div align="center">
 
 # TinySeek-Lab
@@ -11,6 +13,18 @@
 TinySeek-Lab is a bilingual, code-first course from model implementation through training and experiment reports. You write a complete Dense LM, evolve it into DeepSeekMoE, DeepSeek-V2, and DeepSeek-V3, then connect that base model to R1-style SFT and educational GRPO.
 
 This repository is language-model-only. It excludes multimodal, vision, video, OCR, embodied, and agent tracks. The goal is to reproduce research questions and experimental method, not DeepSeek scale or final capability.
+
+## Experiment-Driven, Not a Component Checklist
+
+Every architecture transition follows the same loop:
+
+```text
+previous baseline -> measurable bottleneck -> research hypothesis
+-> single-variable ablation -> prewritten decision gate
+-> upgrade / retain the previous stage
+```
+
+DeepSeek papers provide problems, methods, and paper-scale evidence; TinySeek provides small-model code and runnable tests. Until GPU results exist, the repository labels a claim `Pending` instead of presenting a hypothesis as a TinySeek finding. See the [four-generation architecture map](docs/20_architecture_evolution_overview.md) and the [fair architecture experiment plan](experiments/06_architecture_evolution_plan.md).
 
 ## Four Generations, One Code Path
 
@@ -253,5 +267,5 @@ TinySeek-Lab is a lab notebook disguised as a repo.
 The current version contains four complete DeepSeek LLM/MoE/V2/V3 teaching
 models, a unified configurable experiment model with routing bias and MTP,
 pretraining, sweeps, SFT, educational GRPO, mini eval, GPU cost tracking,
-measured 4090 v1 reports, and eight matched architecture configurations. GRPO
+measured 4090 v1 reports, and sixteen architecture-lab configurations. GRPO
 and MLA remain educational rather than production reproductions.

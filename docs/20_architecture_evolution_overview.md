@@ -38,6 +38,34 @@ flowchart LR
 
 R1 is primarily a training-pipeline evolution, not a new Transformer block. R1-Zero applies RL directly to a pretrained base model. The full R1 route adds cold-start SFT, RL, rejection sampling, another SFT stage, and later RL. See [`19_posttraining_code_walkthrough.md`](19_posttraining_code_walkthrough.md).
 
+## From a Paper List to Experiment-Driven Upgrades
+
+The next architecture is not treated as correct in advance. Every transition follows the same research loop:
+
+```mermaid
+flowchart LR
+  A["Run the previous baseline"] --> B["Record a measurable bottleneck"]
+  B --> C["State a research hypothesis"]
+  C --> D["Implement the smallest candidate change"]
+  D --> E["Run a matched ablation"]
+  E --> F{"Pass the decision gate?"}
+  F -- "yes" --> G["Upgrade and record the cost"]
+  F -- "no" --> H["Keep the baseline or revise the hypothesis"]
+```
+
+Historical discipline matters. Public papers tell us which problems DeepSeek addressed and which ablations it reported. They usually do not prove that an internal team first saw one public table and only then invented a method. TinySeek therefore reconstructs a **testable research path**, not an undocumented invention story.
+
+## Four Research Cards
+
+| Stage | Measurable bottleneck | Research hypothesis | Matched experiment | Decision gate | Evidence status |
+| --- | --- | --- | --- | --- | --- |
+| Dense recipe | Loss is sensitive to LR and batch at a fixed token budget | A stable recipe is required before architecture comparisons | LR by batch sweep | choose a stable region with the lowest validation LM loss | measured in v1; a formal multi-seed run remains useful |
+| Dense -> DeepSeekMoE | Wider Dense FFNs couple capacity to per-token compute | Fine-grained routing adds combinations; shared experts carry common knowledge | coarse MoE -> fine-grained MoE -> shared isolation | no material LM-loss regression, no routing collapse, and correct capacity/activation accounting | code and configs ready; GPU evidence pending |
+| MoE -> V2 | GQA cache still grows linearly with layers, context, and batch | A low-rank KV latent plus decoupled RoPE can reduce cached state | GQA -> naive low-rank KV -> educational MLA | materially fewer theoretical cache elements without significant PPL regression; actual throughput waits for cached decoding | theory check available, quality run pending, real cache kernel absent |
+| V2 -> V3 | Auxiliary loss may interfere with LM learning; one-token prediction gives limited supervision | Selection bias can control load without changing affinity weights; MTP adds farther supervision | aux vs bias; MTP off vs on | no routing collapse, main LM/PPL no worse, and acceptable added cost | code and design ready; GPU evidence pending |
+
+Write the decision gate before running an experiment. Changing the success criterion after seeing numbers makes almost any result look supportive. A single seed is a debugging and hypothesis-forming run; a formal claim should report means and variation over multiple seeds.
+
 ## Why Each Generation Appeared
 
 ### DeepSeek LLM

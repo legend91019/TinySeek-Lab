@@ -8,6 +8,27 @@ DeepSeekMoE 解决 FFN 的稀疏激活，attention 仍然要为每个历史 toke
 - 新一代：[`stage2_deepseek_v2.py`](../../model/stages/stage2_deepseek_v2.py)
 - 正式实验实现：[`CausalSelfAttention`](../../model/tinyseek.py)
 
+## 本章研究卡：先证明 cache 是问题
+
+在改代码前，先用上一代配置计算每层、每 token 的 KV 元素数：
+
+```text
+GQA cache = 2 * num_kv_heads * head_dim
+本实验       = 2 * 2 * 48 = 192 elements/token/layer
+```
+
+它还会乘以 batch、序列长度和层数。这个公式能证明缓存增长趋势，但不能代替真实 decode profiler。
+
+本章依次检验两个假设：
+
+| 步骤 | 候选 | 想验证什么 | 当前可观测量 |
+| --- | --- | --- | --- |
+| B0 | GQA control | 上一代基线 | `192` 个理论元素；GPU loss/PPL 待测 |
+| B1 | 朴素低秩 KV | 低秩是否能保住语言建模质量 | loss/PPL 可测；由于 RoPE 耦合，不宣称 latent-only cache |
+| B2 | 解耦 RoPE 的 educational MLA | content latent 与位置分量分开后，应缓存量是否下降 | `64 + 8 = 72` 个理论元素，即比本 GQA 配置少 `62.5%`；真实 decode 待实现 |
+
+**决策门槛**：B1/B2 的多 seed validation PPL 不应显著差于 B0；B2 必须在理论账本上明显减少缓存。即使两项都通过，也只能升级“结构研究结论”。要声称真实显存或吞吐收益，还必须实现 cached decoding，并测长上下文下的峰值显存、首 token 后吞吐和延迟。
+
 ## 1. 上一代哪里不够
 
 生成第 `t` 个 token 时，attention 需要访问之前所有 token 的 K/V。普通 GQA 每层每个历史 token 需要缓存：
@@ -178,12 +199,25 @@ python scripts/inspect_stage_models.py
 
 ## 10. 公平实验怎么做
 
+先测“仅低秩投影”这一步：
+
+```bash
+python trainer/train_pretrain.py --config configs/architecture_lab/v2_low_rank_control.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/v2_low_rank_kv.json --data data/tinystories.jsonl --hourly_rate 2.18
+```
+
+这组实验主要检查低秩 attention 的质量代价；`mla_decoupled_rope=false`，所以不得把它写成 latent-only cache 收益。
+
+再测带解耦 RoPE 的教学版 MLA：
+
 ```bash
 python trainer/train_pretrain.py --config configs/architecture_lab/v2_attention_control.json --data data/tinystories.jsonl --hourly_rate 2.18
 python trainer/train_pretrain.py --config configs/architecture_lab/v2_mla.json --data data/tinystories.jsonl --hourly_rate 2.18
 ```
 
 两个配置只改变 `attention_impl`。需要同时记录 validation loss、理论 KV 元素、训练显存和 tokens/s。当前统一 trainer 没有真实 latent cache，所以不能用训练显存直接证明论文的推理缓存收益。
+
+如果 MLA 的 PPL 更差，先 sweep `mla_latent_size`，画出“质量 - 理论 cache”Pareto 曲线；不要只保留一个对 MLA 有利的 rank。若理论 cache 减少但训练 tokens/s 下降，这并不矛盾：当前教学 forward 会重建 K/V，研究问题本来就不是训练 kernel 加速。
 
 结果表见 [`experiments/06_architecture_evolution_plan_zh.md`](../../experiments/06_architecture_evolution_plan_zh.md)。下一章将在 V2 基础上修改 router 的均衡方法，并把 MTP loss 接进整模 forward 和训练循环。
 

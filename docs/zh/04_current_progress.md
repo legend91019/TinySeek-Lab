@@ -31,7 +31,8 @@ TinyStories -> dense baseline -> LR/batch sweep -> MoE -> MLA
 - DeepSeek LLM、DeepSeekMoE、DeepSeek-V2、DeepSeek-V3 四份完整教学模型。
 - Dense -> MoE -> V2 -> V3 的中英双语逐段代码课。
 - V3 auxiliary-loss-free selection bias、MTP objective 与统一 trainer 日志。
-- 8 份单变量架构实验配置和公平性合同测试。
+- 16 份架构实验配置和公平性合同测试，覆盖普通 MoE -> 细粒度 -> shared、aux 权重 sweep、bias、低秩 KV、MLA 与 MTP。
+- 四代教学模型、训练 smoke、V3 合同和全部 16 份架构配置的 CPU 动态 forward 验证。
 - 每章末尾的上一篇 / 下一篇 / 目录导航。
 
 ## 当前实验结论
@@ -51,7 +52,7 @@ TinyStories -> dense baseline -> LR/batch sweep -> MoE -> MLA
 - MoE routing histogram 的生成器已完成，但真实 expert-load 图表需要下一次 MoE 训练数据。
 - 更长的 35M dense baseline，需要 GPU 时间。
 - 新增 Copy / QA mini eval 后，需要用新 checkpoint 重新评测。
-- aux/bias routing、MTP off/on、MHA/GQA 和 GQA/MLA 对照已准备好，真实结果待上卡。
+- 普通 MoE/细粒度/shared、aux 权重、aux/bias routing、MTP off/on、MHA/GQA、朴素低秩 KV 和 GQA/MLA 对照已准备好，真实结果待上卡。
 - 可选：真实 BPE tokenizer、packed dataset、streaming dataset。
 - 可选：CI / GitHub Actions。
 
@@ -69,7 +70,7 @@ TinyStories -> dense baseline -> LR/batch sweep -> MoE -> MLA
 | 实验报告和图表 | 88% |
 | 精品教程 polish | 93% |
 
-整体判断：作为 GitHub 上可学习、可运行的教程仓库，约 **94%**；作为有完整消融证据的研究复现课程，约 **85%**。不开卡能完成的四代代码、双语讲解、配置、合同测试和报告空表已经基本完成；主要缺口是新 V3 路线的 GPU 数字与动态 PyTorch smoke test。
+整体判断：作为 GitHub 上可学习、可运行的教程仓库，约 **94%**；作为有完整消融证据的研究复现课程，约 **85%**。不开卡能完成的四代代码、双语讲解、配置、合同测试、CPU 动态验证和报告空表已经基本完成；主要缺口是新架构研究链的多 seed GPU 数字与据此填写的决策结论。
 
 <!-- tinyseek-nav -->
 

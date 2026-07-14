@@ -20,7 +20,7 @@ report should answer:
 | [v1 Pipeline Smoke Report](03_v1_pipeline_smoke_report.md) | Done | Pretrain -> SFT -> GRPO mini pipeline sanity check |
 | [AutoDL 4090 Smoke Report](02_autodl_4090_smoke_report.md) | Done | RTX 4090 environment and minimal training validation |
 | [Next Formal Experiment Plan](04_formal_experiment_plan.md) | Planned | Longer baseline, MoE analysis, and stronger GRPO follow-ups |
-| [Fair DeepSeek Architecture Experiments](06_architecture_evolution_plan.md) | Code ready, GPU pending | MHA/GQA, auxiliary/bias routing, MTP off/on, and GQA/MLA matched runs |
+| [Fair DeepSeek Architecture Experiments](06_architecture_evolution_plan.md) | Code ready, GPU pending | experiment-driven gates for coarse/fine/shared MoE, aux weights, bias routing, naive low-rank KV, GQA/MLA, and MTP |
 | [Final GPU Checklist](../docs/18_gpu_fill_only_checklist.md) | Done | Commands and report steps for the next rented-GPU run |
 
 ## v1 Headline

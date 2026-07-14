@@ -7,6 +7,20 @@ V3 keeps the V2 backbone of MLA plus DeepSeekMoE. This chapter adds two training
 - Formal model: [`model/tinyseek.py`](../model/tinyseek.py)
 - Trainer: [`trainer/train_pretrain.py`](../trainer/train_pretrain.py)
 
+## Research Card: Measure the Trade-off Before Replacing the Mechanism
+
+Split the V3 transition into three experiments instead of jumping directly to the final config:
+
+| Step | Experiment | Observe first | Continue when |
+| --- | --- | --- | --- |
+| C0 | aux weights `0 / 0.001 / 0.01 / 0.1` | expert-load balance and any simultaneous degradation in main `val_lm_loss` | the load-improvement versus main-task-cost curve is visible, not just one favorable point |
+| C1 | best reasonable aux baseline vs selection bias | load spread, PPL, bias oscillation, and tokens/s | bias keeps loads healthy and main LM is no worse than the aux baseline |
+| C2 | MTP off vs on | main LM loss/PPL, mini eval, throughput, and memory; never rank by total objective | multi-seed main-task benefit is stable and added compute is acceptable |
+
+The aux sweep uses [`moe_aux_none.json`](../configs/architecture_lab/moe_aux_none.json), [`moe_aux_weak.json`](../configs/architecture_lab/moe_aux_weak.json), [`moe_aux.json`](../configs/architecture_lab/moe_aux.json), and [`moe_aux_strong.json`](../configs/architecture_lab/moe_aux_strong.json).
+
+If C0 shows no main-task cost, TinySeek cannot claim that its small-model experiment proved severe auxiliary-loss interference. It can cite the V3 paper motivation and still run C1 as a mechanism comparison. If C1 or C2 misses its gate, retain the V2 choice. That is the difference between an experiment-driven route and appending paper components by default.
+
 ## 1. Why Change V2 Routing
 
 Earlier stages optimize `LM loss + balance auxiliary loss`. A strong balance term can force uniform routing at the expense of assigning a token to its most suitable expert. V3 seeks load control with less direct interference in the language-model gradient.
@@ -106,6 +120,17 @@ Tests check bias direction under an artificial `[20,2,2,2]` load, stable main lo
 
 ## 11. Matched Experiments
 
+First run the auxiliary-weight sweep to establish the problem shape:
+
+```bash
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_aux_none.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_aux_weak.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_aux.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_aux_strong.json --data data/tinystories.jsonl --hourly_rate 2.18
+```
+
+Then compare balancing mechanisms:
+
 ```bash
 python trainer/train_pretrain.py --config configs/architecture_lab/moe_aux.json --data data/tinystories.jsonl --hourly_rate 2.18
 python trainer/train_pretrain.py --config configs/architecture_lab/moe_bias.json --data data/tinystories.jsonl --hourly_rate 2.18
@@ -114,6 +139,8 @@ python trainer/train_pretrain.py --config configs/architecture_lab/v3_mtp.json -
 ```
 
 Results remain pending in the [architecture experiment plan](../experiments/06_architecture_evolution_plan.md). Until those cells are measured, the repository can claim implementation and experiment readiness, not a TinySeek performance win.
+
+Formal conclusions require multiple seeds. When the budget permits only one seed, label it as a pilot and preserve complete history, expert-load statistics, and the cost ledger for the next pass.
 
 ## 12. Why R1 Comes Next
 

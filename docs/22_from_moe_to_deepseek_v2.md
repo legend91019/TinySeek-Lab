@@ -6,6 +6,27 @@ DeepSeekMoE sparsifies the FFN, while attention still stores K/V for every previ
 - New model: [`stage2_deepseek_v2.py`](../model/stages/stage2_deepseek_v2.py)
 - Formal implementation: [`CausalSelfAttention`](../model/tinyseek.py)
 
+## Research Card: Establish the Cache Bottleneck First
+
+Before changing code, calculate the previous stage's KV elements per layer and token:
+
+```text
+GQA cache = 2 * num_kv_heads * head_dim
+this lab    = 2 * 2 * 48 = 192 elements/token/layer
+```
+
+That value is multiplied by batch, context length, and layer count. The formula establishes the growth trend, but it does not replace a real decoding profiler.
+
+Test two hypotheses in order:
+
+| Step | Candidate | Question | Currently observable |
+| --- | --- | --- | --- |
+| B0 | GQA control | previous-stage baseline | `192` theoretical elements; GPU loss/PPL pending |
+| B1 | naive low-rank KV | can low rank preserve LM quality? | loss/PPL measurable; no latent-only cache claim because RoPE remains coupled |
+| B2 | educational MLA with decoupled RoPE | does separating content and position reduce cacheable state? | `64 + 8 = 72` theoretical elements, `62.5%` below this GQA setup; real decoding pending |
+
+**Decision gate:** multi-seed validation PPL for B1/B2 must not be materially worse than B0, and B2 must materially reduce the theoretical cache ledger. Passing both gates supports only the structural result. Actual memory or throughput claims require cached decoding plus long-context peak-memory, post-prefill throughput, and latency measurements.
+
 ## 1. The Remaining Bottleneck
 
 Standard GQA stores, per layer and historical token:
@@ -99,12 +120,25 @@ Verify logits shape, matching Q/K head dimensions, `rank + rope_dim` cache accou
 
 ## 10. Matched Experiment
 
+First isolate low-rank projection:
+
+```bash
+python trainer/train_pretrain.py --config configs/architecture_lab/v2_low_rank_control.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/v2_low_rank_kv.json --data data/tinystories.jsonl --hourly_rate 2.18
+```
+
+This pair measures the quality cost of low-rank attention. Because `mla_decoupled_rope=false`, it must not be reported as a latent-only cache result.
+
+Then test educational MLA with decoupled RoPE:
+
 ```bash
 python trainer/train_pretrain.py --config configs/architecture_lab/v2_attention_control.json --data data/tinystories.jsonl --hourly_rate 2.18
 python trainer/train_pretrain.py --config configs/architecture_lab/v2_mla.json --data data/tinystories.jsonl --hourly_rate 2.18
 ```
 
 Only `attention_impl` changes. Record validation loss, theoretical KV elements, training memory, and tokens/s, while noting that training memory does not prove latent-cache decoding savings. Results belong in the [architecture experiment plan](../experiments/06_architecture_evolution_plan.md).
+
+If MLA PPL is worse, sweep `mla_latent_size` and report the quality-versus-theoretical-cache Pareto curve instead of selecting one favorable rank. Lower theoretical cache with slower training tokens/s is not contradictory: the teaching forward reconstructs K/V and is not a training-kernel speed experiment.
 
 <!-- tinyseek-nav -->
 

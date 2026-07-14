@@ -1,3 +1,5 @@
+> 本仓库是笔者学习 DeepSeek 论文时，为方便理解而完成的作品。
+
 <div align="center">
 
 # TinySeek-Lab
@@ -11,6 +13,17 @@
 TinySeek-Lab 是一套从代码、训练到实验报告的双语教程。你不会只调用现成模型，而是先写出完整 Dense LM，再沿论文路线逐代改造成 DeepSeekMoE、DeepSeek-V2 和 DeepSeek-V3，最后进入 R1 风格的 SFT 与 GRPO 教学实验。
 
 本仓只做语言模型，不进入多模态、视觉、视频、OCR、具身和 Agent 主线。目标是复现研究问题与实验方法，不是复现 DeepSeek 的参数规模或最终能力。
+
+## 实验驱动，而不是按版本堆组件
+
+每次结构升级都遵循同一个闭环：
+
+```text
+上一代基线 -> 可测量瓶颈 -> 研究假设 -> 单变量消融
+-> 预先写下的决策门槛 -> 升级 / 保留上一代
+```
+
+DeepSeek 论文提供问题、方法和论文规模的证据；TinySeek 提供小模型代码与可运行实验。GPU 数据尚未得到时只写“待验证”，不会把研究假设写成仓库已经证明的结论。完整方法见[四代架构演进总览](docs/zh/20_architecture_evolution_overview.md)，可执行矩阵见[架构演进公平实验](experiments/06_architecture_evolution_plan_zh.md)。
 
 ## 四代模型，一条代码主线
 
@@ -207,6 +220,6 @@ v1 自动汇总表和图表见：
 - GPU 成本、显存、token、粗略 FLOPs 记录。
 - RTX 4090 v1 编排脚本、实测报告和自动图表。
 - DeepSeek LM 路线相关双语教程文档。
-- 8 份单变量架构实验配置与待上卡结果表。
+- 16 份架构实验配置，覆盖 MoE 演进、aux 权重、路由 bias、低秩 KV、MLA 与 MTP，并配有待上卡结果表。
 
 GRPO 当前仍是教学版，用来讲清算法形状；它不是严肃 RL 性能复现。

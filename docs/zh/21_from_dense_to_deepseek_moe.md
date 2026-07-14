@@ -8,6 +8,25 @@
 - 新一代：[`stage1_deepseek_moe.py`](../../model/stages/stage1_deepseek_moe.py)
 - 正式实验实现：[`MoEFFN`](../../model/tinyseek.py)
 
+## 本章研究卡：不是“用了 MoE 就升级”
+
+先把两个问题分开：
+
+1. **Dense -> 稀疏 MoE**：容量与每 token 激活量能否解耦？这一步比较 total/activated parameters、LM loss、tokens/s 和显存。
+2. **普通 MoE -> DeepSeekMoE**：在 expert FFN 总容量和激活宽度匹配时，细粒度切分与 shared expert isolation 是否有额外价值？
+
+第二个问题使用三份专门配置：
+
+| 候选 | routed x width | shared x width | 每 token 激活宽度 | expert FFN 总容量 |
+| --- | ---: | ---: | ---: | ---: |
+| 粗粒度普通 MoE | `2 x 4D`，top-1 | `0` | `4D` | `8D` |
+| 细粒度 MoE | `8 x 1D`，top-4 | `0` | `4D` | `8D` |
+| shared isolation | `7 x 1D`，top-3 | `1 x 1D` | `4D` | `8D` |
+
+对应 [`moe_coarse.json`](../../configs/architecture_lab/moe_coarse.json)、[`moe_fine_grained.json`](../../configs/architecture_lab/moe_fine_grained.json) 和 [`moe_shared.json`](../../configs/architecture_lab/moe_shared.json)。router 参数会因 expert 数略有差异，因此报告仍要列真实总参数；上表匹配的是主要的 expert FFN 容量和激活宽度。
+
+**升级门槛**：先确认无 routing collapse；再看多 seed 的 validation LM loss/PPL。若细粒度或 shared 版本没有稳定收益，或吞吐代价明显超出质量收益，就保留更简单的 MoE。仅凭“专家数更多”不能宣布创新有效。
+
 ## 1. 上一代哪里不够
 
 Dense block 是：
@@ -201,7 +220,15 @@ activated_params < total_params
 logits shape remains [B, T, V]
 ```
 
-再跑 aux 与 bias 对照：
+先跑 DeepSeekMoE 创新链：
+
+```bash
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_coarse.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_fine_grained.json --data data/tinystories.jsonl --hourly_rate 2.18
+python trainer/train_pretrain.py --config configs/architecture_lab/moe_shared.json --data data/tinystories.jsonl --hourly_rate 2.18
+```
+
+aux 与 bias 是后续 V3 均衡策略对照，不要和 DeepSeekMoE 结构消融混成一组：
 
 ```bash
 python trainer/train_pretrain.py --config configs/architecture_lab/moe_aux.json --data data/tinystories.jsonl --hourly_rate 2.18
@@ -209,6 +236,8 @@ python trainer/train_pretrain.py --config configs/architecture_lab/moe_bias.json
 ```
 
 完整控制变量和待填结果见 [`experiments/06_architecture_evolution_plan_zh.md`](../../experiments/06_architecture_evolution_plan_zh.md)。当前旧版 4090 MoE 数字证明链路能运行，但不能代替新的细粒度 expert 公平对照。
+
+结论应按“观察 -> 判断 -> 下一步”写。例如：若细粒度版本负载健康、PPL 稳定更低且吞吐损失可接受，才进入 shared isolation；若结果只在一个 seed 上更好，就增加重复实验，而不是直接升级。
 
 ## 你现在应该能回答
 
