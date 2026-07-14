@@ -53,6 +53,8 @@ python trainer/train_pretrain.py --config configs/architecture_lab/v2_mla.json -
 
 ## 结果表
 
+表中的 `val loss` 固定指 token-weighted `val_lm_loss`，PPL 只由这个主语言模型 loss 计算。`val_objective`、`val_mtp_loss` 和 `val_aux_loss` 另行记录，不能混进 PPL 或直接拿来做 A/B 排名。
+
 | Run | val loss | PPL | tokens/s | peak VRAM | GPU h | 成本 | 结构特有指标 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | `arch_dense_mha` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | KV elements/token |

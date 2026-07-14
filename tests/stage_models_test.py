@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import importlib.util
 from pathlib import Path
+import sys
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(REPO_ROOT))
 STAGE0_PATH = REPO_ROOT / "model" / "stages" / "stage0_deepseek_llm.py"
 STAGE1_PATH = REPO_ROOT / "model" / "stages" / "stage1_deepseek_moe.py"
 STAGE2_PATH = REPO_ROOT / "model" / "stages" / "stage2_deepseek_v2.py"

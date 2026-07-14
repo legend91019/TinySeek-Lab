@@ -29,13 +29,24 @@ def load_model(config_path: str, ckpt_path: str, device: str) -> tuple[TinySeekF
 @torch.no_grad()
 def eval_ppl(model: TinySeekForCausalLM, tokenizer: ByteTokenizer, data_path: str, max_seq_len: int, device: str, max_batches: int) -> dict:
     dataset = JsonlTextDataset(data_path, tokenizer, max_seq_len)
-    losses = []
+    lm_loss_sum = 0.0
+    valid_token_count = 0
+    num_examples = 0
     for idx in range(min(len(dataset), max_batches)):
         x, y = dataset[idx]
         out = model(x.unsqueeze(0).to(device), y.unsqueeze(0).to(device))
-        losses.append(float((out["loss"] + out["aux_loss"]).item()))
-    mean_loss = sum(losses) / max(1, len(losses))
-    return {"loss": mean_loss, "ppl": math.exp(min(20.0, mean_loss)), "num_examples": len(losses)}
+        valid_tokens = int((y[1:] != -100).sum().item())
+        lm_loss_sum += float(out["lm_loss"].item()) * valid_tokens
+        valid_token_count += valid_tokens
+        num_examples += 1
+    mean_lm_loss = lm_loss_sum / max(1, valid_token_count)
+    return {
+        "loss": mean_lm_loss,
+        "lm_loss": mean_lm_loss,
+        "ppl": math.exp(min(20.0, mean_lm_loss)),
+        "num_examples": num_examples,
+        "num_tokens": valid_token_count,
+    }
 
 
 @torch.no_grad()
@@ -65,6 +76,10 @@ def completion_after_response(text: str) -> str:
     if marker not in text:
         return text
     return text.split(marker, 1)[-1].strip()
+
+
+def has_response_content(text: str) -> bool:
+    return bool(completion_after_response(text).strip())
 
 
 def eval_copy(model: TinySeekForCausalLM, tokenizer: ByteTokenizer, device: str, max_new_tokens: int) -> dict:
@@ -114,7 +129,7 @@ def eval_format(model: TinySeekForCausalLM, tokenizer: ByteTokenizer, device: st
     rows = []
     for prompt in prompts:
         text = generate_text(model, tokenizer, format_prompt(prompt), device, max_new_tokens)
-        has_answer_shape = ("answer" in text.lower()) or ("response" in text.lower()) or len(text.strip()) > len(prompt)
+        has_answer_shape = has_response_content(text)
         hits += int(has_answer_shape)
         rows.append({"prompt": prompt, "ok": has_answer_shape, "completion": text[-240:]})
     return {"format_score": hits / len(prompts), "num_examples": len(prompts), "examples": rows}

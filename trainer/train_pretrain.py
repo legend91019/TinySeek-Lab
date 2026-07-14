@@ -65,10 +65,15 @@ def train(
     reset_gpu_peak_memory()
     pbar = tqdm(total=train_cfg["max_steps"], desc=cfg["run_name"])
     last_loss = torch.tensor(float("nan"))
+    last_lm_loss = torch.tensor(float("nan"))
+    train_compute_seconds = 0.0
     while step < train_cfg["max_steps"]:
         accum_count = 0
         for input_ids, labels in loader:
             input_ids, labels = input_ids.to(device), labels.to(device)
+            if device == "cuda":
+                torch.cuda.synchronize()
+            compute_start = time.perf_counter()
             lr = cosine_lr(step, train_cfg["max_steps"], train_cfg["learning_rate"], train_cfg["warmup_steps"], train_cfg["min_lr_ratio"])
             for group in optimizer.param_groups:
                 group["lr"] = lr
@@ -81,6 +86,9 @@ def train(
             accum_count += 1
 
             if accum_count < grad_accum_steps:
+                if device == "cuda":
+                    torch.cuda.synchronize()
+                train_compute_seconds += time.perf_counter() - compute_start
                 continue
 
             scaler.unscale_(optimizer)
@@ -90,9 +98,13 @@ def train(
             model.update_router_bias()
             optimizer.zero_grad(set_to_none=True)
             accum_count = 0
+            if device == "cuda":
+                torch.cuda.synchronize()
+            train_compute_seconds += time.perf_counter() - compute_start
 
             step += 1
             last_loss = loss.detach()
+            last_lm_loss = out["lm_loss"].detach()
             pbar.update(1)
             pbar.set_postfix(
                 loss=f"{loss.item():.3f}",
@@ -102,9 +114,14 @@ def train(
             )
 
             if step % train_cfg["eval_interval"] == 0 or step == train_cfg["max_steps"]:
-                val_loss = evaluate(model, val_loader, device, amp_dtype)
+                val_metrics = evaluate(model, val_loader, device, amp_dtype)
                 elapsed = time.time() - start
-                print(f"\nstep={step} train_loss={loss.item():.4f} val_loss={val_loss:.4f} lr={lr:.3e} elapsed={elapsed:.1f}s")
+                print(
+                    f"\nstep={step} train_loss={loss.item():.4f} "
+                    f"val_lm_loss={val_metrics['lm_loss']:.4f} "
+                    f"val_objective={val_metrics['objective']:.4f} "
+                    f"lr={lr:.3e} elapsed={elapsed:.1f}s"
+                )
                 append_jsonl(
                     history_path,
                     {
@@ -114,7 +131,11 @@ def train(
                         "train_loss": float(loss.item()),
                         "lm_loss": float(out["lm_loss"].item()),
                         "mtp_loss": float(out["mtp_loss"].item()),
-                        "val_loss": float(val_loss),
+                        "val_loss": val_metrics["lm_loss"],
+                        "val_lm_loss": val_metrics["lm_loss"],
+                        "val_objective": val_metrics["objective"],
+                        "val_mtp_loss": val_metrics["mtp_loss"],
+                        "val_aux_loss": val_metrics["aux_loss"],
                         "aux_loss": float(out["aux_loss"].item()),
                         "learning_rate": float(lr),
                         "elapsed_seconds": round(elapsed, 4),
@@ -128,7 +149,11 @@ def train(
             if step >= train_cfg["max_steps"]:
                 break
     pbar.close()
-    final_val_loss = float(evaluate(model, val_loader, device, amp_dtype))
+    final_val_metrics = evaluate(model, val_loader, device, amp_dtype)
+    final_val_loss = final_val_metrics["lm_loss"]
+    estimated_train_tokens = (
+        step * train_cfg["batch_size"] * grad_accum_steps * model_cfg.max_seq_len
+    )
     cost_summary = collect_cost_summary(
         run_name=cfg["run_name"],
         start_time=start,
@@ -145,7 +170,12 @@ def train(
             "checkpoint_path": str(ckpt_path),
             "history_path": str(history_path),
             "last_loss": float(last_loss.item()),
+            "last_lm_loss": float(last_lm_loss.item()),
             "val_loss": final_val_loss,
+            "val_lm_loss": final_val_metrics["lm_loss"],
+            "val_objective": final_val_metrics["objective"],
+            "val_mtp_loss": final_val_metrics["mtp_loss"],
+            "val_aux_loss": final_val_metrics["aux_loss"],
             "batch_size": train_cfg["batch_size"],
             "grad_accum_steps": grad_accum_steps,
             "max_seq_len": model_cfg.max_seq_len,
@@ -153,8 +183,13 @@ def train(
             "router_balance_strategy": model_cfg.router_balance_strategy,
             "mtp_depth": model_cfg.mtp_depth,
             "mtp_loss_weight": model_cfg.mtp_loss_weight,
-            "estimated_train_tokens": step * train_cfg["batch_size"] * grad_accum_steps * model_cfg.max_seq_len,
-            "estimated_training_flops": 6 * activated_params * step * train_cfg["batch_size"] * grad_accum_steps * model_cfg.max_seq_len,
+            "estimated_train_tokens": estimated_train_tokens,
+            "train_compute_seconds": round(train_compute_seconds, 4),
+            "training_tokens_per_second": round(
+                estimated_train_tokens / max(train_compute_seconds, 1e-9), 2
+            ),
+            "throughput_note": "Training compute only; excludes data loading, validation, and checkpoint writes.",
+            "estimated_training_flops": 6 * activated_params * estimated_train_tokens,
             "flops_note": "Rough 6 * activated_params * tokens estimate for tutorial-scale comparison.",
             "expert_load": model.expert_load_summary(),
         }
@@ -165,16 +200,37 @@ def train(
 
 
 @torch.no_grad()
-def evaluate(model: TinySeekForCausalLM, loader: DataLoader, device: str, amp_dtype: torch.dtype | None = None) -> float:
+def evaluate(
+    model: TinySeekForCausalLM,
+    loader: DataLoader,
+    device: str,
+    amp_dtype: torch.dtype | None = None,
+) -> dict[str, float]:
     model.eval()
-    losses = []
+    lm_loss_sum = 0.0
+    valid_token_count = 0
+    objective_sum = 0.0
+    mtp_loss_sum = 0.0
+    aux_loss_sum = 0.0
+    batch_count = 0
     for input_ids, labels in loader:
         input_ids, labels = input_ids.to(device), labels.to(device)
         with autocast_context(device, amp_dtype):
             out = model(input_ids, labels)
-        losses.append((out["loss"] + out["aux_loss"]).item())
+        valid_tokens = int((labels[:, 1:] != -100).sum().item())
+        lm_loss_sum += float(out["lm_loss"].item()) * valid_tokens
+        valid_token_count += valid_tokens
+        objective_sum += float((out["loss"] + out["aux_loss"]).item())
+        mtp_loss_sum += float(out["mtp_loss"].item())
+        aux_loss_sum += float(out["aux_loss"].item())
+        batch_count += 1
     model.train()
-    return sum(losses) / max(1, len(losses))
+    return {
+        "objective": objective_sum / max(1, batch_count),
+        "lm_loss": lm_loss_sum / max(1, valid_token_count),
+        "mtp_loss": mtp_loss_sum / max(1, batch_count),
+        "aux_loss": aux_loss_sum / max(1, batch_count),
+    }
 
 
 if __name__ == "__main__":

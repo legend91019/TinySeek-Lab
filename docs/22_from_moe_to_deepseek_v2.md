@@ -26,6 +26,8 @@ The paper reports 93.3% less KV cache and 5.76x maximum generation throughput re
 
 TinySeek keeps low-rank `compressed_kv`, content K/V reconstruction, separate K RoPE, split Q content/position paths, and theoretical cache accounting. It omits fused kernels and a real cross-step latent cache. Training still materializes K/V, so this is `EducationalMLA`, not production MLA.
 
+For old v1 checkpoint compatibility, the unified model keeps a legacy `mla_decoupled_rope=false` low-rank K/V branch; that branch no longer claims latent-only caching. The matched architecture configs explicitly set `mla_decoupled_rope=true` and `qk_rope_head_dim=8`, exercising the same decoupled content/RoPE path taught here.
+
 ## 4. Dimensions
 
 ```python

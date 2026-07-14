@@ -50,6 +50,8 @@ python trainer/train_pretrain.py --config configs/architecture_lab/v2_mla.json -
 
 ## Result Table
 
+`val loss` means token-weighted `val_lm_loss`, and PPL is calculated from that main language-model loss only. Record `val_objective`, `val_mtp_loss`, and `val_aux_loss` separately; do not mix them into PPL or use them directly to rank A/B arms.
+
 | Run | val loss | PPL | tokens/s | peak VRAM | GPU h | cost | architecture metric |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | `arch_dense_mha` | Pending | Pending | Pending | Pending | Pending | Pending | KV elements/token |

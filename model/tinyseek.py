@@ -8,6 +8,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from .routing import sequence_load_balance_loss
+
 
 @dataclass
 class TinySeekConfig:
@@ -22,6 +24,8 @@ class TinySeekConfig:
     activation: str = "swiglu"
     attention_impl: str = "mha"
     mla_latent_size: int = 64
+    mla_decoupled_rope: bool = False
+    qk_rope_head_dim: int = 8
     use_moe: bool = False
     num_experts: int = 4
     num_shared_experts: int = 0
@@ -86,46 +90,83 @@ class CausalSelfAttention(nn.Module):
         self.num_kv_heads = config.num_kv_heads
         self.head_dim = config.hidden_size // config.num_heads
         self.kv_repeat = config.num_heads // config.num_kv_heads
+        self.use_decoupled_mla = (
+            config.attention_impl == "educational_mla" and config.mla_decoupled_rope
+        )
 
         self.q_proj = nn.Linear(config.hidden_size, config.num_heads * self.head_dim, bias=False)
         self.o_proj = nn.Linear(config.hidden_size, config.hidden_size, bias=False)
 
-        if config.attention_impl == "educational_mla":
+        if self.use_decoupled_mla:
+            self.rope_head_dim = config.qk_rope_head_dim
+            self.content_head_dim = self.head_dim - self.rope_head_dim
+            if self.content_head_dim <= 0 or self.rope_head_dim % 2 != 0:
+                raise ValueError("qk_rope_head_dim must be even and smaller than head_dim")
+            self.kv_down = nn.Linear(config.hidden_size, config.mla_latent_size, bias=False)
+            self.k_up = nn.Linear(
+                config.mla_latent_size,
+                config.num_kv_heads * self.content_head_dim,
+                bias=False,
+            )
+            self.v_up = nn.Linear(config.mla_latent_size, config.num_kv_heads * self.head_dim, bias=False)
+            self.k_rope_proj = nn.Linear(config.hidden_size, self.rope_head_dim, bias=False)
+        elif config.attention_impl == "educational_mla":
+            self.rope_head_dim = self.head_dim
             self.kv_down = nn.Linear(config.hidden_size, config.mla_latent_size, bias=False)
             self.k_up = nn.Linear(config.mla_latent_size, config.num_kv_heads * self.head_dim, bias=False)
             self.v_up = nn.Linear(config.mla_latent_size, config.num_kv_heads * self.head_dim, bias=False)
         else:
+            self.rope_head_dim = self.head_dim
             self.k_proj = nn.Linear(config.hidden_size, config.num_kv_heads * self.head_dim, bias=False)
             self.v_proj = nn.Linear(config.hidden_size, config.num_kv_heads * self.head_dim, bias=False)
 
         self.dropout = nn.Dropout(config.dropout)
-        cos, sin = precompute_rope(self.head_dim, config.max_seq_len)
+        cos, sin = precompute_rope(self.rope_head_dim, config.max_seq_len)
         self.register_buffer("rope_cos", cos, persistent=False)
         self.register_buffer("rope_sin", sin, persistent=False)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         bsz, seq_len, _ = x.shape
         q = self.q_proj(x).view(bsz, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
-        if self.config.attention_impl == "educational_mla":
+        if self.use_decoupled_mla:
+            q_content, q_rope = torch.split(
+                q, [self.content_head_dim, self.rope_head_dim], dim=-1
+            )
+            q_rope = apply_rope(q_rope, self.rope_cos, self.rope_sin)
             latent = self.kv_down(x)
-            k = self.k_up(latent).view(bsz, seq_len, self.num_kv_heads, self.head_dim).transpose(1, 2)
+            k_content = self.k_up(latent).view(
+                bsz, seq_len, self.num_kv_heads, self.content_head_dim
+            ).transpose(1, 2)
             v = self.v_up(latent).view(bsz, seq_len, self.num_kv_heads, self.head_dim).transpose(1, 2)
+            k_content = repeat_kv(k_content, self.kv_repeat)
+            v = repeat_kv(v, self.kv_repeat)
+            k_rope = self.k_rope_proj(x).view(
+                bsz, seq_len, 1, self.rope_head_dim
+            ).transpose(1, 2)
+            k_rope = apply_rope(k_rope, self.rope_cos, self.rope_sin)
+            k_rope = k_rope.expand(bsz, self.num_heads, seq_len, self.rope_head_dim)
+            q = torch.cat((q_content, q_rope), dim=-1)
+            k = torch.cat((k_content, k_rope), dim=-1)
         else:
-            k = self.k_proj(x).view(bsz, seq_len, self.num_kv_heads, self.head_dim).transpose(1, 2)
-            v = self.v_proj(x).view(bsz, seq_len, self.num_kv_heads, self.head_dim).transpose(1, 2)
-
-        q = apply_rope(q, self.rope_cos, self.rope_sin)
-        k = apply_rope(k, self.rope_cos, self.rope_sin)
-        k = repeat_kv(k, self.kv_repeat)
-        v = repeat_kv(v, self.kv_repeat)
+            if self.config.attention_impl == "educational_mla":
+                latent = self.kv_down(x)
+                k = self.k_up(latent).view(bsz, seq_len, self.num_kv_heads, self.head_dim).transpose(1, 2)
+                v = self.v_up(latent).view(bsz, seq_len, self.num_kv_heads, self.head_dim).transpose(1, 2)
+            else:
+                k = self.k_proj(x).view(bsz, seq_len, self.num_kv_heads, self.head_dim).transpose(1, 2)
+                v = self.v_proj(x).view(bsz, seq_len, self.num_kv_heads, self.head_dim).transpose(1, 2)
+            q = apply_rope(q, self.rope_cos, self.rope_sin)
+            k = apply_rope(k, self.rope_cos, self.rope_sin)
+            k = repeat_kv(k, self.kv_repeat)
+            v = repeat_kv(v, self.kv_repeat)
 
         y = F.scaled_dot_product_attention(q, k, v, is_causal=True, dropout_p=self.config.dropout if self.training else 0.0)
         y = y.transpose(1, 2).contiguous().view(bsz, seq_len, -1)
         return self.o_proj(y)
 
     def kv_cache_elements_per_token(self) -> int:
-        if self.config.attention_impl == "educational_mla":
-            return self.config.mla_latent_size
+        if self.use_decoupled_mla:
+            return self.config.mla_latent_size + self.rope_head_dim
         return 2 * self.num_kv_heads * self.head_dim
 
 
@@ -163,11 +204,34 @@ class MoEFFN(nn.Module):
         self.gate = nn.Linear(config.hidden_size, config.num_experts, bias=False)
         self.experts = nn.ModuleList([SwiGLU(config.hidden_size, hidden_dim) for _ in range(config.num_experts)])
         self.shared = nn.ModuleList([SwiGLU(config.hidden_size, hidden_dim) for _ in range(config.num_shared_experts)])
-        self.register_buffer("expert_bias", torch.zeros(config.num_experts), persistent=False)
+        self.register_buffer("expert_bias", torch.zeros(config.num_experts))
         self.register_buffer(
             "last_expert_counts",
             torch.zeros(config.num_experts, dtype=torch.long),
             persistent=False,
+        )
+
+    def _load_from_state_dict(
+        self,
+        state_dict: dict,
+        prefix: str,
+        local_metadata: dict,
+        strict: bool,
+        missing_keys: list[str],
+        unexpected_keys: list[str],
+        error_msgs: list[str],
+    ) -> None:
+        bias_key = prefix + "expert_bias"
+        if bias_key not in state_dict:
+            state_dict[bias_key] = self.expert_bias.detach().clone()
+        super()._load_from_state_dict(
+            state_dict,
+            prefix,
+            local_metadata,
+            strict,
+            missing_keys,
+            unexpected_keys,
+            error_msgs,
         )
 
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -203,14 +267,16 @@ class MoEFFN(nn.Module):
         for expert in self.shared:
             out = out + expert(flat) / max(1, len(self.shared))
 
-        # Switch-style load balancing proxy: encourage probability mass and
-        # actual token assignment to agree and stay near-uniform.
         aux_loss = flat.new_zeros(())
         if self.config.moe_aux_loss_weight > 0:
-            importance = probs.mean(dim=0)
-            assignment = F.one_hot(top_i[:, 0], num_classes=self.config.num_experts).float().mean(dim=0)
-            aux_loss = self.config.num_experts * torch.sum(importance * assignment)
-            aux_loss = aux_loss * self.config.moe_aux_loss_weight
+            aux_loss = self.config.moe_aux_loss_weight * sequence_load_balance_loss(
+                probs,
+                top_i,
+                shape[0],
+                shape[1],
+                self.config.num_experts,
+                self.config.top_k,
+            )
         return out.view(shape), aux_loss
 
     @torch.no_grad()

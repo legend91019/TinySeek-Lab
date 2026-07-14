@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from ..routing import sequence_load_balance_loss
 from .stage0_deepseek_llm import RMSNorm, SwiGLU, TransformerBlock
 from .stage2_deepseek_v2 import EducationalMLA, Stage2Config
 
@@ -76,12 +77,14 @@ class BiasBalancedMoE(nn.Module):
 
         aux_loss = flat.new_zeros(())
         if self.config.moe_aux_loss_weight > 0:
-            importance = affinity.mean(dim=0)
-            first_choice = F.one_hot(
-                top_indices[:, 0], num_classes=self.config.num_routed_experts
-            ).float().mean(dim=0)
-            balance_proxy = self.config.num_routed_experts * torch.sum(importance * first_choice)
-            aux_loss = self.config.moe_aux_loss_weight * balance_proxy
+            aux_loss = self.config.moe_aux_loss_weight * sequence_load_balance_loss(
+                affinity,
+                top_indices,
+                shape[0],
+                shape[1],
+                self.config.num_routed_experts,
+                self.config.top_k,
+            )
         return (routed_out + shared_out).view(shape), aux_loss
 
     @torch.no_grad()

@@ -11,6 +11,8 @@
     "expert_ffn_multiplier": 1.0,
     "attention_impl": "mha",
     "mla_latent_size": 64,
+    "mla_decoupled_rope": true,
+    "qk_rope_head_dim": 8,
     "use_moe": true,
     "num_experts": 8,
     "num_shared_experts": 1,
