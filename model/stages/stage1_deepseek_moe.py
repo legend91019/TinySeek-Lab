@@ -131,7 +131,7 @@ class Stage1DeepSeekMoE(nn.Module):
         return total - routed + active_routed
 
     def kv_cache_elements_per_token(self) -> int:
-        return self.config.num_layers * self.blocks[0].attn.kv_cache_elements_per_token()
+        return self.blocks[0].attn.kv_cache_elements_per_token()
 
     def expert_load_summary(self) -> dict:
         total_counts = [0 for _ in range(self.config.num_routed_experts)]

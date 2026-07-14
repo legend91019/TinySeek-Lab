@@ -171,4 +171,4 @@ class Stage0DeepSeekLM(nn.Module):
         return self.parameter_count()
 
     def kv_cache_elements_per_token(self) -> int:
-        return self.config.num_layers * self.blocks[0].attn.kv_cache_elements_per_token()
+        return self.blocks[0].attn.kv_cache_elements_per_token()

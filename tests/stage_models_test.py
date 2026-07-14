@@ -7,6 +7,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 STAGE0_PATH = REPO_ROOT / "model" / "stages" / "stage0_deepseek_llm.py"
 STAGE1_PATH = REPO_ROOT / "model" / "stages" / "stage1_deepseek_moe.py"
+STAGE2_PATH = REPO_ROOT / "model" / "stages" / "stage2_deepseek_v2.py"
 
 
 def require_stage0_file() -> None:
@@ -15,6 +16,10 @@ def require_stage0_file() -> None:
 
 def require_stage1_file() -> None:
     assert STAGE1_PATH.exists(), "Stage 1 teaching model has not been implemented"
+
+
+def require_stage2_file() -> None:
+    assert STAGE2_PATH.exists(), "Stage 2 teaching model has not been implemented"
 
 
 def test_stage0() -> None:
@@ -76,7 +81,38 @@ def test_stage1() -> None:
     assert model.activated_parameter_estimate() < model.parameter_count()
 
 
+def test_stage2() -> None:
+    require_stage2_file()
+    if importlib.util.find_spec("torch") is None:
+        print("stage2 dynamic test skipped: PyTorch is not installed")
+        return
+
+    import torch
+
+    from model.stages import Stage2Config, Stage2DeepSeekV2
+
+    cfg = Stage2Config(
+        vocab_size=64,
+        max_seq_len=16,
+        hidden_size=32,
+        num_layers=2,
+        num_heads=4,
+        num_kv_heads=2,
+        num_routed_experts=4,
+        top_k=2,
+        kv_lora_rank=12,
+        qk_rope_head_dim=4,
+    )
+    model = Stage2DeepSeekV2(cfg)
+    input_ids = torch.randint(0, cfg.vocab_size, (2, 12))
+    out = model(input_ids, input_ids)
+    assert out["logits"].shape == (2, 12, cfg.vocab_size)
+    assert torch.isfinite(out["loss"])
+    assert model.kv_cache_elements_per_token() == cfg.kv_lora_rank + cfg.qk_rope_head_dim
+
+
 if __name__ == "__main__":
     test_stage0()
     test_stage1()
+    test_stage2()
     print("stage model tests ok")
