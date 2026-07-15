@@ -132,4 +132,4 @@ python scripts/inspect_stage_models.py --out out/stage_model_inspection.json
 
 ---
 
-上一篇: [DeepSeek 语言模型论文地图](01_deepseek_lm_paper_map.md) | [教程目录](README.md) | 下一篇: [代码优先 Dense LM](12_code_first_dense_lm.md)
+上一篇: [DeepSeek 语言模型论文地图](01_deepseek_lm_paper_map.md) | [教程目录](README.md) | 下一篇: [数学到 PyTorch](24_math_to_pytorch.md)

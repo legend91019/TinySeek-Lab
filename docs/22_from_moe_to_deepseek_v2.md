@@ -63,10 +63,12 @@ For `hidden=192`, `heads=4`, and `rope_dim=16`, each head has 32 content dimensi
 ## 5. Query Path
 
 ```python
-q = q_proj(x)
-q_content, q_rope = split(q)
-q_rope = apply_rope(q_rope, cos, sin)
-q = cat(q_content, q_rope)
+q = self.q_proj(x).view(batch, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+q_content, q_rope = torch.split(
+    q, [self.content_head_dim, self.rope_head_dim], dim=-1
+)
+q_rope = apply_rope(q_rope, self.rope_cos, self.rope_sin)
+q = torch.cat((q_content, q_rope), dim=-1)
 ```
 
 ```text
@@ -81,22 +83,62 @@ Only the positional path is rotated.
 
 ```python
 compressed_kv = self.kv_down(x)
-k_content = self.k_content_up(compressed_kv)
-v = self.v_up(compressed_kv)
+k_content = self.k_content_up(compressed_kv).view(
+    batch, seq_len, self.num_kv_heads, self.content_head_dim
+).transpose(1, 2)
+v = self.v_up(compressed_kv).view(
+    batch, seq_len, self.num_kv_heads, self.head_dim
+).transpose(1, 2)
+k_content = repeat_kv(k_content, self.kv_repeats)
+v = repeat_kv(v, self.kv_repeats)
 ```
+
+The two `view(...).transpose(1,2)` calls recover `[B,H_kv,T,dim]` from packed
+linear outputs. `repeat_kv` then aligns KV heads with query heads. These shape
+operations satisfy the attention interface without changing the cached latent.
+
+These projections implement:
+
+$$
+c_t=W_{down}x_t\in\mathbb{R}^{R},\qquad
+k_t^{content}=W_{K,up}c_t,\qquad v_t=W_{V,up}c_t.
+$$
+
+`nn.Linear(D,R)` creates the shared latent and two `nn.Linear(R,...)` layers
+reconstruct content K and V. Since $R\ll D$, this is a low-rank path; whether it
+preserves quality is an experimental question.
 
 Both content K and V come from one `[B,T,R]` latent. The separate K RoPE component is projected and rotated before concatenation:
 
+Here `R=kv_lora_rank`; the complete shape path is `[B,T,D] -> [B,T,R]`, then
+content K `[B,H_kv,T,content_dim]` and V `[B,H_kv,T,head_dim]` after
+reconstruction and head reshaping.
+
 ```python
-k_rope = apply_rope(self.k_rope_proj(x), cos, sin)
+k_rope = self.k_rope_proj(x).view(
+    batch, seq_len, 1, self.rope_head_dim
+).transpose(1, 2)
+k_rope = apply_rope(k_rope, self.rope_cos, self.rope_sin)
+k_rope = k_rope.expand(batch, self.num_heads, seq_len, self.rope_head_dim)
 k = torch.cat((k_content, k_rope), dim=-1)
 ```
+
+`torch.split(...,dim=-1)` separates content and positional features;
+`torch.cat(...,dim=-1)` restores `head_dim`; `expand` shares the positional K
+view across heads.
 
 The teaching cache estimate is:
 
 ```text
 kv_lora_rank + qk_rope_head_dim
 ```
+
+That is:
+
+$$C_{MLA/token}=R+d_{rope},$$
+
+versus $2H_{kv}d_h$ K/V elements for GQA. `kv_cache_elements_per_token()`
+returns this theoretical count; it does not measure CUDA allocation.
 
 ## 7. Training Versus Cached Decoding
 

@@ -65,7 +65,7 @@ TinyStories -> tiny base -> dense 35M/115M -> LR/batch sweep
 | 小 GPU 教学 run | 想体验 tiny dense -> SFT -> GRPO | [上卡前最终 Checklist](docs/zh/18_gpu_fill_only_checklist.md) |
 | RTX 4090 研究 run | 想复现完整训练与多 seed 架构对照 | [实验报告中心](experiments/README_zh.md) |
 
-快速代码路线：先读[架构演进总览](docs/zh/20_architecture_evolution_overview.md)，跟写四个 stage 文件，再读[训练主循环](docs/zh/16_training_loop_from_config_to_checkpoint.md)，最后按[公平架构实验计划](experiments/06_architecture_evolution_plan_zh.md)上卡。下方完整阅读路线则先补项目范围和论文地图。
+快速代码路线：先读[架构演进总览](docs/zh/20_architecture_evolution_overview.md)和[数学到 PyTorch 工具箱](docs/zh/24_math_to_pytorch.md)，跟写四个 stage 文件，再读[训练主循环](docs/zh/16_training_loop_from_config_to_checkpoint.md)，最后按[公平架构实验计划](experiments/06_architecture_evolution_plan_zh.md)上卡。下方完整阅读路线则先补项目范围和论文地图。
 
 ## 一图看懂路线
 
@@ -191,13 +191,15 @@ v1 预训练 -> SFT -> GRPO 链路实测报告见：
 1. [项目范围](docs/zh/00_project_scope.md)
 2. [DeepSeek 语言模型论文地图](docs/zh/01_deepseek_lm_paper_map.md)
 3. [四代架构演进总览](docs/zh/20_architecture_evolution_overview.md)
-4. [从零写 DeepSeek LLM Dense 基线](docs/zh/12_code_first_dense_lm.md)
-5. [从 Dense 改到 DeepSeekMoE](docs/zh/21_from_dense_to_deepseek_moe.md)
-6. [从 MoE 改到 DeepSeek-V2](docs/zh/22_from_moe_to_deepseek_v2.md)
-7. [从 V2 改到 DeepSeek-V3](docs/zh/23_from_v2_to_deepseek_v3.md)
-8. [训练主循环：从 Config 到 Checkpoint](docs/zh/16_training_loop_from_config_to_checkpoint.md)
-9. [SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
-10. [Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
+4. [数学到 PyTorch：公式、Shape 与 API](docs/zh/24_math_to_pytorch.md)
+5. [从零写 DeepSeek LLM Dense 基线](docs/zh/12_code_first_dense_lm.md)
+6. [从 Dense 改到 DeepSeekMoE](docs/zh/21_from_dense_to_deepseek_moe.md)
+7. [从 MoE 改到 DeepSeek-V2](docs/zh/22_from_moe_to_deepseek_v2.md)
+8. [从 V2 改到 DeepSeek-V3](docs/zh/23_from_v2_to_deepseek_v3.md)
+9. [训练主循环：从 Config 到 Checkpoint](docs/zh/16_training_loop_from_config_to_checkpoint.md)
+10. [SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
+11. [Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
+12. [后训练代码细读](docs/zh/19_posttraining_code_walkthrough.md)
 
 补充文档：
 

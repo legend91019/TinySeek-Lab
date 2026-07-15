@@ -23,6 +23,15 @@ def test_review_regression_contracts() -> None:
     assert 'out["aux_loss"]' not in ppl_section
 
 
+def test_grad_accumulation_survives_dataloader_restarts() -> None:
+    for name in ("train_pretrain.py", "train_sft.py"):
+        trainer_source = (ROOT / "trainer" / name).read_text(encoding="utf-8")
+        first_accum_init = trainer_source.index("accum_count = 0")
+        training_while = trainer_source.index('while step < train_cfg["max_steps"]')
+        assert first_accum_init < training_while, name
+
+
 if __name__ == "__main__":
     test_review_regression_contracts()
+    test_grad_accumulation_survives_dataloader_restarts()
     print("review regression contracts ok")

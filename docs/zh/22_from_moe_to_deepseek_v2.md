@@ -99,10 +99,12 @@ Q/K 最后重新拼成 48 维，所以 scaled dot-product attention 的接口不
 ## 5. Q 路径：内容和位置分开
 
 ```python
-q = q_proj(x)
-q_content, q_rope = split(q)
-q_rope = apply_rope(q_rope, cos, sin)
-q = cat(q_content, q_rope)
+q = self.q_proj(x).view(batch, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+q_content, q_rope = torch.split(
+    q, [self.content_head_dim, self.rope_head_dim], dim=-1
+)
+q_rope = apply_rope(q_rope, self.rope_cos, self.rope_sin)
+q = torch.cat((q_content, q_rope), dim=-1)
 ```
 
 shape 是：
@@ -131,24 +133,59 @@ compressed_kv: [B, T, R]
 `R=kv_lora_rank`。再从同一个 latent 重建：
 
 ```python
-k_content = self.k_content_up(compressed_kv)
-v = self.v_up(compressed_kv)
+k_content = self.k_content_up(compressed_kv).view(
+    batch, seq_len, self.num_kv_heads, self.content_head_dim
+).transpose(1, 2)
+v = self.v_up(compressed_kv).view(
+    batch, seq_len, self.num_kv_heads, self.head_dim
+).transpose(1, 2)
+k_content = repeat_kv(k_content, self.kv_repeats)
+v = repeat_kv(v, self.kv_repeats)
 ```
+
+两次 `view(...).transpose(1,2)` 把线性层的 packed 输出恢复成
+`[B,H_kv,T,dim]`；`repeat_kv` 再把 KV heads 对齐到 query heads。这些 shape
+操作只为 attention 接口服务，不改变低秩 latent 本身。
+
+这三层线性映射对应低秩分解：
+
+$$
+c_t=W_{down}x_t\in\mathbb{R}^{R},\qquad
+k_t^{content}=W_{K,up}c_t,\qquad v_t=W_{V,up}c_t.
+$$
+
+`nn.Linear(D,R)` 生成共同 latent，两个 `nn.Linear(R,...)` 重建内容 K 与 V。
+$R\ll D$ 使它成为低秩路径，但是否保持质量仍要由实验回答。
 
 这就是 joint compression：K content 和 V 共享一个可缓存 latent，而不是各自保存完整历史张量。
 
 K 的 RoPE 分量单独来自 hidden states：
 
 ```python
-k_rope = apply_rope(self.k_rope_proj(x), cos, sin)
+k_rope = self.k_rope_proj(x).view(
+    batch, seq_len, 1, self.rope_head_dim
+).transpose(1, 2)
+k_rope = apply_rope(k_rope, self.rope_cos, self.rope_sin)
+k_rope = k_rope.expand(batch, self.num_heads, seq_len, self.rope_head_dim)
 k = torch.cat((k_content, k_rope), dim=-1)
 ```
+
+`torch.split(q,[content_dim,rope_dim],dim=-1)` 分离内容与位置特征；
+`torch.cat(...,dim=-1)` 沿最后一维拼回 `head_dim`；`expand` 则让位置 K 在
+heads 间共享逻辑视图。
 
 教学实现让 `k_rope` 在 heads 间共享，以便缓存估算为：
 
 ```text
 kv_lora_rank + qk_rope_head_dim
 ```
+
+即每个历史 token 理论保存：
+
+$$C_{MLA/token}=R+d_{rope},$$
+
+而 GQA 保存 $2H_{kv}d_h$ 个 K/V 元素。`kv_cache_elements_per_token()` 只是返回
+这个公式，不测实际 CUDA 显存，所以报告称它为理论 cache 元素数。
 
 ## 7. 为什么训练时还看得到完整 K/V
 

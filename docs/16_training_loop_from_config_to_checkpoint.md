@@ -162,6 +162,54 @@ scaler.update()
 optimizer.zero_grad(set_to_none=True)
 ```
 
+### Formula mapping: gradient accumulation
+
+If an effective batch is split into $G$ micro-batches with losses $L_g$, the
+desired objective is:
+
+$$L=\frac{1}{G}\sum_{g=1}^{G}L_g.$$
+
+That is why each micro-batch uses `loss / grad_accum_steps`. PyTorch backward
+accumulates into parameter `.grad` fields rather than replacing them. The first
+$G-1$ micro-batches must not clear gradients. Division by $G$ matches a
+large-batch sample mean only when micro-batches have equal weighting, including
+equal counts of non-ignored target tokens. With valid-token counts $n_g$, the
+exact token-weighted objective is:
+
+$$L=\frac{\sum_g n_gL_g}{\sum_g n_g}.$$
+
+TinySeek uses the simpler mean of micro-batch means. Fixed-length pretraining
+batches make it a useful approximation, but padding and SFT masks can make it
+differ from an exact all-valid-token mean.
+`accum_count = 0` lives outside the outer `while`, so an incomplete group at a
+DataLoader tail continues into the next pass instead of losing tail gradients
+or stalling on a dataset shorter than $G$.
+
+### Formula mapping: AMP and clipping
+
+Float16 gradients can underflow. `GradScaler` differentiates $sL$:
+
+$$\nabla_\theta(sL)=s\nabla_\theta L,$$
+
+then `unscale_` divides gradients by $s$. Unscaling must happen before clipping,
+otherwise clipping measures artificially magnified gradients.
+
+For total gradient norm $\lVert g\rVert_2$, clipping approximately applies:
+
+$$g\leftarrow g\cdot\min\left(1,\frac{c}{\lVert g\rVert_2}\right).$$
+
+The trailing underscore in `clip_grad_norm_` signals an in-place update.
+`scaler.step` can skip an update when inf/NaN is detected; `scaler.update`
+adjusts the next scale. `zero_grad(set_to_none=True)` then clears accumulated
+gradients with less memory traffic than filling them with zeros.
+
+The required order is:
+
+```text
+autocast forward -> scaled backward -> unscale -> clip -> optimizer step
+-> scaler update -> router-bias feedback -> zero grad
+```
+
 The important detail is `aux_loss`. Dense runs have zero auxiliary loss. MoE
 runs add a routing-balance term. This lets the same trainer handle dense and
 MoE experiments.

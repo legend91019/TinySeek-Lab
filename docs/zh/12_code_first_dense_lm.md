@@ -115,12 +115,36 @@ num_layers = 4
 
 ## 第 2 步：RMSNorm
 
-RMSNorm 对每个 token 的 hidden vector 做缩放：
+对一个 token 的 hidden vector $x=(x_1,\ldots,x_D)$，RMSNorm 是：
+
+$$
+\operatorname{RMS}(x)=\sqrt{\frac{1}{D}\sum_{i=1}^{D}x_i^2+\epsilon},
+\qquad y_i=\gamma_i\frac{x_i}{\operatorname{RMS}(x)}.
+$$
+
+$D$ 是 hidden size，$\epsilon$ 防止除零，$\gamma\in\mathbb{R}^{D}$ 是可学习
+缩放。RMSNorm 不减均值，这是它和 LayerNorm 在公式上的主要区别。
+
+仓库代码就是公式的逐项翻译：
 
 ```python
 scale = torch.rsqrt(x.pow(2).mean(dim=-1, keepdim=True) + eps)
 return weight * x * scale
 ```
+
+| 数学项 | PyTorch | shape |
+| --- | --- | --- |
+| $x_i^2$ | `x.pow(2)` | `[B,T,D]` |
+| $D^{-1}\sum_i x_i^2$ | `.mean(dim=-1, keepdim=True)` | `[B,T,1]` |
+| $1/\sqrt{\cdot}$ | `torch.rsqrt(...)` | `[B,T,1]` |
+| $\gamma$ | `nn.Parameter(torch.ones(D))` | `[D]` |
+| 最终缩放 | `weight * x * scale` | `[B,T,D]` |
+
+`pow(2)` 是逐元素平方；`dim=-1` 表示每个 token 独立沿 hidden 维求均值；
+`keepdim=True` 保留 `[B,T,1]` 以便广播；`nn.Parameter` 让 `weight` 进入
+optimizer。以 $x=[3,4]$、$\gamma=[1,1]$ 为例，忽略 epsilon 时
+$\operatorname{RMS}(x)=\sqrt{12.5}\approx3.5355$，输出约为
+`[0.8485,1.1314]`。
 
 DeepSeek LLM 这类现代 decoder-only LM 通常使用 pre-norm：
 
@@ -131,6 +155,9 @@ x = x + ffn(norm(x))
 
 这种写法训练更稳定，也更容易堆深。
 
+广播、parameter 和 buffer 的通用规则见
+[数学到 PyTorch 工具箱](24_math_to_pytorch.md)。
+
 ## 第 3 步：RoPE
 
 RoPE 负责把位置信息注入 Q/K。教学版代码拆成三步：
@@ -138,6 +165,36 @@ RoPE 负责把位置信息注入 Q/K。教学版代码拆成三步：
 - `precompute_rope`：预先构造 cos/sin 表。
 - `rotate_half`：对 hidden 维度做成对旋转。
 - `apply_rope`：把 cos/sin 应用到 Q/K 上。
+
+二维向量在位置 $m$ 的旋转公式是：
+
+$$
+\begin{bmatrix}x'_1\\x'_2\end{bmatrix}=
+\begin{bmatrix}\cos(m\theta)&-\sin(m\theta)\\
+\sin(m\theta)&\cos(m\theta)\end{bmatrix}
+\begin{bmatrix}x_1\\x_2\end{bmatrix}.
+$$
+
+代码用 `x * cos + rotate_half(x) * sin` 并行完成所有二维旋转。
+`unsqueeze(0)` 两次把 `[T,d_h]` 变成 `[1,1,T,d_h]`，让同一张位置表广播给
+所有 batch 和 head；`.to(x.device, x.dtype)` 则对齐设备和数值类型。
+
+旋转角来自仓库的真实预计算代码：
+
+```python
+inv_freq = 1.0 / (base ** (torch.arange(0, head_dim, 2).float() / head_dim))
+positions = torch.arange(max_seq_len).float()
+freqs = torch.outer(positions, inv_freq)
+freqs = torch.cat((freqs, freqs), dim=-1)
+return freqs.cos(), freqs.sin()
+```
+
+第 $j$ 组频率是 $\theta_j=base^{-2j/d_h}$，位置 $m$ 的角度是 $m\theta_j$。
+`torch.arange(0,d_h,2)` 生成偶数维索引；`torch.outer([T],[d_h/2])` 得到所有
+位置与频率的外积；`torch.cat` 复制到 `[T,d_h]`，匹配本实现
+`x.chunk(2,dim=-1)` 的前后半维配对布局；`.cos()`、`.sin()` 是逐元素函数。
+`register_buffer(...,persistent=False)` 让表随模型移动到 GPU，但不训练、不写
+checkpoint。
 
 关键张量形状：
 
@@ -158,6 +215,19 @@ cos:  [seq, head_dim]
 4. 如果使用 GQA，就重复 K/V，让它们和 query heads 对齐。
 5. 调用 causal scaled dot-product attention。
 6. 再投影回 hidden size。
+
+对应数学公式：
+
+$$Q=XW_Q^T,\quad K=XW_K^T,\quad V=XW_V^T,$$
+
+$$
+\operatorname{Attention}(Q,K,V)=
+\operatorname{softmax}\left(\frac{QK^T}{\sqrt{d_h}}+M_{causal}\right)V.
+$$
+
+这里 $W_Q,W_K,W_V$ 指 `nn.Linear.weight`，PyTorch 保存为 `[D_{out},D_{in}]`，
+所以公式带转置。`nn.Linear` 只改变最后一维；`view` 拆出 head 维，
+`transpose(1,2)` 再得到 attention API 使用的 `[B,H,T,d_h]`。
 
 这就是最初的 DeepSeek-style dense baseline attention。MLA 是后面的升级，不应该一开始就上。
 
@@ -186,6 +256,18 @@ v: [batch, num_kv_heads, seq, head_dim]
 
 当 `num_kv_heads < num_heads` 时，`repeat_kv` 会复制 K/V，让每个 query head 都能 attend 到对应的 K/V。如果二者相等，`repeat_kv` 什么都不做。
 
+`repeat_kv` 先用 `None` 插入重复轴，再用 `expand` 创建广播视图，最后用
+`reshape` 合并 KV head 与重复轴。GQA 共享的是 K/V 参数和缓存，不会减少 query
+head。仓库随后调用：
+
+```python
+F.scaled_dot_product_attention(q, k, v, is_causal=True, dropout_p=...)
+```
+
+这个 fused API 仍然完成缩放、causal mask、softmax、dropout 和乘 $V$，只是可在
+GPU 上选择融合内核。`is_causal=True` 阻止位置 $t$ 看到未来 token。该函数不会
+自动读取 module 的 train/eval 状态，因此评测时代码显式把 `dropout_p` 设为 0。
+
 attention 之后再变回：
 
 ```python
@@ -202,6 +284,22 @@ Dense FFN 使用 SwiGLU：
 ```text
 down(silu(gate(x)) * up(x))
 ```
+
+公式是：
+
+$$
+g=XW_g^T,\quad u=XW_u^T,\quad
+\operatorname{SwiGLU}(X)=\left(\operatorname{SiLU}(g)\odot u\right)W_d^T,
+$$
+
+其中 $\operatorname{SiLU}(z)=z\sigma(z)$，$\odot$ 是逐元素乘法。对应代码：
+
+```python
+return self.down(F.silu(self.gate(x)) * self.up(x))
+```
+
+shape 是 `[B,T,D] -> 两个 [B,T,D_ff] -> [B,T,D_ff] -> [B,T,D]`。
+`F.silu` 没有参数，三个 `nn.Linear` 才有；星号不能换成矩阵乘法 `@`。
 
 这里的 Dense FFN 后面会被 MoE 替换成多个 expert。也就是说，MoE 不是凭空出现的，它首先是替换 FFN 子层。
 
@@ -285,6 +383,8 @@ self.lm_head.weight = self.embed.weight
 ```
 
 权重绑定可以节省参数，也让同一张 token 表同时负责输入查表和输出预测。
+它不是复制数值，而是让两个属性引用同一个 `Parameter`，因此输入 embedding 与
+输出 head 两条路径的梯度会累加到同一张矩阵上。
 
 ## 第 8 步：Causal LM Loss
 
@@ -293,6 +393,25 @@ self.lm_head.weight = self.embed.weight
 ```python
 loss = cross_entropy(logits[:, :-1], labels[:, 1:])
 ```
+
+单个位置的公式是：
+
+$$
+\mathcal{L}_t=-\log\frac{\exp z_{t,y_{t+1}}}
+{\sum_{v=1}^{V}\exp z_{t,v}}.
+$$
+
+真实代码把 token 位置展平：
+
+```python
+shift_logits = logits[:, :-1].reshape(-1, logits.size(-1))  # [B*(T-1),V]
+shift_labels = labels[:, 1:].reshape(-1)                    # [B*(T-1)]
+loss = F.cross_entropy(shift_logits, shift_labels, ignore_index=-100)
+```
+
+`reshape(-1,V)` 让 PyTorch 推导第一维；target 是整数类别 id，不是 one-hot。
+`F.cross_entropy` 已经融合稳定的 log-softmax 与 negative log likelihood，前面
+不要再做 softmax。
 
 这个右移非常重要。模型看到第 `t` 个 token 之前的上下文，预测第 `t+1` 个 token。
 
@@ -305,6 +424,8 @@ position 1 的 logits 预测 position 2 的 label
 ```
 
 pad label 是 `-100`，PyTorch cross entropy 会忽略它们。
+例如 `[BOS,A,B,EOS]` 产生 `BOS -> A`、`A -> B`、`B -> EOS` 三个监督配对；
+最后一个 logit 没有下一个 token，所以被 `[:, :-1]` 去掉。
 
 ## 第 9 步：训练脚本如何使用模型
 
@@ -370,4 +491,4 @@ Dense 模型跑通以后，实验才有意义：
 
 ---
 
-上一篇: [四代架构演进总览](20_architecture_evolution_overview.md) | [教程目录](README.md) | 下一篇: [Dense 到 DeepSeekMoE](21_from_dense_to_deepseek_moe.md)
+上一篇: [数学到 PyTorch](24_math_to_pytorch.md) | [教程目录](README.md) | 下一篇: [Dense 到 DeepSeekMoE](21_from_dense_to_deepseek_moe.md)

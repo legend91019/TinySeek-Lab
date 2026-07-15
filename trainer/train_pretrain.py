@@ -67,8 +67,8 @@ def train(
     last_loss = torch.tensor(float("nan"))
     last_lm_loss = torch.tensor(float("nan"))
     train_compute_seconds = 0.0
+    accum_count = 0
     while step < train_cfg["max_steps"]:
-        accum_count = 0
         for input_ids, labels in loader:
             input_ids, labels = input_ids.to(device), labels.to(device)
             if device == "cuda":

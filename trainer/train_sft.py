@@ -71,8 +71,8 @@ def train_sft(
     last_loss = torch.tensor(float("nan"))
     reset_gpu_peak_memory()
     pbar = tqdm(total=train_cfg["max_steps"], desc=cfg["run_name"])
+    accum_count = 0
     while step < train_cfg["max_steps"]:
-        accum_count = 0
         for input_ids, labels in loader:
             input_ids, labels = input_ids.to(device), labels.to(device)
             lr = cosine_lr(step, train_cfg["max_steps"], train_cfg["learning_rate"], train_cfg["warmup_steps"], train_cfg["min_lr_ratio"])

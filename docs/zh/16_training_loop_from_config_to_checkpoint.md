@@ -160,6 +160,59 @@ scaler.update()
 optimizer.zero_grad(set_to_none=True)
 ```
 
+### 公式对应：梯度累积
+
+设一次有效 batch 被拆成 $G$ 个 micro-batch，每个 loss 是 $L_g$。我们希望优化：
+
+$$L=\frac{1}{G}\sum_{g=1}^{G}L_g,$$
+
+所以每个 micro-batch 都执行：
+
+```python
+scaled_loss = loss / grad_accum_steps
+scaler.scale(scaled_loss).backward()
+```
+
+PyTorch 的 `.backward()` 默认把梯度**累加**到 parameter 的 `.grad`，不会覆盖旧值，
+因此前 $G-1$ 次不能 `zero_grad()`。除以 $G$ 只有在各 micro-batch 权重相同（包括
+未被忽略的 target token 数相同）时，才严格等于大 batch 的样本均值。若有效 token
+数是 $n_g$，精确 token 加权目标应为：
+
+$$L=\frac{\sum_g n_gL_g}{\sum_g n_g}.$$
+
+TinySeek 使用更简单的 micro-batch mean 再平均；固定长度预训练时是实用近似，但
+padding 与 SFT mask 会让它和“所有有效 token 的统一均值”略有不同。
+训练器把 `accum_count = 0` 放在外层 `while` 之前，因此一个 DataLoader 尾部不足
+$G$ 个的 micro-batch 会在下一轮继续累计；不会丢失尾部梯度或让小数据集卡住。
+
+### 公式对应：AMP 与梯度裁剪
+
+float16 下很小的梯度可能下溢。`GradScaler` 先计算 $sL$ 的梯度：
+
+$$\nabla_\theta(sL)=s\nabla_\theta L,$$
+
+再由 `scaler.unscale_(optimizer)` 除回 $s$。必须先 unscale 再裁剪，否则
+`clip_grad_norm_` 看到的是人为放大的梯度。
+
+若所有参数梯度的总范数为 $\lVert g\rVert_2$，裁剪近似执行：
+
+$$g\leftarrow g\cdot\min\left(1,\frac{c}{\lVert g\rVert_2}\right),$$
+
+其中 $c=grad\_clip$。`clip_grad_norm_` 末尾有下划线，表示原地修改 `.grad`。
+`scaler.step(optimizer)` 在检测到 inf/NaN 时可以跳过参数更新，`scaler.update()`
+再调整下一步 scale。最后 `zero_grad(set_to_none=True)` 把 `.grad` 设为 `None`，
+避免下一次 optimizer step 混入上一批梯度并减少填零开销。
+
+正确顺序必须是：
+
+```text
+autocast forward -> scaled backward -> unscale -> clip -> optimizer step
+-> scaler update -> router-bias feedback -> zero grad
+```
+
+`autocast_context` 只改变适合混合精度的算子 dtype；模型参数仍由 optimizer 管理，
+loss 和敏感归约也不应被手动全部强制成 float16。
+
 这里的重点是 `aux_loss`。Dense run 的 auxiliary loss 是 0。MoE run 会额外加
 routing balance loss。这样同一个 trainer 就能训练 dense 和 MoE。
 

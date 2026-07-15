@@ -66,7 +66,7 @@ These are TinySeek small-model measurements, not claims about DeepSeek-scale cap
 | Small GPU teaching run | Try tiny dense -> SFT -> GRPO | [Final GPU checklist](docs/18_gpu_fill_only_checklist.md) |
 | RTX 4090 research run | Reproduce formal training and multi-seed architecture comparisons | [Experiment hub](experiments/README.md) |
 
-Fast code-first route: read the [architecture map](docs/20_architecture_evolution_overview.md), write the four stage models, study the [training loop](docs/16_training_loop_from_config_to_checkpoint.md), then run the [fair architecture plan](experiments/06_architecture_evolution_plan.md). The full reading path below starts with scope and papers first.
+Fast code-first route: read the [architecture map](docs/20_architecture_evolution_overview.md) and [Math-to-PyTorch toolkit](docs/24_math_to_pytorch.md), write the four stage models, study the [training loop](docs/16_training_loop_from_config_to_checkpoint.md), then run the [fair architecture plan](experiments/06_architecture_evolution_plan.md). The full reading path below starts with scope and papers first.
 
 ## Why "TinySeek"
 
@@ -207,13 +207,15 @@ Read these docs in order, or open the full [tutorial index](docs/README.md):
 1. [Project Scope](docs/00_project_scope.md)
 2. [DeepSeek Paper Map for LM Training](docs/01_deepseek_lm_paper_map.md)
 3. [Four-Generation Architecture Map](docs/20_architecture_evolution_overview.md)
-4. [Build the DeepSeek LLM Dense Baseline](docs/12_code_first_dense_lm.md)
-5. [Dense to DeepSeekMoE](docs/21_from_dense_to_deepseek_moe.md)
-6. [MoE to DeepSeek-V2](docs/22_from_moe_to_deepseek_v2.md)
-7. [V2 to DeepSeek-V3](docs/23_from_v2_to_deepseek_v3.md)
-8. [Training Loop: From Config to Checkpoint](docs/16_training_loop_from_config_to_checkpoint.md)
-9. [SFT and Reasoning Cold Start](docs/07_stage5_sft_cold_start.md)
-10. [Rule-Based GRPO Mini](docs/08_stage6_grpo_mini.md)
+4. [Math to PyTorch: formulas, shapes, and APIs](docs/24_math_to_pytorch.md)
+5. [Build the DeepSeek LLM Dense Baseline](docs/12_code_first_dense_lm.md)
+6. [Dense to DeepSeekMoE](docs/21_from_dense_to_deepseek_moe.md)
+7. [MoE to DeepSeek-V2](docs/22_from_moe_to_deepseek_v2.md)
+8. [V2 to DeepSeek-V3](docs/23_from_v2_to_deepseek_v3.md)
+9. [Training Loop: From Config to Checkpoint](docs/16_training_loop_from_config_to_checkpoint.md)
+10. [SFT and Reasoning Cold Start](docs/07_stage5_sft_cold_start.md)
+11. [Rule-Based GRPO Mini](docs/08_stage6_grpo_mini.md)
+12. [Post-Training Code Walkthrough](docs/19_posttraining_code_walkthrough.md)
 
 Chinese tutorial notes:
 
@@ -222,13 +224,15 @@ Open the full [中文教程目录](docs/zh/README.md), or read in this order:
 1. [项目范围](docs/zh/00_project_scope.md)
 2. [DeepSeek 语言模型论文地图](docs/zh/01_deepseek_lm_paper_map.md)
 3. [四代架构演进总览](docs/zh/20_architecture_evolution_overview.md)
-4. [从零写 DeepSeek LLM Dense 基线](docs/zh/12_code_first_dense_lm.md)
-5. [从 Dense 改到 DeepSeekMoE](docs/zh/21_from_dense_to_deepseek_moe.md)
-6. [从 MoE 改到 DeepSeek-V2](docs/zh/22_from_moe_to_deepseek_v2.md)
-7. [从 V2 改到 DeepSeek-V3](docs/zh/23_from_v2_to_deepseek_v3.md)
-8. [训练主循环](docs/zh/16_training_loop_from_config_to_checkpoint.md)
-9. [SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
-10. [Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
+4. [数学到 PyTorch：公式、Shape 与 API](docs/zh/24_math_to_pytorch.md)
+5. [从零写 DeepSeek LLM Dense 基线](docs/zh/12_code_first_dense_lm.md)
+6. [从 Dense 改到 DeepSeekMoE](docs/zh/21_from_dense_to_deepseek_moe.md)
+7. [从 MoE 改到 DeepSeek-V2](docs/zh/22_from_moe_to_deepseek_v2.md)
+8. [从 V2 改到 DeepSeek-V3](docs/zh/23_from_v2_to_deepseek_v3.md)
+9. [训练主循环](docs/zh/16_training_loop_from_config_to_checkpoint.md)
+10. [SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
+11. [Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
+12. [后训练代码细读](docs/zh/19_posttraining_code_walkthrough.md)
 
 Chinese supplements:
 

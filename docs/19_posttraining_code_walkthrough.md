@@ -64,6 +64,27 @@ labels:     [-100, -100, ..., response tokens..., EOS]
 - the model is not trained to copy the prompt;
 - the model is trained to generate the response after the prompt.
 
+Let $m_j\in\{0,1\}$ mark whether target token $y_j$ is supervised:
+
+$$
+L_{SFT}=-\frac{1}{\sum_t m_{t+1}}
+\sum_t m_{t+1}\log p_\theta(y_{t+1}\mid y_{\le t}).
+$$
+
+Prompt/padding targets have mask 0; response targets have 1. The causal boundary
+is:
+
+```text
+last prompt logit -> first response token -> mask 1
+response logit    -> next response/EOS    -> mask 1
+logit predicting a prompt token           -> mask 0
+```
+
+Rather than
+multiplying an explicit mask, the dataset writes target `-100` and lets
+`F.cross_entropy(ignore_index=-100)` exclude those positions from reduction.
+`ids.copy()` prevents label masking from mutating the input token list.
+
 So yes: in this repo, cold-start data is implemented as SFT. The special part is
 the data content, not a new objective.
 
@@ -116,10 +137,40 @@ rewards = torch.tensor([rule_reward(seq["completion"], answer) for seq in group_
 advantages = (rewards - rewards.mean()) / (rewards.std(unbiased=False) + 1e-6)
 ```
 
+For $G$ completions of one prompt:
+
+$$
+A_i=\frac{r_i-\mu_r}{\sigma_r+\epsilon},\qquad
+\mu_r=\frac{1}{G}\sum_i r_i.
+$$
+
+`torch.tensor(...,device=device)` moves Python rewards to the GPU. `.mean()`
+computes $\mu_r$; `.std(unbiased=False)` uses population variance with divisor
+$G$; epsilon handles a group whose rewards are all equal.
+
 The core idea: sample several completions for the same prompt, compare them
 inside the group, and increase the probability of above-average completions.
 
 ## Policy Loss
+
+First trace completion log probability:
+
+```python
+logits = model(ids)["logits"][:, :-1, :]
+targets = ids[:, 1:]
+logp = F.log_softmax(logits, dim=-1)
+logp = logp.gather(-1, targets.unsqueeze(-1)).squeeze(-1)
+completion_logp = logp[:, completion_mask].mean()
+```
+
+$$
+\ell_\theta(y)=\frac{1}{|y|}\sum_{t\in completion}
+\log p_\theta(y_t\mid x,y_{<t}).
+$$
+
+`log_softmax` produces `[B,T-1,V]`. `unsqueeze(-1)` creates target indices
+`[B,T-1,1]`; `gather` selects one token log probability per position;
+`squeeze(-1)` returns `[B,T-1]`. The position mask removes the prompt.
 
 The teaching loss is:
 
@@ -129,6 +180,17 @@ ref_logp = completion_logprob(ref, ids, prompt_len)
 kl_proxy = (policy_logp - ref_logp).pow(2)
 loss = (-adv * policy_logp) + kl_beta * kl_proxy
 ```
+
+The teaching objective is:
+
+$$
+L_i=-A_i\ell_\theta(y_i)+\beta
+\left(\ell_\theta(y_i)-\ell_{ref}(y_i)\right)^2.
+$$
+
+`adv.detach()` treats rule-derived advantage as a constant. Reference scoring
+runs under `torch.no_grad()` with frozen parameters. `.pow(2)` is a symmetric
+teaching proxy, not an unbiased token-level estimate of the paper KL term.
 
 Interpretation:
 

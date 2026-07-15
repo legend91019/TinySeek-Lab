@@ -66,10 +66,29 @@ The code is:
 
 ```python
 flat = x.reshape(-1, x.size(-1))
-router_probs = softmax(router(flat), dim=-1)
-top_weights, top_indices = torch.topk(router_probs, k=top_k, dim=-1)
+router_probs = F.softmax(self.router(flat), dim=-1)
+top_weights, top_indices = torch.topk(
+    router_probs, k=self.config.top_k, dim=-1
+)
 top_weights = top_weights / top_weights.sum(dim=-1, keepdim=True)
 ```
+
+For flattened token $n$:
+
+$$
+z_n=W_r x_n,\qquad
+p_{n,e}=\frac{\exp z_{n,e}}{\sum_{j=1}^{E}\exp z_{n,j}}.
+$$
+
+For $S_n=\operatorname{TopK}(p_n)$, selected weights are renormalized:
+
+$$
+\alpha_{n,e}=\frac{p_{n,e}}{\sum_{j\in S_n}p_{n,j}},\qquad e\in S_n.
+$$
+
+`nn.Linear(D,E,bias=False)` implements $W_r$. `softmax(...,dim=-1)` normalizes
+over experts. `torch.topk` returns values and expert IDs, while the kept
+`[B*T,1]` denominator broadcasts over `[B*T,K]`.
 
 A token routed to experts `[5, 2]` with weights `[0.72, 0.28]` runs only those two FFNs and combines their outputs with those weights.
 
@@ -86,6 +105,15 @@ for expert_id, expert in enumerate(self.routed):
 
 For each expert, the loop gathers assigned tokens, runs only those tokens, and scatters weighted outputs back. It is intentionally readable, not a high-performance MoE kernel.
 
+The loop implements:
+
+$$y_n^{routed}=\sum_{e\in S_n}\alpha_{n,e}E_e(x_n).$$
+
+Equality creates a `[B*T,K]` boolean mask. `nonzero(as_tuple=True)` returns token
+rows and top-k slots; advanced indexing selects assigned vectors;
+`unsqueeze(-1)` broadcasts scalar route weights over hidden features; `+=`
+accumulates selected-expert contributions.
+
 ## 6. Shared Experts
 
 Shared experts skip top-k routing and run for every token:
@@ -96,6 +124,13 @@ output = routed_output + shared_output
 
 They provide a common path while routed experts can spend capacity on differentiated patterns.
 
+For $E_s>0$, the complete output is:
+
+$$y_n=y_n^{routed}+\frac{1}{E_s}\sum_{s=1}^{E_s}E_s^{shared}(x_n).$$
+
+For the supported $E_s=0$ configuration, code leaves `shared_output=0` and the
+equation becomes $y_n=y_n^{routed}$ without division.
+
 ## 7. Load Balancing
 
 Routing collapse occurs when a few experts receive nearly all tokens. Stage 1 compares average router probability (`importance`) with actual first-choice assignment:
@@ -104,6 +139,35 @@ Routing collapse occurs when a few experts receive nearly all tokens. Stage 1 co
 balance_proxy = num_experts * torch.sum(importance * assignment)
 aux_loss = weight * balance_proxy
 ```
+
+The teaching proxy is:
+
+$$
+I_e=\frac{1}{N}\sum_n p_{n,e},\quad
+A_e=\frac{1}{N}\sum_n\mathbf{1}[\operatorname{top1}(n)=e],\quad
+L_{balance}=E\sum_e I_eA_e.
+$$
+
+`F.one_hot` constructs assignment indicators, `.mean(dim=0)` estimates $A_e$,
+and `torch.sum` reduces over experts. This readable proxy is not a claim to
+reproduce every DeepSeek load-balancing objective exactly.
+
+That equation exactly describes the teaching stage model. Formal ablations use
+`model/tinyseek.py`, which calls `sequence_load_balance_loss` with per-sequence
+importance and all top-k assignments:
+
+$$
+I_{b,e}=\frac{1}{T}\sum_t p_{b,t,e},\qquad
+A_{b,e}=\frac{1}{TK}\sum_t\sum_{k=1}^{K}
+\mathbf{1}[i_{b,t,k}=e],
+$$
+
+$$L_{seq}=\frac{E}{B}\sum_b\sum_e I_{b,e}A_{b,e}.$$
+
+`F.one_hot(top_indices,E)` creates `[B*T,K,E]`; summing the top-k axis, viewing
+as `[B,T,E]`, averaging over time, and dividing by $K$ produces $A_{b,e}$.
+Thus the formal report's auxiliary-loss evidence comes from the sequence-wise
+formula, not the global top-1 teaching proxy.
 
 The trainer optimizes `lm_loss + aux_loss`. Too little weight may not prevent collapse; too much can compete with language modeling. Stage 3 replaces this mechanism with selection bias.
 

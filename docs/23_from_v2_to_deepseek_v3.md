@@ -29,10 +29,31 @@ Earlier stages optimize `LM loss + balance auxiliary loss`. A strong balance ter
 
 ```python
 affinity = torch.sigmoid(self.gate(flat))
-selection_score = affinity + expert_bias
-top_indices = topk(selection_score)
+selection_score = affinity + self.expert_bias.to(affinity.dtype)
+top_indices = torch.topk(
+    selection_score, k=self.config.top_k, dim=-1
+).indices
 top_weights = affinity.gather(1, top_indices)
+top_weights = top_weights / top_weights.sum(
+    dim=-1, keepdim=True
+).clamp_min(1e-9)
 ```
+
+In equations:
+
+$$
+a_{n,e}=\sigma((W_gx_n)_e),\qquad s_{n,e}=a_{n,e}+b_e,
+$$
+
+$$
+S_n=\operatorname{TopK}(s_n),\qquad
+\alpha_{n,e}=\frac{a_{n,e}}{\sum_{j\in S_n}a_{n,j}}.
+$$
+
+Sigmoid treats expert affinities independently. `topk` selects with adjusted
+scores and `gather` retrieves raw affinities for mixture weights. The real code
+uses `clamp_min(1e-9)` on the denominator. `expert_bias` is a registered buffer,
+not an optimizer parameter.
 
 `selection_score` decides which experts are selected. Raw `affinity` decides their mixture weights. Adding bias to the final weights would change expert contribution, which is not the selection-bias mechanism taught here.
 
@@ -42,10 +63,20 @@ The forward pass records routed-token counts. After the optimizer step, the trai
 
 ```python
 target = counts.mean()
-direction = sign(target - counts)
-expert_bias += update_rate * direction
-expert_bias -= expert_bias.mean()
+direction = torch.sign(target - counts)
+self.expert_bias.add_(self.config.router_bias_update_rate * direction)
+self.expert_bias.sub_(self.expert_bias.mean())
 ```
+
+Formally:
+
+$$
+b_e\leftarrow b_e+\eta\,\operatorname{sign}(\bar c-c_e),\qquad
+b_e\leftarrow b_e-\frac{1}{E}\sum_j b_j.
+$$
+
+`torch.bincount(...,minlength=E)` measures $c_e$, `torch.sign` keeps only update
+direction, and `torch.no_grad()` keeps in-place buffer updates out of autograd.
 
 Overloaded experts receive lower bias; underloaded experts receive higher bias. Mean centering prevents global drift. The teaching update omits distributed aggregation, group-limited routing, and communication constraints.
 
@@ -61,6 +92,40 @@ Model parameters learn through gradients. Selection bias changes through a load-
 ## 5. MTP Is More Than Another Shift
 
 The main hidden state at position `i` predicts token `i+1`. The first educational MTP module combines that hidden state with the known embedding of token `i+1`, then predicts token `i+2`. A second depth combines its prior hidden state with token `i+2` and predicts token `i+3`.
+
+For the first depth:
+
+$$
+h_i^{(1)}=F_{mtp}\left(W_c[\operatorname{RMSNorm}(h_i);
+\operatorname{RMSNorm}(e_{i+1})]\right),
+$$
+
+$$L_{mtp}^{(1)}=\operatorname{CE}
+\left(W_{head}\operatorname{RMSNorm}(h_i^{(1)}),y_{i+2}\right).$$
+
+The semicolon denotes concatenation over the final feature axis.
+The final RMSNorm maps to
+`self.lm_head(self.norm(previous_hidden[:, :-1]))` and is part of the exact
+repository objective.
+
+The module code is:
+
+```python
+combined = torch.cat(
+    (self.previous_norm(previous_hidden), self.token_norm(future_token_embed)),
+    dim=-1,
+)
+return self.block(self.concat_proj(combined))
+```
+
+The outer model aligns targets with:
+
+```python
+future_embed = self.embed(input_ids[:, depth + 1 :])
+previous_hidden = module(previous_hidden[:, :-1], future_embed)
+mtp_logits = self.lm_head(self.norm(previous_hidden[:, :-1]))
+mtp_targets = labels[:, depth + 2 :]
+```
 
 ```text
 main hidden at i + embedding(token i+1)
@@ -81,6 +146,10 @@ MTP hidden              : [B, T-1, D]
 MTP logits[:, :-1]      : [B, T-2, V]
 targets[:, 2:]          : [B, T-2]
 ```
+
+`torch.cat(...,dim=-1)` creates `[B,T-1,2D]`; `nn.Linear(2D,D)` returns to
+block width. Multiple depth losses use `torch.stack(...).mean()` so device,
+dtype, and gradients stay in the tensor graph.
 
 An off-by-one error can still produce a decreasing loss while training the wrong prediction task, so these slices are part of the test contract.
 

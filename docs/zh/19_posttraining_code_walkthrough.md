@@ -62,6 +62,26 @@ labels:     [-100, -100, ..., response tokens..., EOS]
 - 模型不会被训练成“复读 prompt”；
 - 模型会被训练成“在 prompt 后生成 response”。
 
+令 $m_j\in\{0,1\}$ 表示 target token $y_j$ 是否参与监督：
+
+$$
+L_{SFT}=-\frac{1}{\sum_t m_{t+1}}
+\sum_t m_{t+1}\log p_\theta(y_{t+1}\mid y_{\le t}),
+$$
+
+prompt 与 pad target 的 mask 为 0，response target 为 1。边界对齐是：
+
+```text
+最后一个 prompt 位置的 logit -> 第一个 response token -> mask 1
+response 内部位置的 logit     -> 下一个 response/EOS  -> mask 1
+预测 prompt token 的 logit    -> prompt target         -> mask 0
+```
+
+代码没有单独把 mask 乘进
+loss，而是把对应 target 改成 `-100`，交给 `F.cross_entropy(ignore_index=-100)`
+在归约时排除。`ids.copy()` 很重要：若直接写 `labels = ids`，随后修改 labels 也会
+破坏输入 token 列表。
+
 这也是“冷启动数据是不是 SFT”的代码答案：在本仓里，是的，它就是一种 SFT。
 区别只在于数据内容偏“可读、规整、推理格式”，而不是普通问答。
 
@@ -114,10 +134,43 @@ rewards = torch.tensor([rule_reward(seq["completion"], answer) for seq in group_
 advantages = (rewards - rewards.mean()) / (rewards.std(unbiased=False) + 1e-6)
 ```
 
+对同一 prompt 的 $G$ 个 completion：
+
+$$
+A_i=\frac{r_i-\mu_r}{\sigma_r+\epsilon},\qquad
+\mu_r=\frac{1}{G}\sum_i r_i.
+$$
+
+`torch.tensor([...],device=device)` 把 Python reward 放到 GPU；`.mean()` 得均值；
+`.std(unbiased=False)` 使用总体标准差（分母是 $G$），适合当前完整采样组；
+`1e-6` 处理所有 reward 相同时的零方差。归一化后，组内高于平均的回答 advantage
+为正，低于平均的为负。
+
 GRPO 的核心直觉是：同一个 prompt 下采样多个回答，不一定需要训练一个 value model；
 可以在组内比较“哪些回答比平均水平好”，然后提高这些回答的概率。
 
 ## Policy Loss
+
+先看一个 completion 的 log probability 如何计算：
+
+```python
+logits = model(ids)["logits"][:, :-1, :]
+targets = ids[:, 1:]
+logp = F.log_softmax(logits, dim=-1)
+logp = logp.gather(-1, targets.unsqueeze(-1)).squeeze(-1)
+completion_logp = logp[:, completion_mask].mean()
+```
+
+公式是：
+
+$$
+\ell_\theta(y)=\frac{1}{|y|}\sum_{t\in completion}
+\log p_\theta(y_t\mid x,y_{<t}).
+$$
+
+`log_softmax(...,dim=-1)` 在词表轴产生 `[B,T-1,V]`；`unsqueeze(-1)` 把真实
+token id 变成 `[B,T-1,1]`；`gather(-1,...)` 每个位置只取目标 token 的 logp；
+`squeeze(-1)` 恢复 `[B,T-1]`。位置 mask 去掉 prompt，只对 completion 求均值。
 
 当前教学版 loss 是：
 
@@ -127,6 +180,17 @@ ref_logp = completion_logprob(ref, ids, prompt_len)
 kl_proxy = (policy_logp - ref_logp).pow(2)
 loss = (-adv * policy_logp) + kl_beta * kl_proxy
 ```
+
+教学目标写成：
+
+$$
+L_i=-A_i\ell_\theta(y_i)+\beta
+\left(\ell_\theta(y_i)-\ell_{ref}(y_i)\right)^2.
+$$
+
+`adv.detach()` 把 reward/advantage 当常数，不让 autograd 穿过规则 reward；reference
+logp 放在 `torch.no_grad()` 中，且 reference 参数已 `requires_grad_(False)`。
+`.pow(2)` 是教学用的对称距离 proxy，不是论文 KL 的无偏逐 token 估计。
 
 读法：
 
