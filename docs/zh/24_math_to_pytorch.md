@@ -181,7 +181,7 @@ $$
 ### `F.silu`
 
 $$
-\operatorname{SiLU}(x)=x\sigma(x).
+\mathrm{SiLU}(x)=x\sigma(x).
 $$
 
 SwiGLU 使用：
@@ -235,8 +235,8 @@ dispatch 实现。
 论文公式是：
 
 $$
-\operatorname{Attention}(Q,K,V)=
-\operatorname{softmax}\left(\frac{QK^T}{\sqrt{d_h}}+M\right)V.
+\mathrm{Attention}(Q,K,V)=
+\mathrm{softmax}\left(\frac{QK^T}{\sqrt{d_h}}+M\right)V.
 $$
 
 朴素 PyTorch 可以写成：
@@ -264,7 +264,7 @@ y = F.scaled_dot_product_attention(q, k, v, is_causal=True)
 
 $$
 \mathcal{L}=-\log\frac{e^{z_y}}{\sum_j e^{z_j}}
-=-\log\operatorname{softmax}(z)_y.
+=-\log\mathrm{softmax}(z)_y.
 $$
 
 ```python

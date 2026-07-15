@@ -118,8 +118,8 @@ num_layers = 4
 对一个 token 的 hidden vector $x=(x_1,\ldots,x_D)$，RMSNorm 是：
 
 $$
-\operatorname{RMS}(x)=\sqrt{\frac{1}{D}\sum_{i=1}^{D}x_i^2+\epsilon},
-\qquad y_i=\gamma_i\frac{x_i}{\operatorname{RMS}(x)}.
+\mathrm{RMS}(x)=\sqrt{\frac{1}{D}\sum_{i=1}^{D}x_i^2+\epsilon},
+\qquad y_i=\gamma_i\frac{x_i}{\mathrm{RMS}(x)}.
 $$
 
 $D$ 是 hidden size，$\epsilon$ 防止除零，$\gamma\in\mathbb{R}^{D}$ 是可学习
@@ -143,7 +143,7 @@ return weight * x * scale
 `pow(2)` 是逐元素平方；`dim=-1` 表示每个 token 独立沿 hidden 维求均值；
 `keepdim=True` 保留 `[B,T,1]` 以便广播；`nn.Parameter` 让 `weight` 进入
 optimizer。以 $x=[3,4]$、$\gamma=[1,1]$ 为例，忽略 epsilon 时
-$\operatorname{RMS}(x)=\sqrt{12.5}\approx3.5355$，输出约为
+$\mathrm{RMS}(x)=\sqrt{12.5}\approx3.5355$，输出约为
 `[0.8485,1.1314]`。
 
 DeepSeek LLM 这类现代 decoder-only LM 通常使用 pre-norm：
@@ -221,8 +221,8 @@ cos:  [seq, head_dim]
 $$Q=XW_Q^T,\quad K=XW_K^T,\quad V=XW_V^T,$$
 
 $$
-\operatorname{Attention}(Q,K,V)=
-\operatorname{softmax}\left(\frac{QK^T}{\sqrt{d_h}}+M_{causal}\right)V.
+\mathrm{Attention}(Q,K,V)=
+\mathrm{softmax}\left(\frac{QK^T}{\sqrt{d_h}}+M_{causal}\right)V.
 $$
 
 这里 $W_Q,W_K,W_V$ 指 `nn.Linear.weight`，PyTorch 保存为 `[D_{out},D_{in}]`，
@@ -289,10 +289,10 @@ down(silu(gate(x)) * up(x))
 
 $$
 g=XW_g^T,\quad u=XW_u^T,\quad
-\operatorname{SwiGLU}(X)=\left(\operatorname{SiLU}(g)\odot u\right)W_d^T,
+\mathrm{SwiGLU}(X)=\left(\mathrm{SiLU}(g)\odot u\right)W_d^T,
 $$
 
-其中 $\operatorname{SiLU}(z)=z\sigma(z)$，$\odot$ 是逐元素乘法。对应代码：
+其中 $\mathrm{SiLU}(z)=z\sigma(z)$，$\odot$ 是逐元素乘法。对应代码：
 
 ```python
 return self.down(F.silu(self.gate(x)) * self.up(x))

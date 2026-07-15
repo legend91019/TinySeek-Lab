@@ -122,8 +122,8 @@ on a 48-dimensional slice.
 For one token vector $x=(x_1,\ldots,x_D)$, RMSNorm is:
 
 $$
-\operatorname{RMS}(x)=\sqrt{\frac{1}{D}\sum_{i=1}^{D}x_i^2+\epsilon},
-\qquad y_i=\gamma_i\frac{x_i}{\operatorname{RMS}(x)}.
+\mathrm{RMS}(x)=\sqrt{\frac{1}{D}\sum_{i=1}^{D}x_i^2+\epsilon},
+\qquad y_i=\gamma_i\frac{x_i}{\mathrm{RMS}(x)}.
 $$
 
 $D$ is hidden size, $\epsilon$ prevents division by zero, and
@@ -146,7 +146,7 @@ return weight * x * scale
 `dim=-1` normalizes each token over hidden features. `keepdim=True` preserves a
 length-one axis for broadcasting. `nn.Parameter` registers `weight` with the
 optimizer. For $x=[3,4]$ and $\gamma=[1,1]$, ignoring epsilon gives
-$\operatorname{RMS}(x)=\sqrt{12.5}$ and output about `[0.8485,1.1314]`.
+$\mathrm{RMS}(x)=\sqrt{12.5}$ and output about `[0.8485,1.1314]`.
 
 DeepSeek LLM uses a modern pre-norm Transformer style. In code, each block does:
 
@@ -220,8 +220,8 @@ The equations are:
 $$Q=XW_Q^T,\quad K=XW_K^T,\quad V=XW_V^T,$$
 
 $$
-\operatorname{Attention}(Q,K,V)=
-\operatorname{softmax}\left(\frac{QK^T}{\sqrt{d_h}}+M_{causal}\right)V.
+\mathrm{Attention}(Q,K,V)=
+\mathrm{softmax}\left(\frac{QK^T}{\sqrt{d_h}}+M_{causal}\right)V.
 $$
 
 Here $W_Q,W_K,W_V$ denote stored `nn.Linear.weight` tensors with shape
@@ -292,7 +292,7 @@ In equations:
 
 $$
 g=XW_g^T,\quad u=XW_u^T,\quad
-\operatorname{SwiGLU}(X)=\left(\operatorname{SiLU}(g)\odot u\right)W_d^T.
+\mathrm{SwiGLU}(X)=\left(\mathrm{SiLU}(g)\odot u\right)W_d^T.
 $$
 
 The exact code is:

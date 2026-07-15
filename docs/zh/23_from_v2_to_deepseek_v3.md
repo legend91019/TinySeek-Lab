@@ -69,7 +69,7 @@ top_weights = top_weights / top_weights.sum(
 ).clamp_min(1e-9)
 ```
 
-若 $S_n=\operatorname{TopK}(s_n)$：
+若 $S_n=\mathrm{TopK}(s_n)$：
 
 $$
 \alpha_{n,e}=\frac{a_{n,e}}{\sum_{j\in S_n}a_{n,j}},\qquad e\in S_n.
@@ -113,7 +113,7 @@ self.expert_bias.sub_(self.expert_bias.mean())
 写成公式：
 
 $$
-b_e\leftarrow b_e+\eta\,\operatorname{sign}(\bar c-c_e),\qquad
+b_e\leftarrow b_e+\eta\,\mathrm{sign}(\bar c-c_e),\qquad
 b_e\leftarrow b_e-\frac{1}{E}\sum_j b_j.
 $$
 
@@ -156,12 +156,12 @@ forward -> LM/MTP/optional aux loss -> backward
 第一个 depth 的教学目标可写成：
 
 $$
-h_i^{(1)}=F_{mtp}\left(W_c[\operatorname{RMSNorm}(h_i);
-\operatorname{RMSNorm}(e_{i+1})]\right),
+h_i^{(1)}=F_{mtp}\left(W_c[\mathrm{RMSNorm}(h_i);
+\mathrm{RMSNorm}(e_{i+1})]\right),
 $$
 
-$$L_{mtp}^{(1)}=\operatorname{CE}
-\left(W_{head}\operatorname{RMSNorm}(h_i^{(1)}),y_{i+2}\right).$$
+$$L_{mtp}^{(1)}=\mathrm{CE}
+\left(W_{head}\mathrm{RMSNorm}(h_i^{(1)}),y_{i+2}\right).$$
 
 分号表示沿最后一维拼接，而不是相加。
 最后这个 RMSNorm 对应真实代码

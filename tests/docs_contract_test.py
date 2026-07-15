@@ -13,7 +13,7 @@ CHAPTERS = [
 MATH_CHAPTER = "24_math_to_pytorch.md"
 DEEP_DIVE_REQUIREMENTS = {
     "12_code_first_dense_lm.md": (
-        "operatorname{RMS}",
+        "mathrm{RMS}",
         "torch.outer",
         "scaled_dot_product_attention",
         "F.silu",
@@ -138,8 +138,8 @@ def test_math_to_pytorch_walkthrough_is_bilingual() -> None:
 
     dense_en = (ROOT / "docs" / "12_code_first_dense_lm.md").read_text(encoding="utf-8")
     dense_zh = (ROOT / "docs" / "zh" / "12_code_first_dense_lm.md").read_text(encoding="utf-8")
-    assert "operatorname{RMS}" in dense_en
-    assert "operatorname{RMS}" in dense_zh
+    assert "mathrm{RMS}" in dense_en
+    assert "mathrm{RMS}" in dense_zh
     assert "torch.rsqrt" in dense_en
     assert "torch.rsqrt" in dense_zh
 
@@ -163,6 +163,16 @@ def test_bilingual_snippets_match_stage_source() -> None:
             assert fragment in source, f"Invalid source contract: {fragment}"
             assert fragment in en, f"English snippet missing exact source fragment: {fragment}"
             assert fragment in zh, f"Chinese snippet missing exact source fragment: {fragment}"
+
+
+def test_github_math_uses_supported_macros() -> None:
+    markdown_roots = (ROOT / "README.md", ROOT / "README_zh.md", ROOT / "docs", ROOT / "experiments")
+    markdown_files = []
+    for root in markdown_roots:
+        markdown_files.extend(root.rglob("*.md") if root.is_dir() else (root,))
+    for path in markdown_files:
+        text = path.read_text(encoding="utf-8")
+        assert "\\operatorname" not in text, f"GitHub rejects \\operatorname in {path}"
 
 
 def test_readme_and_indexes_expose_the_course() -> None:
@@ -197,5 +207,6 @@ if __name__ == "__main__":
     test_math_to_pytorch_walkthrough_is_bilingual()
     test_deep_dives_map_math_shapes_and_real_apis()
     test_bilingual_snippets_match_stage_source()
+    test_github_math_uses_supported_macros()
     test_readme_and_indexes_expose_the_course()
     print("docs contract ok")

@@ -123,7 +123,7 @@ last input dimension. Thus `[B,T,D_in]` becomes `[B,T,D_out]`.
 
 SiLU is:
 
-$$\operatorname{SiLU}(x)=x\sigma(x).$$
+$$\mathrm{SiLU}(x)=x\sigma(x).$$
 
 In SwiGLU, `F.silu(gate(x)) * up(x)` multiplies two `[B,T,D_ff]` tensors
 elementwise.
@@ -153,8 +153,8 @@ expert IDs into indicator vectors.
 The paper formula is:
 
 $$
-\operatorname{Attention}(Q,K,V)=
-\operatorname{softmax}\left(\frac{QK^T}{\sqrt{d_h}}+M\right)V.
+\mathrm{Attention}(Q,K,V)=
+\mathrm{softmax}\left(\frac{QK^T}{\sqrt{d_h}}+M\right)V.
 $$
 
 A literal implementation is:

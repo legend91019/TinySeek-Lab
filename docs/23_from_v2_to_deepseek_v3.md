@@ -46,7 +46,7 @@ a_{n,e}=\sigma((W_gx_n)_e),\qquad s_{n,e}=a_{n,e}+b_e,
 $$
 
 $$
-S_n=\operatorname{TopK}(s_n),\qquad
+S_n=\mathrm{TopK}(s_n),\qquad
 \alpha_{n,e}=\frac{a_{n,e}}{\sum_{j\in S_n}a_{n,j}}.
 $$
 
@@ -71,7 +71,7 @@ self.expert_bias.sub_(self.expert_bias.mean())
 Formally:
 
 $$
-b_e\leftarrow b_e+\eta\,\operatorname{sign}(\bar c-c_e),\qquad
+b_e\leftarrow b_e+\eta\,\mathrm{sign}(\bar c-c_e),\qquad
 b_e\leftarrow b_e-\frac{1}{E}\sum_j b_j.
 $$
 
@@ -96,12 +96,12 @@ The main hidden state at position `i` predicts token `i+1`. The first educationa
 For the first depth:
 
 $$
-h_i^{(1)}=F_{mtp}\left(W_c[\operatorname{RMSNorm}(h_i);
-\operatorname{RMSNorm}(e_{i+1})]\right),
+h_i^{(1)}=F_{mtp}\left(W_c[\mathrm{RMSNorm}(h_i);
+\mathrm{RMSNorm}(e_{i+1})]\right),
 $$
 
-$$L_{mtp}^{(1)}=\operatorname{CE}
-\left(W_{head}\operatorname{RMSNorm}(h_i^{(1)}),y_{i+2}\right).$$
+$$L_{mtp}^{(1)}=\mathrm{CE}
+\left(W_{head}\mathrm{RMSNorm}(h_i^{(1)}),y_{i+2}\right).$$
 
 The semicolon denotes concatenation over the final feature axis.
 The final RMSNorm maps to

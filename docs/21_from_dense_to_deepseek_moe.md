@@ -80,7 +80,7 @@ z_n=W_r x_n,\qquad
 p_{n,e}=\frac{\exp z_{n,e}}{\sum_{j=1}^{E}\exp z_{n,j}}.
 $$
 
-For $S_n=\operatorname{TopK}(p_n)$, selected weights are renormalized:
+For $S_n=\mathrm{TopK}(p_n)$, selected weights are renormalized:
 
 $$
 \alpha_{n,e}=\frac{p_{n,e}}{\sum_{j\in S_n}p_{n,j}},\qquad e\in S_n.
@@ -144,7 +144,7 @@ The teaching proxy is:
 
 $$
 I_e=\frac{1}{N}\sum_n p_{n,e},\quad
-A_e=\frac{1}{N}\sum_n\mathbf{1}[\operatorname{top1}(n)=e],\quad
+A_e=\frac{1}{N}\sum_n\mathbf{1}[\mathrm{top1}(n)=e],\quad
 L_{balance}=E\sum_e I_eA_e.
 $$
 

@@ -115,7 +115,7 @@ top_weights, top_indices = torch.topk(
 top_weights = top_weights / top_weights.sum(dim=-1, keepdim=True)
 ```
 
-若 $S_n=\operatorname{TopK}(p_n)$，选中专家的重新归一化权重是：
+若 $S_n=\mathrm{TopK}(p_n)$，选中专家的重新归一化权重是：
 
 $$
 \alpha_{n,e}=\frac{p_{n,e}}{\sum_{j\in S_n}p_{n,j}},\qquad e\in S_n.
@@ -207,7 +207,7 @@ aux_loss = weight * balance_proxy
 
 $$
 I_e=\frac{1}{N}\sum_n p_{n,e},\qquad
-A_e=\frac{1}{N}\sum_n\mathbf{1}[\operatorname{top1}(n)=e],
+A_e=\frac{1}{N}\sum_n\mathbf{1}[\mathrm{top1}(n)=e],
 $$
 
 $$L_{balance}=E\sum_e I_eA_e,\qquad L=L_{LM}+\lambda L_{balance}.$$
