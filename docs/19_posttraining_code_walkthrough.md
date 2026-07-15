@@ -140,6 +140,8 @@ This is not full industrial GRPO, but it preserves the shape needed for a first
 implementation: group sampling, rule reward, relative advantage, and reference
 constraint.
 
+It does not retain old-policy log probabilities from sampling and does not compute a clipped importance ratio. `GRPO Mini` is therefore a GRPO-inspired teaching objective, not a term-by-term reproduction of the paper objective.
+
 ## Rule Reward
 
 The current reward is arithmetic-oriented:
@@ -158,11 +160,19 @@ It has:
 - shaping reward for emitting a number or answer-like wording;
 - exact reward for the correct final integer.
 
-This is enough to teach the algorithm shape. The stronger next step is:
+The formal suite standardizes cold-start responses as:
 
-1. run better arithmetic/format cold-start SFT;
-2. run GRPO;
-3. compare SFT-only with SFT+GRPO on arithmetic pass rate.
+```text
+<think>concise arithmetic trace</think>
+<answer>verified integer</answer>
+```
+
+The stronger comparison is:
+
+1. pretrained base -> direct GRPO;
+2. pretrained base -> structured SFT;
+3. structured SFT -> GRPO;
+4. compare tagged-answer accuracy, reasoning-format score, and PPL separately.
 
 ## Why Not Overclaim
 
@@ -172,7 +182,8 @@ The current implementation is simplified:
 - coarse reward;
 - small sampling budget;
 - minimal reference/KL engineering;
-- no long training result yet;
+- no old-policy ratio or clipping;
+- only a 300-step toy run, not a large-scale or stability result;
 - lightweight mini eval.
 
 Reports should say clearly that this is educational GRPO, not a DeepSeek-R1
@@ -180,14 +191,14 @@ reproduction.
 
 ## What the Next GPU Run Should Fill
 
-After the next post-training run, the report should add:
+The completed [formal report](../experiments/gpu_completion_runs/report.md) now includes:
 
-- SFT-only Add / Copy / QA / Format;
-- post-GRPO Add / Copy / QA / Format;
+- Reasoning Answer / Format for base, direct GRPO, SFT-only, and SFT+GRPO;
+- PPL / Add / Copy / QA for all four checkpoints;
 - `mean_reward` curve;
 - whether GRPO hurts PPL;
-- sample completion comparisons;
-- total GPU time and cost.
+- sample completion comparisons.
+- tracked training/post-training process time and estimated cost, with exclusions stated.
 
 <!-- tinyseek-nav -->
 

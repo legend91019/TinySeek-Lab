@@ -35,10 +35,12 @@ written as a more explanatory tutorial for local readers.
 
 ## Experiment Reports
 
+- [3-seed Architecture Measurements and Decisions](../experiments/architecture_lab_runs/report.md)
+- [Formal Training and Post-Training Report](../experiments/gpu_completion_runs/report.md)
 - [RTX 4090 v1 Results](../experiments/05_4090_v1_results.md)
 - [Auto-generated v1 Tables and Figures](../experiments/v1_4090_plan/auto_summary.md)
 - [Experiment Report Hub](../experiments/README.md)
-- [Fair DeepSeek Architecture Experiment Plan](../experiments/06_architecture_evolution_plan.md)
+- [Fair DeepSeek Architecture Experiment Plan and Gates](../experiments/06_architecture_evolution_plan.md)
 
 ## Visual Roadmap
 

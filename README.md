@@ -37,29 +37,26 @@ DeepSeek papers provide problems, methods, and paper-scale evidence; TinySeek pr
 
 Start with the [architecture evolution map](docs/20_architecture_evolution_overview.md). Stage files teach the code; the unified [`model/tinyseek.py`](model/tinyseek.py) runs matched formal experiments.
 
-## Current Results
+## Current Results: Formal RTX 4090 Suite Complete
 
-TinySeek-Lab has completed the first real-GPU tutorial loop:
+TinySeek-Lab has completed the full training and ablation suite on one RTX 4090:
 
 ```text
 TinyStories -> tiny base -> dense 35M/115M -> LR/batch sweep
 -> MoE -> MLA -> SFT -> GRPO mini -> mini eval -> cost and figures
 ```
 
-- Experiment hub: [experiments/README.md](experiments/README.md)
-- RTX 4090 v1 report: [experiments/05_4090_v1_results.md](experiments/05_4090_v1_results.md)
-- v1 auto figures: [experiments/v1_4090_plan/auto_summary.md](experiments/v1_4090_plan/auto_summary.md)
-- Total GPU time was about `0.0867 h`, or about `0.19 CNY` at `2.18 CNY/h`.
-- Best sweep run: `v1_sweep_bs16_lr3e-4`, with mini-eval PPL around `1.93`.
-- MoE run: `235.06M` total parameters, about `84.06M` activated parameters,
-  and about `5.46 GB` peak allocated VRAM.
+- [48-run, 16-config, 3-seed architecture report](experiments/architecture_lab_runs/report.md): `1.5679 GPU h`, about `3.4180 CNY`.
+- [11-run formal training and post-training report](experiments/gpu_completion_runs/report.md): `0.8985 GPU h`, about `1.9588 CNY`.
+- Combined tracked trainer/post-training process time: `2.4664 GPU h`, corresponding to about `5.3768 CNY`; this excludes data preparation, standalone evaluation, report generation, and idle rental time.
+- GQA passes its local gate: theoretical KV/token falls from `384` to `192` without a PPL regression.
+- Shared experts improve PPL over coarse MoE but run about 35% slower, so the repository keeps separate quality and throughput branches.
+- Educational MLA reaches `72` theoretical KV/token but regresses PPL; bias routing also fails to beat aux=0.01. Neither is promoted in this budget.
+- On five held-out additions, SFT raises reasoning-format score from `0.0` to `0.6` but still scores `0/5`; GRPO then lowers format score to `0.2`. This mini-eval provides no arithmetic-generalization evidence, and a loose reward can degrade behavior.
 
-These results validate the tutorial loop and reporting method. They do not
-claim real large-model capability.
+These are TinySeek small-model measurements, not claims about DeepSeek-scale capability.
 
-![RTX 4090 v1 perplexity comparison](experiments/v1_4090_plan/figures/v1_ppl.svg)
-
-The V3 code path is ready, while auxiliary/bias routing, MTP off/on, and MLA matched runs still require the next GPU pass. See the [fair architecture experiment plan](experiments/06_architecture_evolution_plan.md); pending cells remain explicitly pending.
+![TinySeek 3-seed architecture PPL](experiments/architecture_lab_runs/figures/architecture_ppl.svg)
 
 ## Three Quick Paths
 
@@ -67,9 +64,9 @@ The V3 code path is ready, while auxiliary/bias routing, MTP off/on, and MLA mat
 | --- | --- | --- |
 | CPU code course | Inspect four complete models and their shapes | `python scripts/inspect_stage_models.py` |
 | Small GPU teaching run | Try tiny dense -> SFT -> GRPO | [Final GPU checklist](docs/18_gpu_fill_only_checklist.md) |
-| RTX 4090 research run | Reproduce results and fill V3 comparisons | [Experiment hub](experiments/README.md) |
+| RTX 4090 research run | Reproduce formal training and multi-seed architecture comparisons | [Experiment hub](experiments/README.md) |
 
-Recommended order: read the [architecture map](docs/20_architecture_evolution_overview.md), write the four stage models, study the [training loop](docs/16_training_loop_from_config_to_checkpoint.md), then run the [fair architecture plan](experiments/06_architecture_evolution_plan.md).
+Fast code-first route: read the [architecture map](docs/20_architecture_evolution_overview.md), write the four stage models, study the [training loop](docs/16_training_loop_from_config_to_checkpoint.md), then run the [fair architecture plan](experiments/06_architecture_evolution_plan.md). The full reading path below starts with scope and papers first.
 
 ## Why "TinySeek"
 
@@ -194,12 +191,13 @@ The first AutoDL RTX 4090 validation report is in
 [experiments/02_autodl_4090_smoke_report.md](experiments/02_autodl_4090_smoke_report.md).
 The v1 pretrain -> SFT -> GRPO smoke report is in
 [experiments/03_v1_pipeline_smoke_report.md](experiments/03_v1_pipeline_smoke_report.md).
-The first full RTX 4090 v1 results are in
-[experiments/05_4090_v1_results.md](experiments/05_4090_v1_results.md).
-Generated v1 tables and figures are in
-[experiments/v1_4090_plan/auto_summary.md](experiments/v1_4090_plan/auto_summary.md).
-Read the code path in [docs/15_code_walkthrough.md](docs/15_code_walkthrough.md)
-and the next paid-GPU plan in
+The latest 3-seed architecture measurements are in
+[experiments/architecture_lab_runs/report.md](experiments/architecture_lab_runs/report.md).
+The formal training, sweep, and post-training results are in
+[experiments/gpu_completion_runs/report.md](experiments/gpu_completion_runs/report.md).
+The earlier [RTX 4090 v1 report](experiments/05_4090_v1_results.md) remains as a record of the repository's progression from smoke validation to formal experiments.
+Read the code path in [docs/15_code_walkthrough.md](docs/15_code_walkthrough.md).
+The preregistered paid-GPU plan that produced the formal suite is archived in
 [experiments/04_formal_experiment_plan.md](experiments/04_formal_experiment_plan.md).
 
 ## First Reading Path
@@ -267,5 +265,5 @@ TinySeek-Lab is a lab notebook disguised as a repo.
 The current version contains four complete DeepSeek LLM/MoE/V2/V3 teaching
 models, a unified configurable experiment model with routing bias and MTP,
 pretraining, sweeps, SFT, educational GRPO, mini eval, GPU cost tracking,
-measured 4090 v1 reports, and sixteen architecture-lab configurations. GRPO
+measured formal 4090 reports, 48 multi-seed architecture runs, and eleven long-training/post-training runs. GRPO
 and MLA remain educational rather than production reproductions.

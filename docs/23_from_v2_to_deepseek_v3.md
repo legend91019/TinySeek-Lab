@@ -19,7 +19,7 @@ Split the V3 transition into three experiments instead of jumping directly to th
 
 The aux sweep uses [`moe_aux_none.json`](../configs/architecture_lab/moe_aux_none.json), [`moe_aux_weak.json`](../configs/architecture_lab/moe_aux_weak.json), [`moe_aux.json`](../configs/architecture_lab/moe_aux.json), and [`moe_aux_strong.json`](../configs/architecture_lab/moe_aux_strong.json).
 
-If C0 shows no main-task cost, TinySeek cannot claim that its small-model experiment proved severe auxiliary-loss interference. It can cite the V3 paper motivation and still run C1 as a mechanism comparison. If C1 or C2 misses its gate, retain the V2 choice. That is the difference between an experiment-driven route and appending paper components by default.
+If C0 shows no main-task cost, TinySeek cannot claim that its small-model experiment proved severe auxiliary-loss interference. It can cite the V3 paper motivation and still run C1 as a mechanism comparison. If C1 or C2 misses its gate, do not promote that tested mechanism; retain the comparator within that matched group. That is the difference between an experiment-driven route and appending paper components by default.
 
 ## 1. Why Change V2 Routing
 
@@ -138,7 +138,7 @@ python trainer/train_pretrain.py --config configs/architecture_lab/v3_no_mtp.jso
 python trainer/train_pretrain.py --config configs/architecture_lab/v3_mtp.json --data data/tinystories.jsonl --hourly_rate 2.18
 ```
 
-Results remain pending in the [architecture experiment plan](../experiments/06_architecture_evolution_plan.md). Until those cells are measured, the repository can claim implementation and experiment readiness, not a TinySeek performance win.
+The [3-seed report](../experiments/architecture_lab_runs/report.md) finds that bias routing is worse than aux=0.01 on both PPL and load CV under this setup. On the same educational-MLA+bias branch, MTP's mean PPL is slightly lower, but the difference lies inside seed variation while memory and time increase. That V3-style branch is rejected. This experiment does **not** decide whether MTP helps the promoted GQA+aux recipe; that requires a new matched pair. The local negative result does not contradict V3 at paper scale.
 
 Formal conclusions require multiple seeds. When the budget permits only one seed, label it as a pilot and preserve complete history, expert-load statistics, and the cost ledger for the next pass.
 

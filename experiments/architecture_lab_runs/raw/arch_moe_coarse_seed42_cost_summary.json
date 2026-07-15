@@ -1,0 +1,123 @@
+{
+  "run_name": "arch_moe_coarse_seed42",
+  "step": 1000,
+  "elapsed_seconds": 84.2499,
+  "gpu_hours": 0.023403,
+  "hourly_rate": 2.18,
+  "currency": "CNY",
+  "estimated_cost": 0.051,
+  "model_params": 4034496,
+  "activated_params_estimate": 2265024,
+  "hardware": {
+    "hostname": "autodl-container-dd9f46bdad-a114517e",
+    "platform": "Linux-5.15.0-84-generic-x86_64-with-glibc2.35",
+    "torch_version": "2.8.0+cu128",
+    "cuda_available": true,
+    "cuda_version": "12.8",
+    "device_index": 0,
+    "gpu_name": "NVIDIA GeForce RTX 4090",
+    "gpu_total_memory_gb": 23.5165,
+    "compute_capability": "8.9",
+    "device_count": 1
+  },
+  "max_memory_allocated_gb": 0.1892,
+  "max_memory_reserved_gb": 0.2207,
+  "config_path": "experiments/architecture_lab_runs/configs/moe_coarse_seed42.json",
+  "data_path": "data/tinystories.jsonl",
+  "checkpoint_path": "out/architecture_lab/arch_moe_coarse_seed42_last.pt",
+  "history_path": "out/architecture_lab/arch_moe_coarse_seed42_history.jsonl",
+  "last_loss": 0.6894951462745667,
+  "last_lm_loss": 0.6494762301445007,
+  "val_loss": 0.7171101607322693,
+  "val_lm_loss": 0.7171101607322693,
+  "val_objective": 0.7571896006124088,
+  "val_mtp_loss": 0.0,
+  "val_aux_loss": 0.040015938468634514,
+  "batch_size": 16,
+  "grad_accum_steps": 1,
+  "max_seq_len": 128,
+  "dtype": "bfloat16",
+  "router_balance_strategy": "aux",
+  "mtp_depth": 0,
+  "mtp_loss_weight": 0.1,
+  "estimated_train_tokens": 2048000,
+  "train_compute_seconds": 39.5557,
+  "training_tokens_per_second": 51775.1,
+  "throughput_note": "Training compute only; excludes data loading, validation, and checkpoint writes.",
+  "estimated_training_flops": 27832614912000,
+  "flops_note": "Rough 6 * activated_params * tokens estimate for tutorial-scale comparison.",
+  "expert_load": {
+    "top_k": 1,
+    "num_experts": 2,
+    "total_counts": [
+      2122,
+      1974
+    ],
+    "total_fractions": [
+      0.51806640625,
+      0.48193359375
+    ],
+    "per_layer": [
+      {
+        "layer": 0,
+        "counts": [
+          515,
+          509
+        ],
+        "fractions": [
+          0.5029296875,
+          0.4970703125
+        ],
+        "selection_bias": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "layer": 1,
+        "counts": [
+          548,
+          476
+        ],
+        "fractions": [
+          0.53515625,
+          0.46484375
+        ],
+        "selection_bias": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "layer": 2,
+        "counts": [
+          533,
+          491
+        ],
+        "fractions": [
+          0.5205078125,
+          0.4794921875
+        ],
+        "selection_bias": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "layer": 3,
+        "counts": [
+          526,
+          498
+        ],
+        "fractions": [
+          0.513671875,
+          0.486328125
+        ],
+        "selection_bias": [
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  }
+}

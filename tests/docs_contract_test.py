@@ -46,7 +46,7 @@ def test_readme_and_indexes_expose_the_course() -> None:
         text = path.read_text(encoding="utf-8")
         assert "stage0_deepseek_llm.py" in text
         assert "stage3_deepseek_v3.py" in text
-        assert "v1_ppl.svg" in text
+        assert "architecture_ppl.svg" in text
         assert "06_architecture_evolution_plan" in text
     zh_readme = (ROOT / "README_zh.md").read_text(encoding="utf-8")
     en_readme = (ROOT / "README.md").read_text(encoding="utf-8")

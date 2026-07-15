@@ -1,0 +1,178 @@
+{
+  "checkpoint": "out/gpu_completion/formal_reasoning_sft_last.pt",
+  "device": "cuda",
+  "addition": {
+    "accuracy": 0.0,
+    "num_examples": 5,
+    "examples": [
+      {
+        "prompt": "2+3",
+        "prediction": 93,
+        "target": 5,
+        "ok": false
+      },
+      {
+        "prompt": "7+8",
+        "prediction": 8,
+        "target": 15,
+        "ok": false
+      },
+      {
+        "prompt": "12+9",
+        "prediction": 1,
+        "target": 21,
+        "ok": false
+      },
+      {
+        "prompt": "15+17",
+        "prediction": 11,
+        "target": 32,
+        "ok": false
+      },
+      {
+        "prompt": "20+22",
+        "prediction": 52,
+        "target": 42,
+        "ok": false
+      }
+    ]
+  },
+  "copy": {
+    "accuracy": 0.0,
+    "num_examples": 3,
+    "examples": [
+      {
+        "target": "TINYSEEK-42",
+        "ok": false,
+        "completion": "<answer>Multiply the numbers: 4 */t= 3</answer>4 6.</answer>\n<an"
+      },
+      {
+        "target": "MoE routes tokens",
+        "ok": false,
+        "completion": "<answer>\n</answer>\n<answer>\n</answer>\n<answer>\n<answer>\n<answer>"
+      },
+      {
+        "target": "RMSNorm before attention",
+        "ok": false,
+        "completion": "<answer>Multiply the numbers: 4 + 5 = 48.</answer>\n<answer>48</a"
+      }
+    ]
+  },
+  "keyword_qa": {
+    "accuracy": 0.0,
+    "num_examples": 3,
+    "examples": [
+      {
+        "prompt": "What does RMSNorm normalize?",
+        "keywords": [
+          "root",
+          "mean",
+          "square",
+          "rms"
+        ],
+        "hits": [],
+        "ok": false,
+        "completion": "<answer>\n</think>\n</think>\n<answer>\n</think>\n<answer>\n<answer>\n<"
+      },
+      {
+        "prompt": "What does MoE routing choose?",
+        "keywords": [
+          "expert",
+          "experts",
+          "route",
+          "routing"
+        ],
+        "hits": [],
+        "ok": false,
+        "completion": "<answer>\n</think>\n</think>\n</think>\n</think>\n<answer>\n<answer>\n<"
+      },
+      {
+        "prompt": "Why keep a validation set?",
+        "keywords": [
+          "held",
+          "validation",
+          "general",
+          "overfit"
+        ],
+        "hits": [],
+        "ok": false,
+        "completion": "<answer> \n</think>\n</think>\n<answer>\n</think>\n<answer>\n<answer>"
+      }
+    ]
+  },
+  "format": {
+    "format_score": 1.0,
+    "num_examples": 3,
+    "examples": [
+      {
+        "prompt": "Explain RMSNorm in one sentence.",
+        "ok": true,
+        "completion": "### Instruction\nExplain RMSNorm in one sentence.\n\n### Response\n<answer>\n</think>\n</think>\n</think>\n</think>\n<answer>\n<answer>\n<"
+      },
+      {
+        "prompt": "What does MoE routing do?",
+        "ok": true,
+        "completion": "### Instruction\nWhat does MoE routing do?\n\n### Response\n<answer> \n</think>\n</think>\n</think>\n</think>\n<answer>\n<answer>\n"
+      },
+      {
+        "prompt": "Why do we use a validation set?",
+        "ok": true,
+        "completion": "### Instruction\nWhy do we use a validation set?\n\n### Response\n<answer> 5.</think>\n<answer>\n<answer>\n</think>\n<answer>\n<answer>"
+      }
+    ]
+  },
+  "reasoning": {
+    "answer_accuracy": 0.0,
+    "format_score": 0.6,
+    "num_examples": 5,
+    "examples": [
+      {
+        "prompt": "2+3",
+        "prediction": 9,
+        "target": 5,
+        "answer_ok": false,
+        "format_ok": true,
+        "completion": "<think>Add the numbers: 2 + 3 = 9.</think>\n<answer>9</answer>"
+      },
+      {
+        "prompt": "7+8",
+        "prediction": 12,
+        "target": 15,
+        "answer_ok": false,
+        "format_ok": true,
+        "completion": "<think>Add the numbers: 7 + 8 = 12.</think>\n<answer>12</answer>"
+      },
+      {
+        "prompt": "12+9",
+        "prediction": 29,
+        "target": 21,
+        "answer_ok": false,
+        "format_ok": true,
+        "completion": "<think>Add the numbers: 12 + 9 = 29.</think>\n<answer>29</answer>"
+      },
+      {
+        "prompt": "15+17",
+        "prediction": null,
+        "target": 32,
+        "answer_ok": false,
+        "format_ok": false,
+        "completion": "<think>Add the numbers: 15 + 17 = 38.</think>\n<answer>38</answer"
+      },
+      {
+        "prompt": "20+22",
+        "prediction": null,
+        "target": 42,
+        "answer_ok": false,
+        "format_ok": false,
+        "completion": "<think>Add the numbers: 20 + 22 = 41.</think>\n<answer>41</answer"
+      }
+    ]
+  },
+  "perplexity": {
+    "loss": 2.539206986427307,
+    "lm_loss": 2.539206986427307,
+    "ppl": 12.669619805538714,
+    "num_examples": 100,
+    "num_tokens": 19100
+  }
+}

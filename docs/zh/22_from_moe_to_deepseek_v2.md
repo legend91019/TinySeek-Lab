@@ -23,11 +23,13 @@ GQA cache = 2 * num_kv_heads * head_dim
 
 | 步骤 | 候选 | 想验证什么 | 当前可观测量 |
 | --- | --- | --- | --- |
-| B0 | GQA control | 上一代基线 | `192` 个理论元素；GPU loss/PPL 待测 |
-| B1 | 朴素低秩 KV | 低秩是否能保住语言建模质量 | loss/PPL 可测；由于 RoPE 耦合，不宣称 latent-only cache |
-| B2 | 解耦 RoPE 的 educational MLA | content latent 与位置分量分开后，应缓存量是否下降 | `64 + 8 = 72` 个理论元素，即比本 GQA 配置少 `62.5%`；真实 decode 待实现 |
+| B0 | GQA control | 上一代基线 | `192` 个理论元素；实测 PPL `2.009 +/- 0.011` |
+| B1 | 朴素低秩 KV | 低秩是否能保住语言建模质量 | 实测 PPL `2.190 +/- 0.001`；由于 RoPE 耦合，不宣称 latent-only cache |
+| B2 | 解耦 RoPE 的 educational MLA | content latent 与位置分量分开后，应缓存量是否下降 | `72` 个理论元素，实测 PPL `2.194 +/- 0.012`；真实 cached decoding 未实现 |
 
 **决策门槛**：B1/B2 的多 seed validation PPL 不应显著差于 B0；B2 必须在理论账本上明显减少缓存。即使两项都通过，也只能升级“结构研究结论”。要声称真实显存或吞吐收益，还必须实现 cached decoding，并测长上下文下的峰值显存、首 token 后吞吐和延迟。
+
+**实测决定**：B2 通过理论缓存账本，却没有通过质量门槛；B1 说明在当前 rank 下，低秩本身已经带来明显代价。因此保留 GQA，下一轮先 sweep latent rank。完整运行见[架构实测报告](../../experiments/architecture_lab_runs/report_zh.md)。
 
 ## 1. 上一代哪里不够
 

@@ -52,7 +52,7 @@ python trainer/train_pretrain.py --config configs/architecture_lab/moe_aux.json 
 python trainer/train_pretrain.py --config configs/architecture_lab/moe_bias.json --data data/tinystories.jsonl --hourly_rate 2.18
 ```
 
-不要只报告总参数。至少同时报告 activated parameters、expert load、aux loss、validation loss、tokens/s 和峰值显存。结果未运行前保持“待上卡”，见[架构演进实验计划](../../experiments/06_architecture_evolution_plan_zh.md)。
+不要只报告总参数。至少同时报告 activated parameters、expert load、aux loss、validation loss、tokens/s 和峰值显存。3-seed 完整数字与质量/吞吐分支决定见[架构实测报告](../../experiments/architecture_lab_runs/report_zh.md)。
 
 <!-- tinyseek-nav -->
 

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="354" viewBox="0 0 1040 354">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="22" y="32" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#172b36">Training throughput</text>
+<text x="22" y="74" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_base20m</text>
+<rect x="260" y="58" width="630.0" height="22" rx="3" fill="#276678"/>
+<text x="898.0" y="74" font-family="Arial,sans-serif" font-size="12" fill="#172b36">2.233e+05 tok/s</text>
+<text x="22" y="106" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_dense115_30m</text>
+<rect x="260" y="90" width="218.5" height="22" rx="3" fill="#d97745"/>
+<text x="486.5" y="106" font-family="Arial,sans-serif" font-size="12" fill="#172b36">7.744e+04 tok/s</text>
+<text x="22" y="138" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_dense35_50m</text>
+<rect x="260" y="122" width="618.7" height="22" rx="3" fill="#568259"/>
+<text x="886.7" y="138" font-family="Arial,sans-serif" font-size="12" fill="#172b36">2.193e+05 tok/s</text>
+<text x="22" y="170" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_moe35_30m</text>
+<rect x="260" y="154" width="88.9" height="22" rx="3" fill="#8a5a83"/>
+<text x="356.9" y="170" font-family="Arial,sans-serif" font-size="12" fill="#172b36">3.153e+04 tok/s</text>
+<text x="22" y="202" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_sweep_bs16_lr3e-4</text>
+<rect x="260" y="186" width="300.1" height="22" rx="3" fill="#b48b36"/>
+<text x="568.1" y="202" font-family="Arial,sans-serif" font-size="12" fill="#172b36">1.064e+05 tok/s</text>
+<text x="22" y="234" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_sweep_bs16_lr6e-4</text>
+<rect x="260" y="218" width="304.7" height="22" rx="3" fill="#276678"/>
+<text x="572.7" y="234" font-family="Arial,sans-serif" font-size="12" fill="#172b36">1.08e+05 tok/s</text>
+<text x="22" y="266" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_sweep_bs32_lr3e-4</text>
+<rect x="260" y="250" width="603.5" height="22" rx="3" fill="#d97745"/>
+<text x="871.5" y="266" font-family="Arial,sans-serif" font-size="12" fill="#172b36">2.139e+05 tok/s</text>
+<text x="22" y="298" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_sweep_bs32_lr6e-4</text>
+<rect x="260" y="282" width="606.8" height="22" rx="3" fill="#568259"/>
+<text x="874.8" y="298" font-family="Arial,sans-serif" font-size="12" fill="#172b36">2.151e+05 tok/s</text>
+</svg>

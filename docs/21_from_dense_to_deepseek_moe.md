@@ -50,7 +50,7 @@ class Stage1Config(Stage0Config):
     moe_aux_loss_weight: float = 0.01
 ```
 
-With `hidden_size=192`, the Stage 0 Dense intermediate width is `768`, while each Stage 1 expert uses `192`. The model stores eight routed experts, activates two per token, and always runs one shared expert. Exact compute still requires activated-parameter and throughput measurements.
+With `hidden_size=192`, the Stage 0 Dense intermediate width is `768`, while each Stage 1 expert uses `192`. The model stores eight routed experts, activates two per token, and always runs one shared expert. Activated-parameter, throughput, and expert-load measurements are now archived in the [3-seed architecture report](../experiments/architecture_lab_runs/report.md).
 
 ## 4. Router Shapes
 
@@ -152,7 +152,7 @@ python trainer/train_pretrain.py --config configs/architecture_lab/moe_aux.json 
 python trainer/train_pretrain.py --config configs/architecture_lab/moe_bias.json --data data/tinystories.jsonl --hourly_rate 2.18
 ```
 
-See the [architecture experiment plan](../experiments/06_architecture_evolution_plan.md). Earlier 4090 MoE results prove that the old pipeline runs; they do not replace the new fine-grained matched comparison.
+See the [architecture experiment plan](../experiments/06_architecture_evolution_plan.md) and completed [3-seed report](../experiments/architecture_lab_runs/report.md). Fine-grained alone misses the gate; shared experts improve PPL over coarse MoE but reduce throughput, so the report keeps separate quality and speed branches.
 
 Write conclusions as observation, decision, and next action. If the fine-grained run has healthy loads, consistently lower PPL, and acceptable throughput, proceed to shared isolation. If only one seed improves, run repeats instead of declaring an upgrade.
 

@@ -1,0 +1,42 @@
+{
+  "run_name": "arch_moe_aux_weak_seed43",
+  "model": {
+    "vocab_size": 260,
+    "max_seq_len": 128,
+    "hidden_size": 192,
+    "num_layers": 4,
+    "num_heads": 4,
+    "num_kv_heads": 2,
+    "ffn_multiplier": 4.0,
+    "expert_ffn_multiplier": 1.0,
+    "attention_impl": "mha",
+    "mla_latent_size": 64,
+    "mla_decoupled_rope": true,
+    "qk_rope_head_dim": 8,
+    "use_moe": true,
+    "num_experts": 8,
+    "num_shared_experts": 1,
+    "top_k": 2,
+    "moe_aux_loss_weight": 0.001,
+    "router_balance_strategy": "aux",
+    "router_bias_update_rate": 0.001,
+    "mtp_depth": 0,
+    "mtp_loss_weight": 0.1,
+    "dropout": 0.0
+  },
+  "train": {
+    "batch_size": 16,
+    "grad_accum_steps": 1,
+    "learning_rate": 0.0003,
+    "min_lr_ratio": 0.1,
+    "warmup_steps": 100,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "max_steps": 1000,
+    "eval_interval": 100,
+    "save_interval": 500,
+    "dtype": "bfloat16",
+    "seed": 43,
+    "out_dir": "out/architecture_lab"
+  }
+}

@@ -1,6 +1,6 @@
 # Formal Experiment Plan
 
-This plan is for the next paid GPU session. Do not run these on toy data.
+This preregistered plan was executed on an RTX 4090 in July 2026. Do not run it on toy data. Results are archived in the [formal training report](gpu_completion_runs/report.md) and the [3-seed architecture report](architecture_lab_runs/report.md).
 
 ## Dataset
 
@@ -27,6 +27,8 @@ Recommended options:
 | E5 | MLA/KV comparison | `configs/tiny_mla.json` and dense control | 5M-10M tokens | KV elements/token, memory |
 | E6 | SFT cold start | `configs/tiny_sft.json` | 2k-20k examples | format eval, addition eval |
 | E7 | GRPO mini | `configs/tiny_grpo.json` | 100-500 updates | reward curve, pass rate |
+
+Execution note: E1-E4 and E6-E7 were materialized by `run_gpu_completion.py`. The original E5 dense `tiny_mla.json` pilot was superseded by the stricter three-seed GQA/low-rank/educational-MLA group in the [architecture suite](architecture_lab_runs/report.md), using 2.048M tokens per run rather than the originally proposed 5M-10M.
 
 ## Required Report Columns
 

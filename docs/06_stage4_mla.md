@@ -48,7 +48,7 @@ python trainer/train_pretrain.py --config configs/architecture_lab/v2_attention_
 python trainer/train_pretrain.py --config configs/architecture_lab/v2_mla.json --data data/tinystories.jsonl --hourly_rate 2.18
 ```
 
-The rigorous current comparisons are validation loss, training cost, and theoretical cache elements. Without a production latent cache, training VRAM is not evidence of decoding-cache savings. Results remain pending in the [architecture plan](../experiments/06_architecture_evolution_plan.md).
+The rigorous comparisons are validation loss, training cost, and theoretical cache elements. The [3-seed report](../experiments/architecture_lab_runs/report.md) records a `192 -> 72` theoretical KV/token reduction but a clear PPL regression, so the quality gate fails. Without a production latent cache, training VRAM is still not evidence of decoding-cache savings.
 
 <!-- tinyseek-nav -->
 

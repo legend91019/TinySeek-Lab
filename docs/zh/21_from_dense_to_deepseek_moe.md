@@ -235,7 +235,7 @@ python trainer/train_pretrain.py --config configs/architecture_lab/moe_aux.json 
 python trainer/train_pretrain.py --config configs/architecture_lab/moe_bias.json --data data/tinystories.jsonl --hourly_rate 2.18
 ```
 
-完整控制变量和待填结果见 [`experiments/06_architecture_evolution_plan_zh.md`](../../experiments/06_architecture_evolution_plan_zh.md)。当前旧版 4090 MoE 数字证明链路能运行，但不能代替新的细粒度 expert 公平对照。
+完整控制变量见[架构实验计划](../../experiments/06_architecture_evolution_plan_zh.md)，3-seed 的 coarse/fine/shared、吞吐和 expert-load 结果见[架构实测报告](../../experiments/architecture_lab_runs/report_zh.md)。结果显示 fine-grained 单独使用没有通过门槛，shared 提高 PPL 质量但吞吐更低，因此保留质量与速度两条分支。
 
 结论应按“观察 -> 判断 -> 下一步”写。例如：若细粒度版本负载健康、PPL 稳定更低且吞吐损失可接受，才进入 shared isolation；若结果只在一个 seed 上更好，就增加重复实验，而不是直接升级。
 

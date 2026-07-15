@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="610" viewBox="0 0 1040 610">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="22" y="32" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#172b36">Training throughput by architecture</text>
+<text x="22" y="74" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_dense_gqa</text>
+<rect x="260" y="58" width="600.3" height="22" rx="3" fill="#276678"/>
+<text x="868.3" y="74" font-family="Arial,sans-serif" font-size="12" fill="#172b36">7.02e+04 tok/s</text>
+<text x="22" y="106" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_dense_mha</text>
+<rect x="260" y="90" width="630.0" height="22" rx="3" fill="#d97745"/>
+<text x="898.0" y="106" font-family="Arial,sans-serif" font-size="12" fill="#172b36">7.368e+04 tok/s</text>
+<text x="22" y="138" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_aux</text>
+<rect x="260" y="122" width="260.4" height="22" rx="3" fill="#568259"/>
+<text x="528.4" y="138" font-family="Arial,sans-serif" font-size="12" fill="#172b36">3.046e+04 tok/s</text>
+<text x="22" y="170" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_aux_none</text>
+<rect x="260" y="154" width="268.9" height="22" rx="3" fill="#8a5a83"/>
+<text x="536.9" y="170" font-family="Arial,sans-serif" font-size="12" fill="#172b36">3.145e+04 tok/s</text>
+<text x="22" y="202" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_aux_strong</text>
+<rect x="260" y="186" width="262.0" height="22" rx="3" fill="#b48b36"/>
+<text x="530.0" y="202" font-family="Arial,sans-serif" font-size="12" fill="#172b36">3.064e+04 tok/s</text>
+<text x="22" y="234" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_aux_weak</text>
+<rect x="260" y="218" width="258.1" height="22" rx="3" fill="#276678"/>
+<text x="526.1" y="234" font-family="Arial,sans-serif" font-size="12" fill="#172b36">3.018e+04 tok/s</text>
+<text x="22" y="266" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_bias</text>
+<rect x="260" y="250" width="265.1" height="22" rx="3" fill="#d97745"/>
+<text x="533.1" y="266" font-family="Arial,sans-serif" font-size="12" fill="#172b36">3.1e+04 tok/s</text>
+<text x="22" y="298" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_coarse</text>
+<rect x="260" y="282" width="435.9" height="22" rx="3" fill="#568259"/>
+<text x="703.9" y="298" font-family="Arial,sans-serif" font-size="12" fill="#172b36">5.098e+04 tok/s</text>
+<text x="22" y="330" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_fine_grained</text>
+<rect x="260" y="314" width="278.0" height="22" rx="3" fill="#8a5a83"/>
+<text x="546.0" y="330" font-family="Arial,sans-serif" font-size="12" fill="#172b36">3.251e+04 tok/s</text>
+<text x="22" y="362" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_shared</text>
+<rect x="260" y="346" width="284.3" height="22" rx="3" fill="#b48b36"/>
+<text x="552.3" y="362" font-family="Arial,sans-serif" font-size="12" fill="#172b36">3.325e+04 tok/s</text>
+<text x="22" y="394" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v2_attention_control</text>
+<rect x="260" y="378" width="254.6" height="22" rx="3" fill="#276678"/>
+<text x="522.6" y="394" font-family="Arial,sans-serif" font-size="12" fill="#172b36">2.977e+04 tok/s</text>
+<text x="22" y="426" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v2_low_rank_control</text>
+<rect x="260" y="410" width="253.4" height="22" rx="3" fill="#d97745"/>
+<text x="521.4" y="426" font-family="Arial,sans-serif" font-size="12" fill="#172b36">2.964e+04 tok/s</text>
+<text x="22" y="458" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v2_low_rank_kv</text>
+<rect x="260" y="442" width="257.7" height="22" rx="3" fill="#568259"/>
+<text x="525.7" y="458" font-family="Arial,sans-serif" font-size="12" fill="#172b36">3.013e+04 tok/s</text>
+<text x="22" y="490" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v2_mla</text>
+<rect x="260" y="474" width="254.1" height="22" rx="3" fill="#8a5a83"/>
+<text x="522.1" y="490" font-family="Arial,sans-serif" font-size="12" fill="#172b36">2.972e+04 tok/s</text>
+<text x="22" y="522" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v3_mtp</text>
+<rect x="260" y="506" width="231.2" height="22" rx="3" fill="#b48b36"/>
+<text x="499.2" y="522" font-family="Arial,sans-serif" font-size="12" fill="#172b36">2.704e+04 tok/s</text>
+<text x="22" y="554" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v3_no_mtp</text>
+<rect x="260" y="538" width="264.8" height="22" rx="3" fill="#276678"/>
+<text x="532.8" y="554" font-family="Arial,sans-serif" font-size="12" fill="#172b36">3.097e+04 tok/s</text>
+</svg>

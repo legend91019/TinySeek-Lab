@@ -1,0 +1,178 @@
+{
+  "checkpoint": "out/gpu_completion/formal_direct_grpo_last.pt",
+  "device": "cuda",
+  "addition": {
+    "accuracy": 0.0,
+    "num_examples": 5,
+    "examples": [
+      {
+        "prompt": "2+3",
+        "prediction": 3,
+        "target": 5,
+        "ok": false
+      },
+      {
+        "prompt": "7+8",
+        "prediction": 8,
+        "target": 15,
+        "ok": false
+      },
+      {
+        "prompt": "12+9",
+        "prediction": 9,
+        "target": 21,
+        "ok": false
+      },
+      {
+        "prompt": "15+17",
+        "prediction": 17,
+        "target": 32,
+        "ok": false
+      },
+      {
+        "prompt": "20+22",
+        "prediction": 22,
+        "target": 42,
+        "ok": false
+      }
+    ]
+  },
+  "copy": {
+    "accuracy": 0.0,
+    "num_examples": 3,
+    "examples": [
+      {
+        "target": "TINYSEEK-42",
+        "ok": false,
+        "completion": "ffinalin finalin finalin finalin finalin finalin finalin finalin"
+      },
+      {
+        "target": "MoE routes tokens",
+        "ok": false,
+        "completion": "ffinals finalavvavs finalin finals finalavavvs finals finals fin"
+      },
+      {
+        "target": "RMSNorm before attention",
+        "ok": false,
+        "completion": "\"finallyove finallyove finalin finalin finally finals finalin fi"
+      }
+    ]
+  },
+  "keyword_qa": {
+    "accuracy": 0.0,
+    "num_examples": 3,
+    "examples": [
+      {
+        "prompt": "What does RMSNorm normalize?",
+        "keywords": [
+          "root",
+          "mean",
+          "square",
+          "rms"
+        ],
+        "hits": [],
+        "ok": false,
+        "completion": "ffinalin finalain finalin finalin finalin finalin finally finali"
+      },
+      {
+        "prompt": "What does MoE routing choose?",
+        "keywords": [
+          "expert",
+          "experts",
+          "route",
+          "routing"
+        ],
+        "hits": [],
+        "ok": false,
+        "completion": "ffinallyofinalld finalld finalld finalld finalin finally finalav"
+      },
+      {
+        "prompt": "Why keep a validation set?",
+        "keywords": [
+          "held",
+          "validation",
+          "general",
+          "overfit"
+        ],
+        "hits": [],
+        "ok": false,
+        "completion": "\"ffinalin finallyove finalin finallyove finalin finally finalin"
+      }
+    ]
+  },
+  "format": {
+    "format_score": 1.0,
+    "num_examples": 3,
+    "examples": [
+      {
+        "prompt": "Explain RMSNorm in one sentence.",
+        "ok": true,
+        "completion": "### Instruction\nExplain RMSNorm in one sentence.\n\n### Response\nfinallyofinalin finally finalin finalin finalams finalin finalin"
+      },
+      {
+        "prompt": "What does MoE routing do?",
+        "ok": true,
+        "completion": "### Instruction\nWhat does MoE routing do?\n\n### Response\nffinalin finalain finalin finallyove finallyove finalams finalin"
+      },
+      {
+        "prompt": "Why do we use a validation set?",
+        "ok": true,
+        "completion": "### Instruction\nWhy do we use a validation set?\n\n### Response\n\"finallyov finally finally finalin finalin finally finalin final"
+      }
+    ]
+  },
+  "reasoning": {
+    "answer_accuracy": 0.0,
+    "format_score": 0.0,
+    "num_examples": 5,
+    "examples": [
+      {
+        "prompt": "2+3",
+        "prediction": null,
+        "target": 5,
+        "answer_ok": false,
+        "format_ok": false,
+        "completion": "\"finalin finalin finalin finals finalin finalin finalpd finals f"
+      },
+      {
+        "prompt": "7+8",
+        "prediction": null,
+        "target": 15,
+        "answer_ok": false,
+        "format_ok": false,
+        "completion": "\"finalin finalin finalin finalin finalin finalin finalss finalin"
+      },
+      {
+        "prompt": "12+9",
+        "prediction": null,
+        "target": 21,
+        "answer_ok": false,
+        "format_ok": false,
+        "completion": "\"finalin finalin finalin finalin finalin finalin finalin finalin"
+      },
+      {
+        "prompt": "15+17",
+        "prediction": null,
+        "target": 32,
+        "answer_ok": false,
+        "format_ok": false,
+        "completion": "\"finalin finalin finalin finalin finalin finalin finalin finalin"
+      },
+      {
+        "prompt": "20+22",
+        "prediction": null,
+        "target": 42,
+        "answer_ok": false,
+        "format_ok": false,
+        "completion": "\"finalin finalin finalin finalin finalin finalin finalin finalpd"
+      }
+    ]
+  },
+  "perplexity": {
+    "loss": 0.6908842539787292,
+    "lm_loss": 0.6908842539787292,
+    "ppl": 1.9954792638137715,
+    "num_examples": 100,
+    "num_tokens": 19100
+  }
+}

@@ -46,7 +46,7 @@ python trainer/train_pretrain.py --config configs/architecture_lab/v2_attention_
 python trainer/train_pretrain.py --config configs/architecture_lab/v2_mla.json --data data/tinystories.jsonl --hourly_rate 2.18
 ```
 
-当前能严谨比较的是 validation loss、训练成本和理论 KV 元素；没有 production latent cache 前，不能把训练显存当作 MLA 推理缓存收益。待填结果见[架构演进实验计划](../../experiments/06_architecture_evolution_plan_zh.md)。
+当前能严谨比较的是 validation loss、训练成本和理论 KV 元素。[3-seed 报告](../../experiments/architecture_lab_runs/report_zh.md)记录到理论 KV/token 从 `192` 降到 `72`，但 PPL 明显退化，因此质量门槛未通过。没有 production latent cache 前，仍不能把训练显存当作 MLA 推理缓存收益。
 
 <!-- tinyseek-nav -->
 

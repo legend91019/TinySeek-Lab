@@ -42,13 +42,32 @@ Cold-start SFT 相当于先告诉模型：
 - [`dataset/lm_dataset.py`](../../dataset/lm_dataset.py) 把 prompt token 的 label 设为 `-100`，只训练 response。
 - [`trainer/train_sft.py`](../../trainer/train_sft.py) 从 base checkpoint 加载权重并做 SFT。
 - [`scripts/prepare_toy_sft_data.py`](../../scripts/prepare_toy_sft_data.py) 生成最小 cold-start 教学数据。
+- [`scripts/prepare_reasoning_data.py`](../../scripts/prepare_reasoning_data.py) 生成正式结构化算术数据，并从训练集中排除 mini-eval 题目。
 
 ```bash
 python scripts/prepare_toy_sft_data.py --out data/toy_sft.jsonl
 python trainer/train_sft.py --config configs/tiny_sft.json --data data/toy_sft.jsonl --init_ckpt out/tiny_dense_last.pt --hourly_rate 2.18
 ```
 
-更细的 masking 与训练目标见[后训练代码细读](19_posttraining_code_walkthrough.md)。当前 4090 v1 证明 SFT 链路能运行并学习 toy 格式，但它损害了 TinyStories PPL；这说明小而窄的 SFT 数据会改变分布，不能把“格式学会了”写成“综合能力提高了”。
+正式 GPU 套件使用 `5,000` 条结构化 SFT 数据：
+
+```text
+<think>Add the numbers: 15 + 17 = 32.</think>
+<answer>32</answer>
+```
+
+```bash
+python scripts/prepare_reasoning_data.py \
+  --sft_out data/reasoning_sft.jsonl \
+  --grpo_out data/reasoning_grpo.jsonl
+python scripts/run_gpu_completion.py --data data/tinystories.jsonl
+```
+
+mini eval 分别计算 tagged answer accuracy 与 reasoning format score。这样“答案对了”和“输出规整”不会被混成同一个指标。
+
+正式 4090 结果没有迎合预期：reasoning format score 从 base 的 `0.0` 提到 SFT 后的 `0.6`，但 5 道留出加法全部答错；TinyStories 前 100 条样本 PPL 从 `1.718` 上升到 `12.670`。Cold start 部分教会了输出约定，但这组 mini-eval 没有提供算术泛化证据，并显示出明显分布偏移。
+
+更细的 masking 与训练目标见[后训练代码细读](19_posttraining_code_walkthrough.md)，完整数字和生成样例见[正式实测报告](../../experiments/gpu_completion_runs/report_zh.md)。
 
 <!-- tinyseek-nav -->
 

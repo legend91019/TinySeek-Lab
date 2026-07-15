@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="610" viewBox="0 0 1040 610">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="22" y="32" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#172b36">Peak allocated VRAM by architecture</text>
+<text x="22" y="74" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_dense_gqa</text>
+<rect x="260" y="58" width="407.3" height="22" rx="3" fill="#276678"/>
+<text x="675.3" y="74" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.1588 GB</text>
+<text x="22" y="106" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_dense_mha</text>
+<rect x="260" y="90" width="412.5" height="22" rx="3" fill="#d97745"/>
+<text x="680.5" y="106" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.1608 GB</text>
+<text x="22" y="138" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_aux</text>
+<rect x="260" y="122" width="497.6" height="22" rx="3" fill="#568259"/>
+<text x="765.6" y="138" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.194 GB</text>
+<text x="22" y="170" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_aux_none</text>
+<rect x="260" y="154" width="497.6" height="22" rx="3" fill="#8a5a83"/>
+<text x="765.6" y="170" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.194 GB</text>
+<text x="22" y="202" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_aux_strong</text>
+<rect x="260" y="186" width="497.6" height="22" rx="3" fill="#b48b36"/>
+<text x="765.6" y="202" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.194 GB</text>
+<text x="22" y="234" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_aux_weak</text>
+<rect x="260" y="218" width="497.6" height="22" rx="3" fill="#276678"/>
+<text x="765.6" y="234" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.194 GB</text>
+<text x="22" y="266" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_bias</text>
+<rect x="260" y="250" width="497.1" height="22" rx="3" fill="#d97745"/>
+<text x="765.1" y="266" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.1938 GB</text>
+<text x="22" y="298" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_coarse</text>
+<rect x="260" y="282" width="483.3" height="22" rx="3" fill="#568259"/>
+<text x="751.3" y="298" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.1884 GB</text>
+<text x="22" y="330" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_fine_grained</text>
+<rect x="260" y="314" width="544.3" height="22" rx="3" fill="#8a5a83"/>
+<text x="812.3" y="330" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.2122 GB</text>
+<text x="22" y="362" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_shared</text>
+<rect x="260" y="346" width="536.1" height="22" rx="3" fill="#b48b36"/>
+<text x="804.1" y="362" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.209 GB</text>
+<text x="22" y="394" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v2_attention_control</text>
+<rect x="260" y="378" width="497.6" height="22" rx="3" fill="#276678"/>
+<text x="765.6" y="394" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.194 GB</text>
+<text x="22" y="426" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v2_low_rank_control</text>
+<rect x="260" y="410" width="497.6" height="22" rx="3" fill="#d97745"/>
+<text x="765.6" y="426" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.194 GB</text>
+<text x="22" y="458" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v2_low_rank_kv</text>
+<rect x="260" y="442" width="491.0" height="22" rx="3" fill="#568259"/>
+<text x="759.0" y="458" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.1914 GB</text>
+<text x="22" y="490" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v2_mla</text>
+<rect x="260" y="474" width="505.3" height="22" rx="3" fill="#8a5a83"/>
+<text x="773.3" y="490" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.197 GB</text>
+<text x="22" y="522" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v3_mtp</text>
+<rect x="260" y="506" width="630.0" height="22" rx="3" fill="#b48b36"/>
+<text x="898.0" y="522" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.2456 GB</text>
+<text x="22" y="554" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v3_no_mtp</text>
+<rect x="260" y="538" width="504.8" height="22" rx="3" fill="#276678"/>
+<text x="772.8" y="554" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.1968 GB</text>
+</svg>

@@ -1,0 +1,22 @@
+[
+  {
+    "path": "data/tinystories.jsonl",
+    "lines": 50000,
+    "bytes": 47726046,
+    "sha256": "fa16741c6cefdf24c361c6cd75c74f8e6ab500c6bde7adc942bb6afbf8b69814"
+  },
+  {
+    "path": "data/reasoning_grpo.jsonl",
+    "lines": 1000,
+    "bytes": 135336,
+    "sha256": "fb0e41066e678112d99a3a9ed55d50b4fafbc0870c6b3f24ab68dff4b8f06bd7",
+    "generated_by": "scripts/prepare_reasoning_data.py --sft_samples 5000 --grpo_samples 1000 --max_operand 99 --seed 7"
+  },
+  {
+    "path": "data/reasoning_sft.jsonl",
+    "lines": 5000,
+    "bytes": 1016508,
+    "sha256": "2cc3dff35dd9477dd9783c0accf7052f77e79dcc0c45858893fcf07bbbeea164",
+    "generated_by": "scripts/prepare_reasoning_data.py --sft_samples 5000 --grpo_samples 1000 --max_operand 99 --seed 7"
+  }
+]

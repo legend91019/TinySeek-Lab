@@ -4,7 +4,7 @@
 
 这组实验回答的不是“TinySeek 能否达到 DeepSeek 的能力”，而是更小、更可验证的问题：当数据、token budget 和优化器不变时，某一个结构改动会怎样影响 loss、吞吐、显存和路由行为？
 
-它也不是把所有新组件一次性打开。严格顺序是：
+它也不是把所有新组件一次性打开。下面是教学与分析顺序：
 
 ```text
 锁定 Dense recipe
@@ -14,7 +14,7 @@
 -> 最后验证 MTP
 ```
 
-每一步只在通过预先写好的决策门槛后进入下一步。失败结果同样要保留，因为它决定是调整假设、扩大训练预算，还是继续使用上一代。
+决策门槛控制的是某个组件能否**晋升并接入累计分支**，不会阻止彼此独立的 matched group 继续运行。因此即使单独的 MLA 或 bias 门槛失败，V3-style 机制组仍可测量 MTP，但结论只能留在该分支内。失败结果同样要保留，因为它决定是调整假设、扩大训练预算，还是继续使用上一条分支。
 
 ## 先做 CPU 结构检查
 
@@ -38,17 +38,19 @@ python scripts/inspect_stage_models.py --out out/stage_model_inspection.json
 
 `tests/architecture_lab_contract_test.py` 会自动检查配置是否违反这些约束。
 
+这张矩阵包含的是**彼此独立的组内公平对照**，不是把每组赢家依次叠加成一条单线模型。coarse/fine/shared 容量组与 8-routed、top-2 的 aux/MLA/V3-style 机制组使用不同 expert 拓扑；只能在声明的组内比较，某个机制通过后若要接到另一条已选分支，必须重新做 matched test。
+
 ## 实验矩阵
 
 | ID | 对照 | 只改变 | 论文动机 | TinySeek 状态 |
 | --- | --- | --- | --- | --- |
-| A1 | MHA vs GQA | `num_kv_heads` | DeepSeek LLM 67B 使用 GQA 降低推理成本 | 待上卡 |
-| A2a | 粗粒度 MoE vs 细粒度 MoE vs shared isolation | expert 数、宽度、top-k、shared 划分；匹配 expert FFN 总容量和激活宽度 | DeepSeekMoE 的 fine-grained segmentation 与 shared expert isolation | 待上卡 |
-| A2b | aux 权重 `0/0.001/0.01/0.1` | `moe_aux_loss_weight` | 先测负载改善与主任务代价的权衡 | 待上卡 |
-| A2c | 合理 aux 基线 vs bias balance | 路由均衡策略和 aux loss 权重 | V3 避免负载均衡辅助损失直接干扰 LM 目标 | 待上卡 |
-| A3 | MTP off vs on | `mtp_depth` | V3 用额外未来 token 预测增加训练信号 | 待上卡 |
-| A4a | GQA control vs 朴素低秩 KV | `attention_impl`，RoPE 保持耦合 | 低秩投影本身的质量代价 | 待上卡 |
-| A4b | GQA control vs educational MLA | `attention_impl`，使用解耦 RoPE | V2 用低秩 KV latent 压缩可缓存状态 | 待上卡 |
+| A1 | MHA vs GQA | `num_kv_heads` | DeepSeek LLM 67B 使用 GQA 降低推理成本 | 已实测，3 seeds |
+| A2a | 粗粒度 MoE vs 细粒度 MoE vs shared isolation | expert 数、宽度、top-k、shared 划分；匹配 expert FFN 总容量和激活宽度 | DeepSeekMoE 的 fine-grained segmentation 与 shared expert isolation | 已实测，3 seeds |
+| A2b | aux 权重 `0/0.001/0.01/0.1` | `moe_aux_loss_weight` | 先测负载改善与主任务代价的权衡 | 已实测，3 seeds |
+| A2c | 合理 aux 基线 vs bias balance | 路由均衡策略和 aux loss 权重 | V3 避免负载均衡辅助损失直接干扰 LM 目标 | 已实测，3 seeds |
+| A3 | MTP off vs on | `mtp_depth` | V3 用额外未来 token 预测增加训练信号 | 已实测，3 seeds |
+| A4a | GQA control vs 朴素低秩 KV | `attention_impl`，RoPE 保持耦合 | 低秩投影本身的质量代价 | 已实测，3 seeds |
+| A4b | GQA control vs educational MLA | `attention_impl`，使用解耦 RoPE | V2 用低秩 KV latent 压缩可缓存状态 | 已实测，3 seeds |
 
 ## 运行命令
 
@@ -79,26 +81,14 @@ python trainer/train_pretrain.py --config configs/architecture_lab/v2_mla.json -
 
 ## 结果表
 
-表中的 `val loss` 固定指 token-weighted `val_lm_loss`，PPL 只由这个主语言模型 loss 计算。`val_objective`、`val_mtp_loss` 和 `val_aux_loss` 另行记录，不能混进 PPL 或直接拿来做 A/B 排名。
+完整表格由 48 份成本账本自动生成，不手工复制：
 
-| Run | val loss | PPL | tokens/s | peak VRAM | GPU h | 成本 | 结构特有指标 |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| `arch_dense_mha` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | KV elements/token |
-| `arch_dense_gqa` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | KV elements/token |
-| `arch_moe_coarse` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | expert load, total/active params |
-| `arch_moe_fine_grained` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | expert load, total/active params |
-| `arch_moe_shared` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | expert load, total/active params |
-| `arch_moe_aux_none` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | expert load, aux=0 |
-| `arch_moe_aux_weak` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | expert load, aux=0.001 |
-| `arch_moe_aux` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | expert load, aux loss |
-| `arch_moe_aux_strong` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | expert load, aux=0.1 |
-| `arch_moe_bias` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | expert load, selection bias |
-| `arch_v3_no_mtp` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | LM loss |
-| `arch_v3_mtp` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | LM loss, MTP loss |
-| `arch_v2_low_rank_control` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | full KV elements |
-| `arch_v2_low_rank_kv` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | low-rank quality; no latent-cache claim |
-| `arch_v2_attention_control` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | theoretical KV elements |
-| `arch_v2_mla` | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | 待上卡 | theoretical KV elements |
+- [双语 3-seed 报告、决策与图表](architecture_lab_runs/report_zh.md)
+- [聚合 CSV](architecture_lab_runs/aggregate.csv)
+- [逐 run CSV](architecture_lab_runs/results.csv)
+- [数据 SHA256 清单](architecture_lab_runs/dataset_manifest.json)
+
+门槛摘要：GQA 通过；shared experts 提高质量但降低吞吐；aux=0.01 是当前最佳负载/质量折中；bias routing 与教学版 MLA 未通过门槛。MTP 只在被拒绝的 educational-MLA+bias 分支上结论不确定；选中的 GQA+aux 分支仍需单独做 matched MTP 实验。
 
 ## 逐阶段决策门槛
 
@@ -110,7 +100,7 @@ python trainer/train_pretrain.py --config configs/architecture_lab/v2_mla.json -
 | aux -> bias | bias 负载至少和合理 aux 基线一样健康，主 LM/PPL 不劣 | bias 振荡或塌缩时 sweep update rate；aux 基线更稳则保留 aux |
 | MTP off -> on | 主 LM/PPL 或 mini eval 多 seed 改善，新增显存/时间可接受 | 只看 total loss 下降不算；主任务无收益则关闭 MTP |
 
-每阶段报告最后固定写：`观察`、`是否过门槛`、`决定`、`下一轮实验`。在 GPU 数据填入前，决定只能是“待验证”，不能预写“升级成功”。
+每阶段报告最后固定写：`观察`、`是否过门槛`、`决定`、`下一轮实验`。当前生成报告已经按实测数据回填；未来新增配置仍必须先标“待验证”，运行后才能下结论。
 
 ## 论文结论与本仓结论必须分开
 
@@ -119,7 +109,7 @@ python trainer/train_pretrain.py --config configs/architecture_lab/v2_mla.json -
 | DeepSeek LLM | 论文的小规模网格搜索显示较宽的近优 LR/batch 区域，并观察到 compute 增大时 batch 增、LR 降 | TinySeek 跑四个点就“复现了 scaling law” |
 | DeepSeekMoE | 论文提出细粒度专家与 shared expert isolation，并在其规模上报告更好的专家特化和计算效率 | TinySeek 的 Python dispatch 证明了分布式 MoE 吞吐优势 |
 | DeepSeek-V2 | 论文相对 DeepSeek 67B 报告训练成本降低 42.5%、KV cache 降低 93.3%、最大吞吐达到 5.76 倍 | 教学版 MLA 只做理论缓存估算就声称取得相同速度 |
-| DeepSeek-V3 | 论文采用 auxiliary-loss-free balance 与 MTP，并用消融支持它们 | 结果尚未运行时提前断言 TinySeek loss 一定更好 |
+| DeepSeek-V3 | 论文采用 auxiliary-loss-free balance 与 MTP，并用消融支持它们 | TinySeek 的小预算失败可以反推论文方法在大规模无效 |
 
 ## 如何解释失败
 

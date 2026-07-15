@@ -38,10 +38,12 @@ TinySeek-Lab 的英文教程放在 `docs/`，中文教程放在 `docs/zh/`。两
 
 ## 实验报告
 
+- [3-seed 架构实测与决策](../../experiments/architecture_lab_runs/report_zh.md)
+- [正式训练与后训练报告](../../experiments/gpu_completion_runs/report_zh.md)
 - [RTX 4090 v1 正式结果](../../experiments/05_4090_v1_results_zh.md)
 - [v1 自动汇总表和图表](../../experiments/v1_4090_plan/auto_summary_zh.md)
 - [实验报告中心](../../experiments/README_zh.md)
-- [DeepSeek 架构演进公平实验计划](../../experiments/06_architecture_evolution_plan_zh.md)
+- [DeepSeek 架构演进公平实验计划与门槛](../../experiments/06_architecture_evolution_plan_zh.md)
 
 ## 一图看懂
 

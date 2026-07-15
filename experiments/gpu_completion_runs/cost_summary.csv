@@ -1,0 +1,12 @@
+file,run_name,gpu_name,step,gpu_hours,hourly_rate,currency,estimated_cost,max_memory_allocated_gb,max_memory_reserved_gb,model_params,activated_params_estimate,estimated_train_tokens,estimated_training_flops,val_loss
+out/gpu_completion/formal_base20m_cost_summary.json,formal_base20m,NVIDIA GeForce RTX 4090,3256,0.033024,2.18,CNY,0.072,0.376,0.4375,2410944,2410944,20004864,289383640989696,0.5428268272399902
+out/gpu_completion/formal_dense115_30m_cost_summary.json,formal_dense115_30m,NVIDIA GeForce RTX 4090,7325,0.125976,2.18,CNY,0.2746,3.9479,4.1504,113465088,113465088,30003200,20425894369689600,0.45912863871600385
+out/gpu_completion/formal_dense35_50m_cost_summary.json,formal_dense35_50m,NVIDIA GeForce RTX 4090,6104,0.075002,2.18,CNY,0.1635,2.6359,2.8926,33696256,33696256,50003968,10109679040462848,0.48224830824228954
+out/gpu_completion/formal_direct_grpo_cost_summary.json,formal_direct_grpo,NVIDIA GeForce RTX 4090,300,0.133623,2.18,CNY,0.2913,0.1725,0.1777,2410944,2410944,0,0,
+out/gpu_completion/formal_moe35_30m_cost_summary.json,formal_moe35_30m,NVIDIA GeForce RTX 4090,7325,0.304982,2.18,CNY,0.6649,5.4639,5.5527,235055616,84060672,30003200,15132534924902400,0.4567027049069038
+out/gpu_completion/formal_reasoning_grpo_cost_summary.json,formal_reasoning_grpo,NVIDIA GeForce RTX 4090,300,0.134962,2.18,CNY,0.2942,0.1725,0.1777,2410944,2410944,0,0,
+out/gpu_completion/formal_reasoning_sft_cost_summary.json,formal_reasoning_sft,NVIDIA GeForce RTX 4090,2000,0.017496,2.18,CNY,0.0381,0.2251,0.252,2410944,2410944,6144000,88877039616000,0.04063141893129796
+out/gpu_completion/formal_sweep_bs16_lr3e-4_cost_summary.json,formal_sweep_bs16_lr3e-4,NVIDIA GeForce RTX 4090,1221,0.025496,2.18,CNY,0.0556,1.5467,1.627,33696256,33696256,5001216,1011133527883776,0.6507180028807307
+out/gpu_completion/formal_sweep_bs16_lr6e-4_cost_summary.json,formal_sweep_bs16_lr6e-4,NVIDIA GeForce RTX 4090,1221,0.025487,2.18,CNY,0.0556,1.5467,1.627,33696256,33696256,5001216,1011133527883776,0.6474879535339199
+out/gpu_completion/formal_sweep_bs32_lr3e-4_cost_summary.json,formal_sweep_bs32_lr3e-4,NVIDIA GeForce RTX 4090,611,0.011423,2.18,CNY,0.0249,2.6359,2.8926,33696256,33696256,5005312,1011961647071232,0.6925797875625597
+out/gpu_completion/formal_sweep_bs32_lr6e-4_cost_summary.json,formal_sweep_bs32_lr6e-4,NVIDIA GeForce RTX 4090,611,0.011067,2.18,CNY,0.0241,2.6359,2.8926,33696256,33696256,5005312,1011961647071232,0.6818791179423915

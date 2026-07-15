@@ -1,6 +1,6 @@
 # 正式实验计划
 
-这份计划用于下一次付费 GPU 训练。不要在 toy 数据上跑这些正式实验。
+这份预注册计划已在 2026 年 7 月的 RTX 4090 上执行。不要在 toy 数据上跑这些正式实验。结果归档在[正式训练报告](gpu_completion_runs/report_zh.md)和[3-seed 架构报告](architecture_lab_runs/report_zh.md)。
 
 ## 数据集
 
@@ -25,6 +25,8 @@
 | E5 | MLA/KV 对照 | `configs/tiny_mla.json` 和 dense control | 5M-10M tokens | KV elements/token, memory |
 | E6 | SFT cold start | `configs/tiny_sft.json` | 2k-20k examples | format eval, addition eval |
 | E7 | GRPO mini | `configs/tiny_grpo.json` | 100-500 updates | reward curve, pass rate |
+
+执行说明：E1-E4、E6-E7 由 `run_gpu_completion.py` 实际落地。原计划 E5 的 dense `tiny_mla.json` pilot 被更严格的 3-seed GQA/低秩/教学版 MLA 对照[架构套件](architecture_lab_runs/report_zh.md)替代；后者每 run 使用 2.048M tokens，而不是原计划的 5M-10M。
 
 ## 报告必须包含的列
 

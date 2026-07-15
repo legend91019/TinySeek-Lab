@@ -1,8 +1,8 @@
 # 04. 当前进度
 
-更新时间：2026-07-14
+更新时间：2026-07-15
 
-TinySeek-Lab 现在已经从“原型仓库”推进到“v1 教程闭环可运行”的状态。它已经能在真实文本数据上跑完：
+TinySeek-Lab 当前的教程 release 已完成：代码主线、双语讲解、真实语料训练、多 seed 架构消融、后训练对照、自动报告和成本归档都已经落地。
 
 ```text
 TinyStories -> dense baseline -> LR/batch sweep -> MoE -> MLA
@@ -34,43 +34,44 @@ TinyStories -> dense baseline -> LR/batch sweep -> MoE -> MLA
 - 16 份架构实验配置和公平性合同测试，覆盖普通 MoE -> 细粒度 -> shared、aux 权重 sweep、bias、低秩 KV、MLA 与 MTP。
 - 四代教学模型、训练 smoke、V3 合同和全部 16 份架构配置的 CPU 动态 forward 验证。
 - 每章末尾的上一篇 / 下一篇 / 目录导航。
+- 50,000 条 TinyStories 数据的行数、字节数和 SHA256 清单。
+- 48 次架构实测：16 配置 x 3 seeds，包含均值、标准差、逐 run 数据和 expert-load CV。
+- 11 组正式训练与后训练：35M/115M/MoE、四点 LR/batch、base、direct GRPO、SFT、SFT -> GRPO。
+- 两套自动生成的中英报告、9 张 SVG 图，以及全部 raw cost/history 文件。
 
 ## 当前实验结论
 
-- v1 全流程已在 RTX 4090 上跑通。
-- 总 GPU 时间约 0.0867 小时，按 2.18 元/小时估算约 0.19 元。
-- 35M dense 的 5M-token sweep 中，`bs16_lr3e-4` 最好。
-- 115M 短训效果不如 35M 短训，说明 token budget 不足时模型更大不一定更好。
-- MoE 235M 总参数、约 84M 激活参数，4090 峰值 allocated 显存约 5.46 GB。
-- 教学版 MLA 能跑通 KV latent 思想，但不是 DeepSeek-V2 生产级 MLA 复刻。
-- SFT 能学到 toy SFT 格式，但会损害 TinyStories PPL。
-- GRPO mini 有非零 reward，但没有解出算术 mini eval；它目前用于讲算法形状。
+- 新增正式实验账本记录 `2.4664 h` 的训练/后训练进程，按 `2.18 元/h` 计 `5.3768 元`；不含数据准备、独立评测、报告和空闲租卡。
+- GQA 在理论 KV/token 减半时没有 PPL 退化，通过当前升级门槛。
+- shared experts 比 coarse MoE 质量更好但慢约 35%，因此拆成质量分支与吞吐分支。
+- aux=0.01 是当前质量与专家负载的最佳折中；bias routing 没有击败它。
+- 教学版 MLA 压低理论 KV 状态但明显损害 PPL，当前不升级；MTP 改善落在 seed 波动内，结论不确定。
+- SFT 部分学会推理格式，但 5 道留出加法全部失败；GRPO 的代理 reward 上升却让格式退化，是一个真实 reward-misalignment 负结果。
 
-## 仍需加强
+## 可选研究扩展
 
-- 更强的算术/推理 cold-start SFT 数据，再接 GRPO，需要上卡跑结果。
-- MoE routing histogram 的生成器已完成，但真实 expert-load 图表需要下一次 MoE 训练数据。
-- 更长的 35M dense baseline，需要 GPU 时间。
-- 新增 Copy / QA mini eval 后，需要用新 checkpoint 重新评测。
-- 普通 MoE/细粒度/shared、aux 权重、aux/bias routing、MTP off/on、MHA/GQA、朴素低秩 KV 和 GQA/MLA 对照已准备好，真实结果待上卡。
-- 可选：真实 BPE tokenizer、packed dataset、streaming dataset。
-- 可选：CI / GitHub Actions。
+- 扩大 token budget，检验当前架构结论是否稳定。
+- sweep MLA latent rank 与 bias update rate。
+- 把教学版 GRPO 升级为带 old-policy ratio、clip 和更严格 reward 的实现。
+- 加入真实 BPE tokenizer、packing/streaming，以及更强的小型 benchmark。
+- 增加 CUDA 或分布式 expert dispatch，避免 Python MoE 吞吐代表生产实现。
+- 可选：CI / GitHub Actions 和文档站。
 
 ## 粗略完成度
 
 | 维度 | 进度 |
 | --- | ---: |
 | 仓库骨架 | 100% |
-| 双语入口和章节 | 98% |
-| 代码主线教学 | 96% |
-| Dense/MoE/MLA/V3 模型代码 | 95% |
-| 预训练和 sweep 链路 | 90% |
-| SFT / Cold Start 教学链路 | 80% |
-| GRPO / RL 教学链路 | 65% |
-| 实验报告和图表 | 88% |
-| 精品教程 polish | 93% |
+| 双语入口和章节 | 100% |
+| 代码主线教学 | 98% |
+| Dense/MoE/MLA/V3 模型代码 | 98% |
+| 预训练和 sweep 链路 | 100% |
+| SFT / Cold Start 教学链路 | 95% |
+| GRPO / RL 教学链路 | 80% |
+| 实验报告和图表 | 100% |
+| 精品教程 polish | 98% |
 
-整体判断：作为 GitHub 上可学习、可运行的教程仓库，约 **94%**；作为有完整消融证据的研究复现课程，约 **85%**。不开卡能完成的四代代码、双语讲解、配置、合同测试、CPU 动态验证和报告空表已经基本完成；主要缺口是新架构研究链的多 seed GPU 数字与据此填写的决策结论。
+整体判断：当前目标范围内的 GitHub 教程 release 已完成。它不是 DeepSeek 规模复现，也不把教学版 MLA/GRPO 写成生产实现；这些边界属于设计约束，不是未完成项。后续工作均是下一版研究扩展。
 
 <!-- tinyseek-nav -->
 

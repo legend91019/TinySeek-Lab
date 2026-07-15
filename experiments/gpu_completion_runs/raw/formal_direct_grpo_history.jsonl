@@ -1,0 +1,12 @@
+{"elapsed_seconds": 40.1508, "learning_rate": 4.954097830483817e-05, "mean_reward": 0.0, "run_name": "formal_direct_grpo", "stage": "grpo_mini", "step": 25, "train_loss": 0.0003378606343176216}
+{"elapsed_seconds": 79.7769, "learning_rate": 4.757477121761574e-05, "mean_reward": 0.05000000074505806, "run_name": "formal_direct_grpo", "stage": "grpo_mini", "step": 50, "train_loss": -0.014907941222190857}
+{"elapsed_seconds": 120.3701, "learning_rate": 4.419401018427806e-05, "mean_reward": 0.10000000149011612, "run_name": "formal_direct_grpo", "stage": "grpo_mini", "step": 75, "train_loss": 0.013094596564769745}
+{"elapsed_seconds": 161.1421, "learning_rate": 3.963691803729181e-05, "mean_reward": 0.10000000149011612, "run_name": "formal_direct_grpo", "stage": "grpo_mini", "step": 100, "train_loss": 0.049210309982299805}
+{"elapsed_seconds": 200.1312, "learning_rate": 3.4224606913350884e-05, "mean_reward": 0.0875000013038516, "run_name": "formal_direct_grpo", "stage": "grpo_mini", "step": 125, "train_loss": 0.01332804374396801}
+{"elapsed_seconds": 238.7068, "learning_rate": 2.833845132352598e-05, "mean_reward": 0.06250000093132257, "run_name": "formal_direct_grpo", "stage": "grpo_mini", "step": 150, "train_loss": 0.0017175376415252686}
+{"elapsed_seconds": 278.6333, "learning_rate": 2.2393214879654865e-05, "mean_reward": 0.06250000093132257, "run_name": "formal_direct_grpo", "stage": "grpo_mini", "step": 175, "train_loss": 0.05552315711975098}
+{"elapsed_seconds": 318.8897, "learning_rate": 1.68078242823759e-05, "mean_reward": 0.0875000013038516, "run_name": "formal_direct_grpo", "stage": "grpo_mini", "step": 200, "train_loss": 0.04186566546559334}
+{"elapsed_seconds": 358.9213, "learning_rate": 1.1975849960180092e-05, "mean_reward": 0.10000000149011612, "run_name": "formal_direct_grpo", "stage": "grpo_mini", "step": 225, "train_loss": 0.07237512618303299}
+{"elapsed_seconds": 398.9342, "learning_rate": 8.237773419476425e-06, "mean_reward": 0.07500000111758709, "run_name": "formal_direct_grpo", "stage": "grpo_mini", "step": 250, "train_loss": -0.001998692750930786}
+{"elapsed_seconds": 439.1547, "learning_rate": 5.856995466391813e-06, "mean_reward": 0.07500000111758709, "run_name": "formal_direct_grpo", "stage": "grpo_mini", "step": 275, "train_loss": -0.04126010090112686}
+{"elapsed_seconds": 481.0125, "learning_rate": 5.0012758632594175e-06, "mean_reward": 0.10000000149011612, "run_name": "formal_direct_grpo", "stage": "grpo_mini", "step": 300, "train_loss": 0.1220986619591713}

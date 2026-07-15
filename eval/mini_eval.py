@@ -12,6 +12,7 @@ import sys
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from dataset import ByteTokenizer, JsonlTextDataset, format_prompt
+from eval.reasoning_metrics import extract_tagged_answer, has_reasoning_format
 from model import TinySeekConfig, TinySeekForCausalLM
 from trainer.utils import load_config
 
@@ -135,6 +136,41 @@ def eval_format(model: TinySeekForCausalLM, tokenizer: ByteTokenizer, device: st
     return {"format_score": hits / len(prompts), "num_examples": len(prompts), "examples": rows}
 
 
+def eval_reasoning(model: TinySeekForCausalLM, tokenizer: ByteTokenizer, device: str, max_new_tokens: int) -> dict:
+    cases = [(2, 3), (7, 8), (12, 9), (15, 17), (20, 22)]
+    answer_hits = 0
+    format_hits = 0
+    rows = []
+    for left, right in cases:
+        prompt = format_prompt(
+            f"Compute {left} + {right}. Show concise reasoning and put the final integer in <answer> tags."
+        )
+        text = generate_text(model, tokenizer, prompt, device, max_new_tokens)
+        completion = completion_after_response(text)
+        prediction = extract_tagged_answer(completion)
+        target = left + right
+        format_ok = has_reasoning_format(completion)
+        answer_ok = prediction == target
+        answer_hits += int(answer_ok)
+        format_hits += int(format_ok)
+        rows.append(
+            {
+                "prompt": f"{left}+{right}",
+                "prediction": prediction,
+                "target": target,
+                "answer_ok": answer_ok,
+                "format_ok": format_ok,
+                "completion": completion[-240:],
+            }
+        )
+    return {
+        "answer_accuracy": answer_hits / len(cases),
+        "format_score": format_hits / len(cases),
+        "num_examples": len(cases),
+        "examples": rows,
+    }
+
+
 def extract_last_number(text: str) -> int | None:
     matches = re.findall(r"-?\d+", text)
     return int(matches[-1]) if matches else None
@@ -161,6 +197,7 @@ def main() -> None:
         "copy": eval_copy(model, tokenizer, device, args.max_new_tokens),
         "keyword_qa": eval_keyword_qa(model, tokenizer, device, args.max_new_tokens),
         "format": eval_format(model, tokenizer, device, args.max_new_tokens),
+        "reasoning": eval_reasoning(model, tokenizer, device, args.max_new_tokens),
     }
     if args.data:
         report["perplexity"] = eval_ppl(model, tokenizer, args.data, model_cfg.max_seq_len, device, args.max_batches)

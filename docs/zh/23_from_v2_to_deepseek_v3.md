@@ -21,7 +21,7 @@ V3 的升级分成三个实验，不能直接从 V2 跳到最终配置：
 
 aux sweep 配置是 [`moe_aux_none.json`](../../configs/architecture_lab/moe_aux_none.json)、[`moe_aux_weak.json`](../../configs/architecture_lab/moe_aux_weak.json)、[`moe_aux.json`](../../configs/architecture_lab/moe_aux.json) 和 [`moe_aux_strong.json`](../../configs/architecture_lab/moe_aux_strong.json)。
 
-如果 C0 没显示任何主任务代价，本仓就不能声称“小模型实验证明 aux 干扰严重”；只能引用 V3 论文动机，并继续把 C1 当机制对照。如果 C1 或 C2 不过门槛，则保留 V2 方案。这正是实验驱动路线与“照着论文堆组件”的区别。
+如果 C0 没显示任何主任务代价，本仓就不能声称“小模型实验证明 aux 干扰严重”；只能引用 V3 论文动机，并继续把 C1 当机制对照。如果 C1 或 C2 不过门槛，就不晋升该机制，并保留对应 matched group 的 comparator。这正是实验驱动路线与“照着论文堆组件”的区别。
 
 ## 1. V2 路由哪里不够
 
@@ -241,7 +241,7 @@ python trainer/train_pretrain.py --config configs/architecture_lab/v3_no_mtp.jso
 python trainer/train_pretrain.py --config configs/architecture_lab/v3_mtp.json --data data/tinystories.jsonl --hourly_rate 2.18
 ```
 
-当前结果仍是待上卡状态，见 [`experiments/06_architecture_evolution_plan_zh.md`](../../experiments/06_architecture_evolution_plan_zh.md)。在这些数字填入前，只能说“代码和实验设计完成”，不能说“TinySeek 已证明 V3 方法更好”。
+[3-seed 实测报告](../../experiments/architecture_lab_runs/report_zh.md)显示：当前 bias routing 的 PPL 与 load CV 都不如 aux=0.01；在同一 educational-MLA+bias 分支上，MTP 的平均 PPL 略低，但差异落在 seed 波动内，同时显存与时间增加，因此这条 V3-style 分支不升级。这个实验**不能**回答 MTP 是否有益于已选中的 GQA+aux recipe；那需要新的 matched pair。TinySeek 小预算负结果也不反驳 V3 论文规模结论。
 
 正式结论至少重复多个 seed。若 budget 只够单 seed，就把结果标为 pilot，并优先保留完整 history、expert load 和 cost ledger，供下一轮复查。
 

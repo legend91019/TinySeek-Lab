@@ -21,11 +21,13 @@ Test two hypotheses in order:
 
 | Step | Candidate | Question | Currently observable |
 | --- | --- | --- | --- |
-| B0 | GQA control | previous-stage baseline | `192` theoretical elements; GPU loss/PPL pending |
-| B1 | naive low-rank KV | can low rank preserve LM quality? | loss/PPL measurable; no latent-only cache claim because RoPE remains coupled |
-| B2 | educational MLA with decoupled RoPE | does separating content and position reduce cacheable state? | `64 + 8 = 72` theoretical elements, `62.5%` below this GQA setup; real decoding pending |
+| B0 | GQA control | previous-stage baseline | `192` theoretical elements; measured PPL `2.009 +/- 0.011` |
+| B1 | naive low-rank KV | can low rank preserve LM quality? | measured PPL `2.190 +/- 0.001`; no latent-only cache claim because RoPE remains coupled |
+| B2 | educational MLA with decoupled RoPE | does separating content and position reduce cacheable state? | `72` theoretical elements and PPL `2.194 +/- 0.012`; real cached decoding not implemented |
 
 **Decision gate:** multi-seed validation PPL for B1/B2 must not be materially worse than B0, and B2 must materially reduce the theoretical cache ledger. Passing both gates supports only the structural result. Actual memory or throughput claims require cached decoding plus long-context peak-memory, post-prefill throughput, and latency measurements.
+
+**Measured decision:** B2 passes the theoretical cache ledger but fails the quality gate, while B1 shows that low rank itself is already costly at this rank. Retain GQA and sweep latent rank before another MLA attempt. Full runs: [architecture report](../experiments/architecture_lab_runs/report.md).
 
 ## 1. The Remaining Bottleneck
 

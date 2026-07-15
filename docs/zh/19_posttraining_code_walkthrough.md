@@ -137,6 +137,8 @@ loss = (-adv * policy_logp) + kl_beta * kl_proxy
 这不是完整工业 GRPO，但它保留了教学上最重要的形状：group sampling、rule reward、
 relative advantage、reference constraint。
 
+它没有保存采样时的 old-policy log probability，也没有计算 clipped importance ratio；因此这里的 `GRPO Mini` 是受 GRPO 启发的教学目标，而不是论文目标的逐项复刻。
+
 ## Rule Reward
 
 当前 reward 面向简单算术：
@@ -155,11 +157,19 @@ if pred == target:
 - shaping reward：输出数字、出现 answer/final 这类格式词；
 - exact reward：最终整数正确。
 
-这能教算法形状，但不够强。更严肃的下一步是：
+正式套件把 cold-start response 统一成：
 
-1. 先用更多算术/格式数据做 cold-start SFT；
-2. 再 GRPO；
-3. 比较 SFT-only 和 SFT+GRPO 的 arithmetic pass rate。
+```text
+<think>concise arithmetic trace</think>
+<answer>verified integer</answer>
+```
+
+更严肃的对照是：
+
+1. pretrained base -> direct GRPO；
+2. pretrained base -> structured SFT；
+3. structured SFT -> GRPO；
+4. 分别比较 tagged-answer accuracy、reasoning-format score 与 PPL。
 
 ## 为什么当前 GRPO 不能过度宣传
 
@@ -169,21 +179,22 @@ if pred == target:
 - reward 很粗糙；
 - 没有大规模采样；
 - 没有稳定的 reference/KL 工程；
-- 没有长训结果；
+- 没有 old-policy ratio 和 clipping；
+- 只有 300-step toy run，不是大规模或稳定性结果；
 - mini eval 也很轻。
 
 所以报告里必须写清楚：它是教学版 GRPO，不是 DeepSeek-R1 级别复现。
 
 ## 下一次上卡要补什么数据
 
-跑完下一轮后训练实验后，报告里应该补：
+已经完成的[正式报告](../../experiments/gpu_completion_runs/report_zh.md)现在包含：
 
-- SFT-only 的 Add / Copy / QA / Format；
-- GRPO 后的 Add / Copy / QA / Format；
+- base、direct GRPO、SFT-only、SFT+GRPO 的 Reasoning Answer / Format；
+- 四个 checkpoint 的 PPL / Add / Copy / QA；
 - `mean_reward` 曲线；
 - GRPO 是否牺牲 PPL；
-- 样例 completion 对比；
-- 总 GPU 时间和费用。
+- 样例 completion 对比。
+- 已记录训练/后训练进程时间、估算费用和明确的排除范围。
 
 <!-- tinyseek-nav -->
 

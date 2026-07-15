@@ -1,0 +1,12 @@
+{"elapsed_seconds": 44.0976, "learning_rate": 4.954097830483817e-05, "mean_reward": 0.20000000298023224, "run_name": "formal_reasoning_grpo", "stage": "grpo_mini", "step": 25, "train_loss": 0.0020880335941910744}
+{"elapsed_seconds": 87.4775, "learning_rate": 4.757477121761574e-05, "mean_reward": 0.20000000298023224, "run_name": "formal_reasoning_grpo", "stage": "grpo_mini", "step": 50, "train_loss": 0.0037825615145266056}
+{"elapsed_seconds": 125.5604, "learning_rate": 4.419401018427806e-05, "mean_reward": 0.20000000298023224, "run_name": "formal_reasoning_grpo", "stage": "grpo_mini", "step": 75, "train_loss": 0.00195444468408823}
+{"elapsed_seconds": 164.233, "learning_rate": 3.963691803729181e-05, "mean_reward": 0.20000000298023224, "run_name": "formal_reasoning_grpo", "stage": "grpo_mini", "step": 100, "train_loss": 0.0009627476683817804}
+{"elapsed_seconds": 205.7565, "learning_rate": 3.4224606913350884e-05, "mean_reward": 0.20000000298023224, "run_name": "formal_reasoning_grpo", "stage": "grpo_mini", "step": 125, "train_loss": 0.007279246114194393}
+{"elapsed_seconds": 246.3403, "learning_rate": 2.833845132352598e-05, "mean_reward": 0.20000000298023224, "run_name": "formal_reasoning_grpo", "stage": "grpo_mini", "step": 150, "train_loss": 0.004476304166018963}
+{"elapsed_seconds": 285.7803, "learning_rate": 2.2393214879654865e-05, "mean_reward": 0.20000000298023224, "run_name": "formal_reasoning_grpo", "stage": "grpo_mini", "step": 175, "train_loss": 0.005664132069796324}
+{"elapsed_seconds": 325.8626, "learning_rate": 1.68078242823759e-05, "mean_reward": 0.20000000298023224, "run_name": "formal_reasoning_grpo", "stage": "grpo_mini", "step": 200, "train_loss": 0.0037961332127451897}
+{"elapsed_seconds": 365.94, "learning_rate": 1.1975849960180092e-05, "mean_reward": 0.20000000298023224, "run_name": "formal_reasoning_grpo", "stage": "grpo_mini", "step": 225, "train_loss": 0.0030974694527685642}
+{"elapsed_seconds": 407.0984, "learning_rate": 8.237773419476425e-06, "mean_reward": 0.20000000298023224, "run_name": "formal_reasoning_grpo", "stage": "grpo_mini", "step": 250, "train_loss": 0.0011696735164150596}
+{"elapsed_seconds": 446.1284, "learning_rate": 5.856995466391813e-06, "mean_reward": 0.1750000026077032, "run_name": "formal_reasoning_grpo", "stage": "grpo_mini", "step": 275, "train_loss": -0.008265433833003044}
+{"elapsed_seconds": 485.8323, "learning_rate": 5.0012758632594175e-06, "mean_reward": 0.20000000298023224, "run_name": "formal_reasoning_grpo", "stage": "grpo_mini", "step": 300, "train_loss": 0.0016650266479700804}

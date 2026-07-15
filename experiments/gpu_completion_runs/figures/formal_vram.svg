@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="450" viewBox="0 0 1040 450">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="22" y="32" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#172b36">Peak allocated VRAM</text>
+<text x="22" y="74" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_base20m</text>
+<rect x="260" y="58" width="43.4" height="22" rx="3" fill="#276678"/>
+<text x="311.4" y="74" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.376 GB</text>
+<text x="22" y="106" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_dense115_30m</text>
+<rect x="260" y="90" width="455.2" height="22" rx="3" fill="#d97745"/>
+<text x="723.2" y="106" font-family="Arial,sans-serif" font-size="12" fill="#172b36">3.948 GB</text>
+<text x="22" y="138" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_dense35_50m</text>
+<rect x="260" y="122" width="303.9" height="22" rx="3" fill="#568259"/>
+<text x="571.9" y="138" font-family="Arial,sans-serif" font-size="12" fill="#172b36">2.636 GB</text>
+<text x="22" y="170" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_direct_grpo</text>
+<rect x="260" y="154" width="19.9" height="22" rx="3" fill="#8a5a83"/>
+<text x="287.9" y="170" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.1725 GB</text>
+<text x="22" y="202" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_moe35_30m</text>
+<rect x="260" y="186" width="630.0" height="22" rx="3" fill="#b48b36"/>
+<text x="898.0" y="202" font-family="Arial,sans-serif" font-size="12" fill="#172b36">5.464 GB</text>
+<text x="22" y="234" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_reasoning_grpo</text>
+<rect x="260" y="218" width="19.9" height="22" rx="3" fill="#276678"/>
+<text x="287.9" y="234" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.1725 GB</text>
+<text x="22" y="266" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_reasoning_sft</text>
+<rect x="260" y="250" width="26.0" height="22" rx="3" fill="#d97745"/>
+<text x="294.0" y="266" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.2251 GB</text>
+<text x="22" y="298" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_sweep_bs16_lr3e-4</text>
+<rect x="260" y="282" width="178.3" height="22" rx="3" fill="#568259"/>
+<text x="446.3" y="298" font-family="Arial,sans-serif" font-size="12" fill="#172b36">1.547 GB</text>
+<text x="22" y="330" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_sweep_bs16_lr6e-4</text>
+<rect x="260" y="314" width="178.3" height="22" rx="3" fill="#8a5a83"/>
+<text x="446.3" y="330" font-family="Arial,sans-serif" font-size="12" fill="#172b36">1.547 GB</text>
+<text x="22" y="362" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_sweep_bs32_lr3e-4</text>
+<rect x="260" y="346" width="303.9" height="22" rx="3" fill="#b48b36"/>
+<text x="571.9" y="362" font-family="Arial,sans-serif" font-size="12" fill="#172b36">2.636 GB</text>
+<text x="22" y="394" font-family="Arial,sans-serif" font-size="12" fill="#29434e">formal_sweep_bs32_lr6e-4</text>
+<rect x="260" y="378" width="303.9" height="22" rx="3" fill="#276678"/>
+<text x="571.9" y="394" font-family="Arial,sans-serif" font-size="12" fill="#172b36">2.636 GB</text>
+</svg>

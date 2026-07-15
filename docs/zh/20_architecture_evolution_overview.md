@@ -61,10 +61,10 @@ flowchart LR
 
 | 阶段 | 可测量瓶颈 | 研究假设 | 公平实验 | 决策门槛 | 证据状态 |
 | --- | --- | --- | --- | --- | --- |
-| Dense recipe | 相同 token budget 下 loss 对 LR/batch 很敏感 | 先找到稳定 recipe，结构对照才有意义 | LR x batch sweep | 选 validation LM loss 最低且训练稳定的区域 | v1 已实测；正式多 seed 仍可补 |
-| Dense -> DeepSeekMoE | 扩宽 Dense FFN 时容量和每 token 计算一起增长 | 细粒度 routed experts 增加组合，共享专家承接共通知识 | 粗粒度 MoE -> 细粒度 MoE -> shared isolation | 主 LM loss 不明显退化、无 routing collapse，且容量/激活量账本符合设计 | 配置与代码完成，GPU 待验证 |
-| MoE -> V2 | GQA cache 仍随层数、序列和 batch 线性增长 | 低秩 KV latent 加解耦 RoPE 可减少应缓存元素 | GQA -> 朴素低秩 KV -> educational MLA | 理论 cache 明显下降且 validation PPL 不显著恶化；真实吞吐结论必须等 cached decoding | 理论量可验证，质量对照待 GPU，真实 cache kernel 未实现 |
-| V2 -> V3 | aux loss 可能干扰 LM；单步预测信号有限 | selection bias 可控负载而不直接改 affinity；MTP 提供更远监督 | aux vs bias；MTP off vs on | 专家负载不塌缩，主 LM/PPL 至少不劣，新增成本可接受 | 代码与实验设计完成，GPU 待验证 |
+| Dense recipe | 相同 token budget 下 loss 对 LR/batch 很敏感 | 先找到稳定 recipe，结构对照才有意义 | LR x batch sweep | 选 validation LM loss 最低且训练稳定的区域 | 正式 4 点 sweep 已实测 |
+| Dense -> DeepSeekMoE | 扩宽 Dense FFN 时容量和每 token 计算一起增长 | 细粒度 routed experts 增加组合，共享专家承接共通知识 | 粗粒度 MoE -> 细粒度 MoE -> shared isolation | 主 LM loss 不明显退化、无 routing collapse，且容量/激活量账本符合设计 | 3 seeds 已实测；shared PPL 更好但吞吐更低 |
+| MoE -> V2 | GQA cache 仍随层数、序列和 batch 线性增长 | 低秩 KV latent 加解耦 RoPE 可减少应缓存元素 | GQA -> 朴素低秩 KV -> educational MLA | 理论 cache 明显下降且 validation PPL 不显著恶化；真实吞吐结论必须等 cached decoding | 3 seeds 已实测；质量门槛未通过，真实 cache kernel 未实现 |
+| V2 -> V3 | aux loss 可能干扰 LM；单步预测信号有限 | selection bias 可控负载而不直接改 affinity；MTP 提供更远监督 | aux vs bias；MTP off vs on | 专家负载不塌缩，主 LM/PPL 至少不劣，新增成本可接受 | bias 未通过；MTP 仅在被拒绝的 V3-style 分支上不确定 |
 
 “决策门槛”必须在运行前写下。否则看到结果后再改成功标准，很容易把任何数字都解释成支持升级。单个 seed 的结果只用于排错和形成下一轮假设；正式结论至少报告多个 seed 的均值和波动。
 

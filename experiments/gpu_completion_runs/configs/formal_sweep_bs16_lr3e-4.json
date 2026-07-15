@@ -1,0 +1,35 @@
+{
+  "run_name": "formal_sweep_bs16_lr3e-4",
+  "model": {
+    "vocab_size": 260,
+    "max_seq_len": 256,
+    "hidden_size": 512,
+    "num_layers": 8,
+    "num_heads": 8,
+    "num_kv_heads": 8,
+    "ffn_multiplier": 4.0,
+    "activation": "swiglu",
+    "attention_impl": "mha",
+    "use_moe": false,
+    "num_experts": 4,
+    "num_shared_experts": 0,
+    "top_k": 2,
+    "moe_aux_loss_weight": 0.01,
+    "dropout": 0.0
+  },
+  "train": {
+    "batch_size": 16,
+    "grad_accum_steps": 1,
+    "learning_rate": 0.0003,
+    "min_lr_ratio": 0.1,
+    "warmup_steps": 61,
+    "weight_decay": 0.1,
+    "grad_clip": 1.0,
+    "max_steps": 1221,
+    "eval_interval": 122,
+    "save_interval": 610,
+    "dtype": "bfloat16",
+    "seed": 42,
+    "out_dir": "out/gpu_completion"
+  }
+}

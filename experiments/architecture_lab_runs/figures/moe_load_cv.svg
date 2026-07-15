@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="546" viewBox="0 0 1040 546">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="22" y="32" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#172b36">Expert-load coefficient of variation</text>
+<text x="22" y="74" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_aux</text>
+<rect x="260" y="58" width="138.5" height="22" rx="3" fill="#276678"/>
+<text x="406.5" y="74" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.07514</text>
+<text x="22" y="106" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_aux_none</text>
+<rect x="260" y="90" width="630.0" height="22" rx="3" fill="#d97745"/>
+<text x="898.0" y="106" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.3417</text>
+<text x="22" y="138" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_aux_strong</text>
+<rect x="260" y="122" width="102.7" height="22" rx="3" fill="#568259"/>
+<text x="370.7" y="138" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.05568</text>
+<text x="22" y="170" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_aux_weak</text>
+<rect x="260" y="154" width="306.5" height="22" rx="3" fill="#8a5a83"/>
+<text x="574.5" y="170" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.1662</text>
+<text x="22" y="202" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_bias</text>
+<rect x="260" y="186" width="149.7" height="22" rx="3" fill="#b48b36"/>
+<text x="417.7" y="202" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.08119</text>
+<text x="22" y="234" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_coarse</text>
+<rect x="260" y="218" width="51.5" height="22" rx="3" fill="#276678"/>
+<text x="319.5" y="234" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.02791</text>
+<text x="22" y="266" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_fine_grained</text>
+<rect x="260" y="250" width="104.2" height="22" rx="3" fill="#d97745"/>
+<text x="372.2" y="266" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.05654</text>
+<text x="22" y="298" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_moe_shared</text>
+<rect x="260" y="282" width="103.2" height="22" rx="3" fill="#568259"/>
+<text x="371.2" y="298" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.05597</text>
+<text x="22" y="330" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v2_attention_control</text>
+<rect x="260" y="314" width="138.5" height="22" rx="3" fill="#8a5a83"/>
+<text x="406.5" y="330" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.07514</text>
+<text x="22" y="362" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v2_low_rank_control</text>
+<rect x="260" y="346" width="138.5" height="22" rx="3" fill="#b48b36"/>
+<text x="406.5" y="362" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.07514</text>
+<text x="22" y="394" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v2_low_rank_kv</text>
+<rect x="260" y="378" width="123.3" height="22" rx="3" fill="#276678"/>
+<text x="391.3" y="394" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.06686</text>
+<text x="22" y="426" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v2_mla</text>
+<rect x="260" y="410" width="111.5" height="22" rx="3" fill="#d97745"/>
+<text x="379.5" y="426" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.06045</text>
+<text x="22" y="458" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v3_mtp</text>
+<rect x="260" y="442" width="115.3" height="22" rx="3" fill="#568259"/>
+<text x="383.3" y="458" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.06255</text>
+<text x="22" y="490" font-family="Arial,sans-serif" font-size="12" fill="#29434e">arch_v3_no_mtp</text>
+<rect x="260" y="474" width="145.5" height="22" rx="3" fill="#8a5a83"/>
+<text x="413.5" y="490" font-family="Arial,sans-serif" font-size="12" fill="#172b36">0.07893</text>
+</svg>

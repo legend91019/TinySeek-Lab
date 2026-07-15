@@ -1,0 +1,41 @@
+{
+  "run_name": "formal_direct_grpo",
+  "model": {
+    "vocab_size": 260,
+    "max_seq_len": 192,
+    "hidden_size": 192,
+    "num_layers": 4,
+    "num_heads": 4,
+    "num_kv_heads": 4,
+    "ffn_multiplier": 4.0,
+    "activation": "swiglu",
+    "attention_impl": "mha",
+    "use_moe": false,
+    "num_experts": 4,
+    "num_shared_experts": 0,
+    "top_k": 2,
+    "moe_aux_loss_weight": 0.01,
+    "dropout": 0.0
+  },
+  "train": {
+    "batch_size": 2,
+    "learning_rate": 5e-05,
+    "min_lr_ratio": 0.1,
+    "warmup_steps": 5,
+    "weight_decay": 0.0,
+    "grad_clip": 1.0,
+    "max_steps": 300,
+    "eval_interval": 25,
+    "save_interval": 100,
+    "dtype": "bfloat16",
+    "seed": 42,
+    "out_dir": "out/gpu_completion"
+  },
+  "grpo": {
+    "group_size": 4,
+    "max_new_tokens": 64,
+    "temperature": 0.8,
+    "top_k": 40,
+    "kl_beta": 0.02
+  }
+}

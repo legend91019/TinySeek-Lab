@@ -53,7 +53,7 @@ python trainer/train_pretrain.py --config configs/architecture_lab/moe_aux.json 
 python trainer/train_pretrain.py --config configs/architecture_lab/moe_bias.json --data data/tinystories.jsonl --hourly_rate 2.18
 ```
 
-Report activated parameters, expert load, auxiliary loss, validation loss, tokens/s, and peak memory together. Keep results pending until measured; see the [architecture evolution plan](../experiments/06_architecture_evolution_plan.md).
+Report activated parameters, expert load, auxiliary loss, validation loss, tokens/s, and peak memory together. The completed 3-seed measurements and the quality/throughput split decision are in the [architecture report](../experiments/architecture_lab_runs/report.md).
 
 <!-- tinyseek-nav -->
 

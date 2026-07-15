@@ -4,7 +4,7 @@
 
 These experiments do not ask whether TinySeek matches DeepSeek capability. They ask a smaller, testable question: with data, token budget, and optimizer held fixed, how does one architecture change affect loss, throughput, memory, and routing?
 
-Do not enable every new component at once. Use this order:
+Do not enable every new component at once. Use this as the teaching and analysis order:
 
 ```text
 lock the Dense recipe
@@ -14,7 +14,7 @@ lock the Dense recipe
 -> test MTP last
 ```
 
-Proceed only when a stage passes its prewritten decision gate. Keep failed runs: they decide whether to revise the hypothesis, spend more training budget, or retain the previous generation.
+Decision gates control whether a component is **promoted into a cumulative branch**; they do not block independent matched groups from running. This is why the V3-style mechanism group can measure MTP even after the separate MLA or bias gate fails. Keep failed runs: they decide whether to revise the hypothesis, spend more training budget, or retain the previous branch.
 
 ## CPU Structure Check
 
@@ -38,17 +38,19 @@ Repository configs use one seed for pilot runs. A formal conclusion should use a
 
 `tests/architecture_lab_contract_test.py` checks the matched configurations automatically.
 
+The matrix contains **independent matched groups**, not one cumulative winner. The coarse/fine/shared capacity group uses a different expert topology from the 8-routed, top-2 aux/MLA/V3-style mechanism group. Compare only within a declared group; a mechanism that passes there must be retested before attaching it to another promoted branch.
+
 ## Matrix
 
 | ID | Comparison | Only change | Paper motivation | TinySeek status |
 | --- | --- | --- | --- | --- |
-| A1 | MHA vs GQA | `num_kv_heads` | DeepSeek LLM 67B uses GQA to reduce inference cost | Pending GPU run |
-| A2a | coarse MoE vs fine-grained MoE vs shared isolation | expert count, width, top-k, and shared split; expert-FFN capacity and active width are matched | DeepSeekMoE fine-grained segmentation and shared-expert isolation | Pending GPU run |
-| A2b | aux weights `0/0.001/0.01/0.1` | `moe_aux_loss_weight` | measure the load-balance versus main-task trade-off first | Pending GPU run |
-| A2c | reasonable aux baseline vs bias balance | routing strategy and auxiliary weight | V3 avoids direct LM-gradient interference from balance loss | Pending GPU run |
-| A3 | MTP off vs on | `mtp_depth` | V3 adds future-token objectives | Pending GPU run |
-| A4a | GQA control vs naive low-rank KV | `attention_impl`, with RoPE still coupled | quality cost of low-rank projection itself | Pending GPU run |
-| A4b | GQA control vs educational MLA | `attention_impl`, with decoupled RoPE | V2 compresses cacheable KV state into a low-rank latent | Pending GPU run |
+| A1 | MHA vs GQA | `num_kv_heads` | DeepSeek LLM 67B uses GQA to reduce inference cost | Measured, 3 seeds |
+| A2a | coarse MoE vs fine-grained MoE vs shared isolation | expert count, width, top-k, and shared split; expert-FFN capacity and active width are matched | DeepSeekMoE fine-grained segmentation and shared-expert isolation | Measured, 3 seeds |
+| A2b | aux weights `0/0.001/0.01/0.1` | `moe_aux_loss_weight` | measure the load-balance versus main-task trade-off first | Measured, 3 seeds |
+| A2c | reasonable aux baseline vs bias balance | routing strategy and auxiliary weight | V3 avoids direct LM-gradient interference from balance loss | Measured, 3 seeds |
+| A3 | MTP off vs on | `mtp_depth` | V3 adds future-token objectives | Measured, 3 seeds |
+| A4a | GQA control vs naive low-rank KV | `attention_impl`, with RoPE still coupled | quality cost of low-rank projection itself | Measured, 3 seeds |
+| A4b | GQA control vs educational MLA | `attention_impl`, with decoupled RoPE | V2 compresses cacheable KV state into a low-rank latent | Measured, 3 seeds |
 
 ## Commands
 
@@ -79,26 +81,14 @@ python trainer/train_pretrain.py --config configs/architecture_lab/v2_mla.json -
 
 ## Result Table
 
-`val loss` means token-weighted `val_lm_loss`, and PPL is calculated from that main language-model loss only. Record `val_objective`, `val_mtp_loss`, and `val_aux_loss` separately; do not mix them into PPL or use them directly to rank A/B arms.
+The completed table is generated from the 48 cost ledgers rather than copied by hand:
 
-| Run | val loss | PPL | tokens/s | peak VRAM | GPU h | cost | architecture metric |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| `arch_dense_mha` | Pending | Pending | Pending | Pending | Pending | Pending | KV elements/token |
-| `arch_dense_gqa` | Pending | Pending | Pending | Pending | Pending | Pending | KV elements/token |
-| `arch_moe_coarse` | Pending | Pending | Pending | Pending | Pending | Pending | expert load, total/active params |
-| `arch_moe_fine_grained` | Pending | Pending | Pending | Pending | Pending | Pending | expert load, total/active params |
-| `arch_moe_shared` | Pending | Pending | Pending | Pending | Pending | Pending | expert load, total/active params |
-| `arch_moe_aux_none` | Pending | Pending | Pending | Pending | Pending | Pending | expert load, aux=0 |
-| `arch_moe_aux_weak` | Pending | Pending | Pending | Pending | Pending | Pending | expert load, aux=0.001 |
-| `arch_moe_aux` | Pending | Pending | Pending | Pending | Pending | Pending | expert load, aux loss |
-| `arch_moe_aux_strong` | Pending | Pending | Pending | Pending | Pending | Pending | expert load, aux=0.1 |
-| `arch_moe_bias` | Pending | Pending | Pending | Pending | Pending | Pending | expert load, selection bias |
-| `arch_v3_no_mtp` | Pending | Pending | Pending | Pending | Pending | Pending | LM loss |
-| `arch_v3_mtp` | Pending | Pending | Pending | Pending | Pending | Pending | LM loss, MTP loss |
-| `arch_v2_low_rank_control` | Pending | Pending | Pending | Pending | Pending | Pending | full KV elements |
-| `arch_v2_low_rank_kv` | Pending | Pending | Pending | Pending | Pending | Pending | low-rank quality; no latent-cache claim |
-| `arch_v2_attention_control` | Pending | Pending | Pending | Pending | Pending | Pending | theoretical KV elements |
-| `arch_v2_mla` | Pending | Pending | Pending | Pending | Pending | Pending | theoretical KV elements |
+- [Bilingual 3-seed report, decisions, and figures](architecture_lab_runs/report.md)
+- [Aggregate CSV](architecture_lab_runs/aggregate.csv)
+- [Individual-run CSV](architecture_lab_runs/results.csv)
+- [Dataset SHA256 manifest](architecture_lab_runs/dataset_manifest.json)
+
+Headline gates: GQA passes; shared experts improve quality but reduce throughput; aux=0.01 is the best measured load/quality compromise; bias routing and educational MLA fail their current gates. MTP is inconclusive only on the rejected educational-MLA+bias branch; a matched MTP test on the promoted GQA+aux branch remains a future experiment.
 
 ## Stage Decision Gates
 
@@ -110,7 +100,7 @@ python trainer/train_pretrain.py --config configs/architecture_lab/v2_mla.json -
 | aux -> bias | bias loads are at least as healthy as a reasonable aux baseline and main LM/PPL is no worse | sweep bias update rate on collapse or oscillation; retain aux when it is more stable |
 | MTP off -> on | multi-seed main LM/PPL or mini-eval improves and added memory/time is acceptable | lower total objective alone does not count; disable MTP without main-task benefit |
 
-End every stage report with `observation`, `gate result`, `decision`, and `next experiment`. Before GPU cells are filled, the decision remains `Pending`, never "upgrade succeeded."
+Every stage report ends with `observation`, `gate result`, `decision`, and `next experiment`. The generated report now fills those fields from measured data; future configurations return to `Pending` until they are run.
 
 ## Keep Claims Separate
 
@@ -119,7 +109,7 @@ End every stage report with `observation`, `gate result`, `decision`, and `next 
 | DeepSeek LLM | Its grid searches found a broad near-optimal LR/batch region and observed larger batches and smaller LR as compute increased | Four TinySeek runs reproduce a scaling law |
 | DeepSeekMoE | It proposes fine-grained experts and shared-expert isolation and reports specialization and compute benefits at its scale | TinySeek's Python dispatch proves distributed MoE throughput |
 | DeepSeek-V2 | Relative to DeepSeek 67B, it reports 42.5% lower training cost, 93.3% less KV cache, and 5.76x maximum throughput | A theoretical cache estimate gives TinySeek the same speedup |
-| DeepSeek-V3 | It uses auxiliary-loss-free balancing and MTP, supported by its ablations | Pending TinySeek runs are guaranteed to improve loss |
+| DeepSeek-V3 | It uses auxiliary-loss-free balancing and MTP, supported by its ablations | TinySeek's measured failures imply the paper's methods do not work at larger scale |
 
 ## Reading Failures
 

@@ -15,44 +15,38 @@ report should answer:
 
 | Report | Status | What it shows |
 | --- | --- | --- |
+| [3-seed Architecture Report](architecture_lab_runs/report.md) | Done | 48 runs over 16 configs with mean/std, PPL, throughput, memory, expert load, and stage decisions |
+| [Formal Training and Post-Training Report](gpu_completion_runs/report.md) | Done | 35M/115M/MoE runs, LR/batch sweep, direct GRPO, SFT -> GRPO, mini eval, and cost |
 | [RTX 4090 v1 Results](05_4090_v1_results.md) | Done | End-to-end TinyStories run through dense, sweep, MoE, MLA, SFT, and GRPO mini |
 | [v1 Auto Summary and Figures](v1_4090_plan/auto_summary.md) | Done | PPL, VRAM, cost, sweep loss, and generated SVG figures |
 | [v1 Pipeline Smoke Report](03_v1_pipeline_smoke_report.md) | Done | Pretrain -> SFT -> GRPO mini pipeline sanity check |
 | [AutoDL 4090 Smoke Report](02_autodl_4090_smoke_report.md) | Done | RTX 4090 environment and minimal training validation |
-| [Next Formal Experiment Plan](04_formal_experiment_plan.md) | Planned | Longer baseline, MoE analysis, and stronger GRPO follow-ups |
-| [Fair DeepSeek Architecture Experiments](06_architecture_evolution_plan.md) | Code ready, GPU pending | experiment-driven gates for coarse/fine/shared MoE, aux weights, bias routing, naive low-rank KV, GQA/MLA, and MTP |
-| [Final GPU Checklist](../docs/18_gpu_fill_only_checklist.md) | Done | Commands and report steps for the next rented-GPU run |
+| [Formal Experiment Plan](04_formal_experiment_plan.md) | Executed; E5 superseded | Preregistered longer-run, MoE, and GRPO comparisons; MLA moved to the matched architecture suite |
+| [Fair DeepSeek Architecture Experiments](06_architecture_evolution_plan.md) | 3 seeds done | experiment-driven gates for coarse/fine/shared MoE, aux weights, bias routing, low-rank KV, GQA/MLA, and MTP |
+| [GPU Reproduction Runbook](../docs/18_gpu_fill_only_checklist.md) | Verified | Resumable commands from data preparation through report generation |
 
-## v1 Headline
+## Formal Headline
 
 ```text
 TinyStories -> tiny base -> dense 35M/115M -> LR/batch sweep
 -> MoE -> MLA -> SFT -> GRPO mini -> mini eval -> cost and figures
 ```
 
-- The full v1 path ran successfully on an RTX 4090.
-- Total GPU time was about `0.0867 h`, or about `0.19 CNY` at `2.18 CNY/h`.
-- In the 35M dense 5M-token sweep, `bs16_lr3e-4` performed best.
-- The short 115M run underperformed the 35M run, showing that bigger models do
-  not automatically win under too little token budget.
-- The MoE run had `235.06M` total parameters and about `84.06M` activated
-  parameters, with about `5.46 GB` peak allocated VRAM.
-- The educational MLA path demonstrates the KV-latent idea, but is not a
-  production-grade DeepSeek-V2 MLA reproduction.
-- GRPO mini is currently for teaching the algorithm shape, not serious RL
-  performance.
+- The ledgers total `2.4664 GPU h` of training/post-training process time and `5.3768 CNY`, excluding data preparation, standalone evaluation, reporting, and idle rental time.
+- `bs16_lr6e-4` wins the four-point sweep, but only as a recipe for this token budget, not a scaling law.
+- GQA passes its local gate; shared experts expose a quality/throughput trade-off; aux=0.01 is the best measured load/quality compromise.
+- Educational MLA and bias routing fail their quality gates. MTP is inconclusive only on that rejected V3-style branch; it was not tested on the promoted GQA+aux recipe.
+- SFT partially learns format but scores `0/5` on held-out additions. GRPO raises its proxy reward without improving those five answers and damages format, giving a concrete reward-misalignment failure case.
 
-## v1 Figures
+## Latest Figures
 
-![PPL comparison](v1_4090_plan/figures/v1_ppl.svg)
+![3-seed architecture PPL](architecture_lab_runs/figures/architecture_ppl.svg)
 
-![Peak VRAM comparison](v1_4090_plan/figures/v1_peak_vram.svg)
+![Architecture throughput](architecture_lab_runs/figures/architecture_throughput.svg)
 
-![GPU cost comparison](v1_4090_plan/figures/v1_cost.svg)
+![Formal GPU cost](gpu_completion_runs/figures/formal_cost.svg)
 
-![Sweep comparison](v1_4090_plan/figures/v1_sweep_val_loss.svg)
-
-![VRAM versus PPL](v1_4090_plan/figures/v1_vram_vs_ppl.svg)
+![Post-training reasoning](gpu_completion_runs/figures/posttraining_reasoning.svg)
 
 ## MiniMind-Inspired Improvements
 
@@ -60,24 +54,26 @@ MiniMind is strong because the repository immediately tells readers the cost,
 time, complete pipeline, data access, evaluation path, and deployment options.
 TinySeek-Lab should keep moving in that direction:
 
-| Area | Now | Next |
+| Area | Now | Optional extension |
 | --- | --- | --- |
-| Results entrance | Reports exist, but used to be too hidden | Put this report hub and v1 result near the README top |
-| Data | TinyStories/HF data plus toy SFT/GRPO | Add a recommended ready-made text-data mix |
-| Eval | PPL, addition, format score | Add stronger arithmetic/reasoning mini evals |
-| Post-training | Runnable SFT and GRPO mini | Strengthen cold-start SFT before GRPO |
-| MoE analysis | Expert-load snapshots | Generate routing histograms and expert-load figures |
-| Cost story | GPU hours and cost logged | Show "what cost buys what result" on the front page |
-| Code teaching | Four complete model stages and adjacent-version lessons | Fill V3 ablation conclusions with new GPU data |
+| Results entrance | README, report hub, and chapters link formal results | Publish a release or static docs site |
+| Data | 50,000 TinyStories rows with line/byte/SHA256 manifest | Add a BPE and packed-data branch |
+| Eval | PPL, addition, copy, QA, and answer/format separation | Add a stronger compact benchmark |
+| Post-training | Direct GRPO and SFT -> GRPO measured | Add strict rewards and full GRPO ratios |
+| MoE analysis | Three-seed expert-load CV and SVG archived | Add CUDA/distributed expert dispatch |
+| Cost story | GPU hours, price, cost, memory, and throughput published | Compare the same suite across GPUs |
+| Code teaching | Four model generations closed with gates and negative results | Recheck stability at a larger token budget |
 
 ## Regenerate Figures
 
 ```bash
 python scripts/generate_v1_report_assets.py --run_dir experiments/v1_4090_plan
 python scripts/generate_moe_routing_report.py --input_dir out --out experiments/moe_routing_report.md
+python scripts/generate_architecture_report.py
+python scripts/generate_gpu_completion_report.py
 ```
 
-It reads:
+The v1 asset generator reads:
 
 - `experiments/v1_4090_plan/cost_summary.csv`
 - `experiments/v1_4090_plan/eval_*.json`
@@ -88,6 +84,8 @@ It writes:
 - `experiments/v1_4090_plan/auto_summary_zh.md`
 - `experiments/v1_4090_plan/figures/*.svg`
 - `experiments/moe_routing_report.md`
+
+The formal generators read `out/architecture_lab/*_cost_summary.json` and `out/gpu_completion/*_cost_summary.json`, then write the archived `architecture_lab_runs/` and `gpu_completion_runs/` tables, raw ledgers, manifests, reports, and figures.
 
 ## Report Template
 

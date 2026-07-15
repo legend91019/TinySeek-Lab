@@ -1,0 +1,178 @@
+{
+  "checkpoint": "out/gpu_completion/formal_base20m_last.pt",
+  "device": "cuda",
+  "addition": {
+    "accuracy": 0.0,
+    "num_examples": 5,
+    "examples": [
+      {
+        "prompt": "2+3",
+        "prediction": 3,
+        "target": 5,
+        "ok": false
+      },
+      {
+        "prompt": "7+8",
+        "prediction": 8,
+        "target": 15,
+        "ok": false
+      },
+      {
+        "prompt": "12+9",
+        "prediction": 9,
+        "target": 21,
+        "ok": false
+      },
+      {
+        "prompt": "15+17",
+        "prediction": 17,
+        "target": 32,
+        "ok": false
+      },
+      {
+        "prompt": "20+22",
+        "prediction": 22,
+        "target": 42,
+        "ok": false
+      }
+    ]
+  },
+  "copy": {
+    "accuracy": 0.0,
+    "num_examples": 3,
+    "examples": [
+      {
+        "target": "TINYSEEK-42",
+        "ok": false,
+        "completion": "\"Hello little girl imagine it was a big brand in the sun.\" She w"
+      },
+      {
+        "target": "MoE routes tokens",
+        "ok": false,
+        "completion": "\"What is that?\" asked his mom. \"It's a strange to deliver some c"
+      },
+      {
+        "target": "RMSNorm before attention",
+        "ok": false,
+        "completion": "\"What is that?\" asked his mom. \"It's so big and said, \"Yes!\" sai"
+      }
+    ]
+  },
+  "keyword_qa": {
+    "accuracy": 0.0,
+    "num_examples": 3,
+    "examples": [
+      {
+        "prompt": "What does RMSNorm normalize?",
+        "keywords": [
+          "root",
+          "mean",
+          "square",
+          "rms"
+        ],
+        "hits": [],
+        "ok": false,
+        "completion": "Mommy said, \"I want to do it.\" \"It's a surprise for my birds and"
+      },
+      {
+        "prompt": "What does MoE routing choose?",
+        "keywords": [
+          "expert",
+          "experts",
+          "route",
+          "routing"
+        ],
+        "hits": [],
+        "ok": false,
+        "completion": "Mokie thought it was a big brown bear. He was so excited to see"
+      },
+      {
+        "prompt": "Why keep a validation set?",
+        "keywords": [
+          "held",
+          "validation",
+          "general",
+          "overfit"
+        ],
+        "hits": [],
+        "ok": false,
+        "completion": "\"Hello little bird,\" said the sure was shining and he was so exc"
+      }
+    ]
+  },
+  "format": {
+    "format_score": 1.0,
+    "num_examples": 3,
+    "examples": [
+      {
+        "prompt": "Explain RMSNorm in one sentence.",
+        "ok": true,
+        "completion": "### Instruction\nExplain RMSNorm in one sentence.\n\n### Response\n\"Hello little girl, why arrived at the stars at the stars.\" She "
+      },
+      {
+        "prompt": "What does MoE routing do?",
+        "ok": true,
+        "completion": "### Instruction\nWhat does MoE routing do?\n\n### Response\nMonny was walking in the park, Jenny saw a big bird in the sky. "
+      },
+      {
+        "prompt": "Why do we use a validation set?",
+        "ok": true,
+        "completion": "### Instruction\nWhy do we use a validation set?\n\n### Response\n\n\"Hello, let's go to the store and seen the big blue sea.\" He sa"
+      }
+    ]
+  },
+  "reasoning": {
+    "answer_accuracy": 0.0,
+    "format_score": 0.0,
+    "num_examples": 5,
+    "examples": [
+      {
+        "prompt": "2+3",
+        "prediction": null,
+        "target": 5,
+        "answer_ok": false,
+        "format_ok": false,
+        "completion": "\"What is that?\" asked his mom. \"It's a strange thin the big sis"
+      },
+      {
+        "prompt": "7+8",
+        "prediction": null,
+        "target": 15,
+        "answer_ok": false,
+        "format_ok": false,
+        "completion": "\"Hello my sound,\" said hello to the little girl decided it was"
+      },
+      {
+        "prompt": "12+9",
+        "prediction": null,
+        "target": 21,
+        "answer_ok": false,
+        "format_ok": false,
+        "completion": "\"Hello there ime to take some sounds to the stars in the grass."
+      },
+      {
+        "prompt": "15+17",
+        "prediction": null,
+        "target": 32,
+        "answer_ok": false,
+        "format_ok": false,
+        "completion": "\"What is than you have to dell the toyster them.\" She said it w"
+      },
+      {
+        "prompt": "20+22",
+        "prediction": null,
+        "target": 42,
+        "answer_ok": false,
+        "format_ok": false,
+        "completion": "\"Hello there imagically the sun and the sky stories.\" She said,"
+      }
+    ]
+  },
+  "perplexity": {
+    "loss": 0.5413309310376644,
+    "lm_loss": 0.5413309310376644,
+    "ppl": 1.7182922695009908,
+    "num_examples": 100,
+    "num_tokens": 19100
+  }
+}

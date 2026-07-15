@@ -1,0 +1,207 @@
+{
+  "run_name": "arch_moe_aux_weak_seed42",
+  "step": 1000,
+  "elapsed_seconds": 133.5454,
+  "gpu_hours": 0.037096,
+  "hourly_rate": 2.18,
+  "currency": "CNY",
+  "estimated_cost": 0.0809,
+  "model_params": 4481472,
+  "activated_params_estimate": 1827264,
+  "hardware": {
+    "hostname": "autodl-container-dd9f46bdad-a114517e",
+    "platform": "Linux-5.15.0-84-generic-x86_64-with-glibc2.35",
+    "torch_version": "2.8.0+cu128",
+    "cuda_available": true,
+    "cuda_version": "12.8",
+    "device_index": 0,
+    "gpu_name": "NVIDIA GeForce RTX 4090",
+    "gpu_total_memory_gb": 23.5165,
+    "compute_capability": "8.9",
+    "device_count": 1
+  },
+  "max_memory_allocated_gb": 0.194,
+  "max_memory_reserved_gb": 0.2109,
+  "config_path": "experiments/architecture_lab_runs/configs/moe_aux_weak_seed42.json",
+  "data_path": "data/tinystories.jsonl",
+  "checkpoint_path": "out/architecture_lab/arch_moe_aux_weak_seed42_last.pt",
+  "history_path": "out/architecture_lab/arch_moe_aux_weak_seed42_history.jsonl",
+  "last_loss": 0.7418864369392395,
+  "last_lm_loss": 0.7376914620399475,
+  "val_loss": 0.6973211791038513,
+  "val_lm_loss": 0.6973211791038513,
+  "val_objective": 0.7015649167874369,
+  "val_mtp_loss": 0.0,
+  "val_aux_loss": 0.004168463789057522,
+  "batch_size": 16,
+  "grad_accum_steps": 1,
+  "max_seq_len": 128,
+  "dtype": "bfloat16",
+  "router_balance_strategy": "aux",
+  "mtp_depth": 0,
+  "mtp_loss_weight": 0.1,
+  "estimated_train_tokens": 2048000,
+  "train_compute_seconds": 71.7585,
+  "training_tokens_per_second": 28540.15,
+  "throughput_note": "Training compute only; excludes data loading, validation, and checkpoint writes.",
+  "estimated_training_flops": 22453420032000,
+  "flops_note": "Rough 6 * activated_params * tokens estimate for tutorial-scale comparison.",
+  "expert_load": {
+    "top_k": 2,
+    "num_experts": 8,
+    "total_counts": [
+      963,
+      1315,
+      1049,
+      934,
+      922,
+      1282,
+      921,
+      806
+    ],
+    "total_fractions": [
+      0.1175537109375,
+      0.1605224609375,
+      0.1280517578125,
+      0.114013671875,
+      0.112548828125,
+      0.156494140625,
+      0.1124267578125,
+      0.098388671875
+    ],
+    "per_layer": [
+      {
+        "layer": 0,
+        "counts": [
+          186,
+          277,
+          281,
+          233,
+          163,
+          429,
+          316,
+          163
+        ],
+        "fractions": [
+          0.0908203125,
+          0.13525390625,
+          0.13720703125,
+          0.11376953125,
+          0.07958984375,
+          0.20947265625,
+          0.154296875,
+          0.07958984375
+        ],
+        "selection_bias": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "layer": 1,
+        "counts": [
+          265,
+          347,
+          274,
+          222,
+          280,
+          141,
+          297,
+          222
+        ],
+        "fractions": [
+          0.12939453125,
+          0.16943359375,
+          0.1337890625,
+          0.1083984375,
+          0.13671875,
+          0.06884765625,
+          0.14501953125,
+          0.1083984375
+        ],
+        "selection_bias": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "layer": 2,
+        "counts": [
+          198,
+          274,
+          274,
+          297,
+          306,
+          335,
+          190,
+          174
+        ],
+        "fractions": [
+          0.0966796875,
+          0.1337890625,
+          0.1337890625,
+          0.14501953125,
+          0.1494140625,
+          0.16357421875,
+          0.0927734375,
+          0.0849609375
+        ],
+        "selection_bias": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "layer": 3,
+        "counts": [
+          314,
+          417,
+          220,
+          182,
+          173,
+          377,
+          118,
+          247
+        ],
+        "fractions": [
+          0.1533203125,
+          0.20361328125,
+          0.107421875,
+          0.0888671875,
+          0.08447265625,
+          0.18408203125,
+          0.0576171875,
+          0.12060546875
+        ],
+        "selection_bias": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  }
+}

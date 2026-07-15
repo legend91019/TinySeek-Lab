@@ -25,7 +25,9 @@ For each prompt:
 1. sample `G` completions;
 2. score each completion with rule rewards;
 3. normalize rewards inside the group;
-4. update model with clipped policy ratio and KL to reference model.
+4. update with `-advantage * completion_logprob` plus a reference KL proxy.
+
+The boundary matters: this code does not store old-policy log probabilities and does not implement the paper-style clipped importance ratio. It teaches group sampling, rule rewards, within-group advantages, and reference regularization; it is not a complete GRPO reproduction.
 
 The first implementation can be slow and small. Clarity beats throughput.
 
@@ -41,9 +43,20 @@ python scripts/prepare_toy_grpo_data.py --out data/toy_grpo.jsonl
 python trainer/train_grpo.py --config configs/tiny_grpo.json --data data/toy_grpo.jsonl --init_ckpt out/tiny_sft_last.pt --hourly_rate 2.18
 ```
 
-The v1 run produced non-zero reward but still had zero addition exact match. The supported conclusion is that the educational GRPO shape runs, not that RL taught the small model reasoning. See the [post-training code walkthrough](19_posttraining_code_walkthrough.md).
+The formal suite gives both arms the same **GRPO update budget** and reports the cold-start arm's additional SFT cost separately:
 
-## Experiments
+```text
+pretrained base -> direct GRPO
+pretrained base -> structured cold-start SFT -> GRPO
+```
+
+Both routes are evaluated on tagged-answer accuracy over five held-out additions, reasoning format, PPL on the first 100 TinyStories rows, tracked training-process time, and estimated cost. Only a stable multi-metric gain supports a TinySeek-specific cold-start benefit.
+
+The formal run makes the reward-hacking risk concrete. Direct GRPO ends with mean reward `0.1`, but held-out answer accuracy and reasoning-format score are both `0.0`. SFT -> GRPO reaches mean reward `0.2`, yet answer accuracy remains `0.0` and format falls from SFT's `0.6` to `0.2`. The proxy reward improved while the target behavior did not.
+
+The supported conclusion is that the educational loop runs and exposes reward-design failure, not that RL taught reasoning. See the [post-training code walkthrough](19_posttraining_code_walkthrough.md) and [measured report](../experiments/gpu_completion_runs/report.md).
+
+## Suggested Experiments
 
 1. Direct RL from base.
 2. RL after cold-start reasoning SFT.
