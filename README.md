@@ -14,6 +14,10 @@ TinySeek-Lab is a bilingual, code-first course from model implementation through
 
 This repository is language-model-only. It excludes multimodal, vision, video, OCR, embodied, and agent tracks. The goal is to reproduce research questions and experimental method, not DeepSeek scale or final capability.
 
+> **Start here:** [the eight-unit experiment-driven course](course/README.md) keeps model code, controlled experiments, measured results and architecture decisions in one continuous path. [中文主线](course/README_zh.md)
+
+Keep the [Math-to-PyTorch reference](docs/24_math_to_pytorch.md) nearby when a unit introduces a new formula or tensor operation; SFT and GRPO use the separate [post-training code walkthrough](docs/19_posttraining_code_walkthrough.md).
+
 ## Experiment-Driven, Not a Component Checklist
 
 Every architecture transition follows the same loop:
@@ -24,7 +28,7 @@ previous baseline -> measurable bottleneck -> research hypothesis
 -> upgrade / retain the previous stage
 ```
 
-DeepSeek papers provide problems, methods, and paper-scale evidence; TinySeek provides small-model code and runnable tests. Until GPU results exist, the repository labels a claim `Pending` instead of presenting a hypothesis as a TinySeek finding. See the [four-generation architecture map](docs/20_architecture_evolution_overview.md) and the [fair architecture experiment plan](experiments/06_architecture_evolution_plan.md).
+DeepSeek papers provide problems, methods, and paper-scale evidence; TinySeek provides small-model code and runnable tests. The [canonical course](course/README.md) places each code change beside its preregistered comparison and measured decision. The [four-generation architecture map](docs/20_architecture_evolution_overview.md) and [fair experiment plan](experiments/06_architecture_evolution_plan.md) remain reference documents.
 
 ## Four Generations, One Code Path
 
@@ -35,7 +39,7 @@ DeepSeek papers provide problems, methods, and paper-scale evidence; TinySeek pr
 | DeepSeek-V2 | [`stage2_deepseek_v2.py`](model/stages/stage2_deepseek_v2.py) | MoE plus educational MLA | [MoE to V2](docs/22_from_moe_to_deepseek_v2.md) |
 | DeepSeek-V3 | [`stage3_deepseek_v3.py`](model/stages/stage3_deepseek_v3.py) | auxiliary-loss-free routing bias and MTP | [V2 to V3](docs/23_from_v2_to_deepseek_v3.md) |
 
-Start with the [architecture evolution map](docs/20_architecture_evolution_overview.md). Stage files teach the code; the unified [`model/tinyseek.py`](model/tinyseek.py) runs matched formal experiments.
+Start with [s01 Dense baseline](course/s01_dense_baseline/README.md). Stage files teach the code; the unified [`model/tinyseek.py`](model/tinyseek.py) runs matched formal experiments, and each course unit joins the two with actual evidence.
 
 ## Current Results: Formal RTX 4090 Suite Complete
 
@@ -62,11 +66,11 @@ These are TinySeek small-model measurements, not claims about DeepSeek-scale cap
 
 | Path | Best for | Entry command |
 | --- | --- | --- |
-| CPU code course | Inspect four complete models and their shapes | `python scripts/inspect_stage_models.py` |
+| Guided course | Learn code and experiments as one research path | [Start at s01](course/s01_dense_baseline/README.md) |
 | Small GPU teaching run | Try tiny dense -> SFT -> GRPO | [Final GPU checklist](docs/18_gpu_fill_only_checklist.md) |
 | RTX 4090 research run | Reproduce formal training and multi-seed architecture comparisons | [Experiment hub](experiments/README.md) |
 
-Fast code-first route: read the [architecture map](docs/20_architecture_evolution_overview.md) and [Math-to-PyTorch toolkit](docs/24_math_to_pytorch.md), write the four stage models, study the [training loop](docs/16_training_loop_from_config_to_checkpoint.md), then run the [fair architecture plan](experiments/06_architecture_evolution_plan.md). The full reading path below starts with scope and papers first.
+The main route is the [eight-unit course](course/README.md). Formula, trainer and runbook documents under `docs/` are opened from the unit that needs them, so a reader does not have to assemble a second timeline by hand.
 
 ## Why "TinySeek"
 
@@ -124,6 +128,7 @@ flowchart TB
 
 ```text
 TinySeek-Lab/
+  course/               Canonical s01-s08 research course
   configs/              Small model and experiment configs
   dataset/              Dataset wrappers and byte tokenizer
   docs/                 Chapter-style tutorial notes
@@ -202,42 +207,18 @@ The preregistered paid-GPU plan that produced the formal suite is archived in
 
 ## First Reading Path
 
-Read these docs in order, or open the full [tutorial index](docs/README.md):
+Read one integrated path; open reference chapters only when the unit links them:
 
-1. [Project Scope](docs/00_project_scope.md)
-2. [DeepSeek Paper Map for LM Training](docs/01_deepseek_lm_paper_map.md)
-3. [Four-Generation Architecture Map](docs/20_architecture_evolution_overview.md)
-4. [Math to PyTorch: formulas, shapes, and APIs](docs/24_math_to_pytorch.md)
-5. [Build the DeepSeek LLM Dense Baseline](docs/12_code_first_dense_lm.md)
-6. [Dense to DeepSeekMoE](docs/21_from_dense_to_deepseek_moe.md)
-7. [MoE to DeepSeek-V2](docs/22_from_moe_to_deepseek_v2.md)
-8. [V2 to DeepSeek-V3](docs/23_from_v2_to_deepseek_v3.md)
-9. [Training Loop: From Config to Checkpoint](docs/16_training_loop_from_config_to_checkpoint.md)
-10. [SFT and Reasoning Cold Start](docs/07_stage5_sft_cold_start.md)
-11. [Rule-Based GRPO Mini](docs/08_stage6_grpo_mini.md)
-12. [Post-Training Code Walkthrough](docs/19_posttraining_code_walkthrough.md)
+1. [s01 Dense LM: build the whole model](course/s01_dense_baseline/README.md)
+2. [s02 Training recipe: LR/batch search](course/s02_training_recipe/README.md)
+3. [s03 GQA: reduce K/V state](course/s03_gqa/README.md)
+4. [s04 DeepSeekMoE: sparse FFN experiments](course/s04_deepseek_moe/README.md)
+5. [s05 MLA: test latent KV compression](course/s05_mla/README.md)
+6. [s06 DeepSeek-V3: routing bias and MTP](course/s06_v3_routing_mtp/README.md)
+7. [s07 Cold-start SFT: teach the response format](course/s07_cold_start_sft/README.md)
+8. [s08 GRPO and evaluation: let evidence stop the story](course/s08_grpo_and_evaluation/README.md)
 
-Chinese tutorial notes:
-
-Open the full [中文教程目录](docs/zh/README.md), or read in this order:
-
-1. [项目范围](docs/zh/00_project_scope.md)
-2. [DeepSeek 语言模型论文地图](docs/zh/01_deepseek_lm_paper_map.md)
-3. [四代架构演进总览](docs/zh/20_architecture_evolution_overview.md)
-4. [数学到 PyTorch：公式、Shape 与 API](docs/zh/24_math_to_pytorch.md)
-5. [从零写 DeepSeek LLM Dense 基线](docs/zh/12_code_first_dense_lm.md)
-6. [从 Dense 改到 DeepSeekMoE](docs/zh/21_from_dense_to_deepseek_moe.md)
-7. [从 MoE 改到 DeepSeek-V2](docs/zh/22_from_moe_to_deepseek_v2.md)
-8. [从 V2 改到 DeepSeek-V3](docs/zh/23_from_v2_to_deepseek_v3.md)
-9. [训练主循环](docs/zh/16_training_loop_from_config_to_checkpoint.md)
-10. [SFT 和 Reasoning Cold Start](docs/zh/07_stage5_sft_cold_start.md)
-11. [Rule-Based GRPO Mini](docs/zh/08_stage6_grpo_mini.md)
-12. [后训练代码细读](docs/zh/19_posttraining_code_walkthrough.md)
-
-Chinese supplements:
-
-- [总训练路线图](docs/zh/02_training_roadmap.md)
-- [当前进度](docs/zh/04_current_progress.md)
+Use [`docs/README.md`](docs/README.md) as the English reference library and [`docs/zh/README.md`](docs/zh/README.md) for Chinese references. They contain the expanded formulas, full source walkthroughs, trainer internals, runbooks and historical reports.
 
 ## DeepSeek Papers Used
 

@@ -11,6 +11,16 @@ CHAPTERS = [
     "23_from_v2_to_deepseek_v3.md",
 ]
 MATH_CHAPTER = "24_math_to_pytorch.md"
+COURSE_UNITS = (
+    "s01_dense_baseline",
+    "s02_training_recipe",
+    "s03_gqa",
+    "s04_deepseek_moe",
+    "s05_mla",
+    "s06_v3_routing_mtp",
+    "s07_cold_start_sft",
+    "s08_grpo_and_evaluation",
+)
 DEEP_DIVE_REQUIREMENTS = {
     "12_code_first_dense_lm.md": (
         "mathrm{RMS}",
@@ -184,6 +194,7 @@ def test_readme_and_indexes_expose_the_course() -> None:
         assert "06_architecture_evolution_plan" in text
         assert "24_math_to_pytorch.md" in text
         assert "19_posttraining_code_walkthrough.md" in text
+        assert "course/README" in text
     zh_readme = (ROOT / "README_zh.md").read_text(encoding="utf-8")
     en_readme = (ROOT / "README.md").read_text(encoding="utf-8")
     assert "本仓库是笔者学习 DeepSeek 论文时，为方便理解而完成的作品" in zh_readme
@@ -201,6 +212,38 @@ def test_readme_and_indexes_expose_the_course() -> None:
         assert "06_architecture_evolution_plan" in path.read_text(encoding="utf-8")
 
 
+def test_canonical_course_integrates_code_experiments_and_decisions() -> None:
+    course = ROOT / "course"
+    en_index = (course / "README.md").read_text(encoding="utf-8")
+    zh_index = (course / "README_zh.md").read_text(encoding="utf-8")
+    assert "research decision loop" in en_index
+    assert "研究决策循环" in zh_index
+
+    for position, unit in enumerate(COURSE_UNITS):
+        en_path = course / unit / "README.md"
+        zh_path = course / unit / "README_zh.md"
+        assert en_path.exists(), f"Missing English course unit: {unit}"
+        assert zh_path.exists(), f"Missing Chinese course unit: {unit}"
+        en = en_path.read_text(encoding="utf-8")
+        zh = zh_path.read_text(encoding="utf-8")
+        assert "<!-- tinyseek-nav -->" in en
+        assert "<!-- tinyseek-nav -->" in zh
+        assert "../../experiments/" in en
+        assert "../../experiments/" in zh
+        assert "Experiment" in en
+        assert "实验" in zh
+        assert ("Decision" in en) or ("Evidence" in en)
+        assert ("决定" in zh) or ("证据" in zh)
+        assert unit in en_index
+        assert unit in zh_index
+        if position:
+            assert COURSE_UNITS[position - 1] in en
+            assert COURSE_UNITS[position - 1] in zh
+        if position + 1 < len(COURSE_UNITS):
+            assert COURSE_UNITS[position + 1] in en
+            assert COURSE_UNITS[position + 1] in zh
+
+
 if __name__ == "__main__":
     test_bilingual_architecture_chapters()
     test_old_chapters_are_current()
@@ -209,4 +252,5 @@ if __name__ == "__main__":
     test_bilingual_snippets_match_stage_source()
     test_github_math_uses_supported_macros()
     test_readme_and_indexes_expose_the_course()
+    test_canonical_course_integrates_code_experiments_and_decisions()
     print("docs contract ok")

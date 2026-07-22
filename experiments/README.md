@@ -6,6 +6,8 @@ This directory is the experiment-report hub for TinySeek-Lab. The tutorial path
 is to revisit DeepSeek's language-model research route at a small scale, so each
 report should answer:
 
+> Read results in context through the [integrated course](../course/README.md). This directory preserves full tables, raw evidence and reproduction details; the course explains which model change each experiment accepts or rejects.
+
 - What changed: architecture, recipe, data, post-training objective, or eval?
 - What did it cost: GPU, GPU hours, rental cost, peak VRAM, rough FLOPs?
 - What moved: validation loss, PPL, mini eval, expert load?
@@ -62,7 +64,7 @@ TinySeek-Lab should keep moving in that direction:
 | Post-training | Direct GRPO and SFT -> GRPO measured | Add strict rewards and full GRPO ratios |
 | MoE analysis | Three-seed expert-load CV and SVG archived | Add CUDA/distributed expert dispatch |
 | Cost story | GPU hours, price, cost, memory, and throughput published | Compare the same suite across GPUs |
-| Code teaching | Four model generations closed with gates and negative results | Recheck stability at a larger token budget |
+| Code teaching | Eight integrated units join model diffs, gates and measured decisions | Recheck stability at a larger token budget |
 
 ## Regenerate Figures
 

@@ -1,58 +1,53 @@
-# 教程目录
+# 参考手册
 
 中文 | [English](../README.md)
 
-TinySeek-Lab 的英文教程放在 `docs/`，中文教程放在 `docs/zh/`。两套文档走同一条训练路线，但中文版本会写得更像讲义，解释会更展开一些。
+现在唯一推荐的学习顺序是综合的 [`course/s01-s08`](../../course/README_zh.md) 主线。每个单元会把模型改变、控制变量实验、实测结果和架构决定写在一起。
 
-## 主线阅读顺序
+本目录改为课程按需打开的**参考手册**。旧文件和路径继续保留，因此已有链接和引用不会失效。
 
-1. [项目范围](00_project_scope.md)
-2. [DeepSeek 语言模型论文地图](01_deepseek_lm_paper_map.md)
-3. [四代架构演进总览](20_architecture_evolution_overview.md)
-4. [数学到 PyTorch：公式、Shape 与 API 工具箱](24_math_to_pytorch.md)
-5. [代码优先：从零写 DeepSeek LLM Dense 基线](12_code_first_dense_lm.md)
-6. [从 Dense LM 改到 DeepSeekMoE](21_from_dense_to_deepseek_moe.md)
-7. [从 DeepSeekMoE 改到 DeepSeek-V2](22_from_moe_to_deepseek_v2.md)
-8. [从 DeepSeek-V2 改到 DeepSeek-V3](23_from_v2_to_deepseek_v3.md)
-9. [训练主循环：从 Config 到 Checkpoint](16_training_loop_from_config_to_checkpoint.md)
-10. [代码导读](15_code_walkthrough.md)
-11. [阶段 0：训练 Dense Baseline](02_stage0_dense_baseline.md)
-12. [阶段 1：LR 和 Batch Size 搜索](03_stage1_lr_batch_search.md)
-13. [组件消融：MLP 和 Attention](04_stage2_block_upgrades.md)
-14. [MoE 实验课](05_stage3_moe.md)
-15. [MLA 实验课](06_stage4_mla.md)
-16. [SFT 和 Reasoning Cold Start](07_stage5_sft_cold_start.md)
-17. [Rule-Based GRPO Mini](08_stage6_grpo_mini.md)
-18. [后训练代码细读](19_posttraining_code_walkthrough.md)
-19. [仓库路线图](09_repository_roadmap.md)
-20. [实验报告模板](10_experiment_report_template.md)
-21. [MiniMind 风格结构说明](11_minimind_structure_notes.md)
-22. [GPU 选择与成本记录](13_gpu_cost_tracking.md)
-23. [v1 训练执行手册](14_v1_training_runbook.md)
-24. [向 MiniMind 学什么](17_minimind_quality_notes.md)
-25. [上卡前最终 Checklist](18_gpu_fill_only_checklist.md)
+## 范围与论文
 
-补充文档：
-
+- [项目范围](00_project_scope.md)
+- [DeepSeek 语言模型论文地图](01_deepseek_lm_paper_map.md)
+- [四代架构演进总览](20_architecture_evolution_overview.md)
+- [仓库路线图](09_repository_roadmap.md)
 - [总训练路线图](02_training_roadmap.md)
 - [当前进度](04_current_progress.md)
 
-## 实验报告
+## 代码深读
 
-- [3-seed 架构实测与决策](../../experiments/architecture_lab_runs/report_zh.md)
-- [正式训练与后训练报告](../../experiments/gpu_completion_runs/report_zh.md)
-- [RTX 4090 v1 正式结果](../../experiments/05_4090_v1_results_zh.md)
-- [v1 自动汇总表和图表](../../experiments/v1_4090_plan/auto_summary_zh.md)
+- [数学到 PyTorch：公式、shape 与 API](24_math_to_pytorch.md)
+- [写出完整 Dense LM](12_code_first_dense_lm.md)
+- [Dense 到 DeepSeekMoE](21_from_dense_to_deepseek_moe.md)
+- [DeepSeekMoE 到 DeepSeek-V2](22_from_moe_to_deepseek_v2.md)
+- [DeepSeek-V2 到 DeepSeek-V3](23_from_v2_to_deepseek_v3.md)
+- [完整仓库代码导读](15_code_walkthrough.md)
+- [训练主循环：config 到 checkpoint](16_training_loop_from_config_to_checkpoint.md)
+- [后训练代码细读](19_posttraining_code_walkthrough.md)
+
+## 实验讲义
+
+- [Dense 基线训练](02_stage0_dense_baseline.md)
+- [LR 与 batch-size 搜索](03_stage1_lr_batch_search.md)
+- [MLP 与 attention 消融](04_stage2_block_upgrades.md)
+- [MoE 实验课](05_stage3_moe.md)
+- [MLA 实验课](06_stage4_mla.md)
+- [SFT 与 reasoning cold start](07_stage5_sft_cold_start.md)
+- [规则 GRPO mini](08_stage6_grpo_mini.md)
+- [实验报告模板](10_experiment_report_template.md)
+
+## 运行与设计记录
+
+- [MiniMind 风格结构说明](11_minimind_structure_notes.md)
+- [GPU 选择与成本记录](13_gpu_cost_tracking.md)
+- [v1 训练执行手册](14_v1_training_runbook.md)
+- [向 MiniMind 学什么](17_minimind_quality_notes.md)
+- [上卡前最终 checklist](18_gpu_fill_only_checklist.md)
+
+## 实测报告
+
+- [3-seed 架构实测与决定](../../experiments/architecture_lab_runs/report_zh.md)
+- [正式训练与后训练](../../experiments/gpu_completion_runs/report_zh.md)
 - [实验报告中心](../../experiments/README_zh.md)
-- [DeepSeek 架构演进公平实验计划与门槛](../../experiments/06_architecture_evolution_plan_zh.md)
-
-## 一图看懂
-
-```mermaid
-flowchart LR
-  D["DeepSeek LLM<br/>Dense"] --> M["DeepSeekMoE<br/>稀疏 FFN"]
-  M --> V2["DeepSeek-V2<br/>MLA"]
-  V2 --> V3["DeepSeek-V3<br/>Bias + MTP"]
-  V3 --> S["SFT<br/>Cold Start"]
-  S --> R["GRPO Mini"]
-```
+- [公平架构实验计划与门槛](../../experiments/06_architecture_evolution_plan_zh.md)
