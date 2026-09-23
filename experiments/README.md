@@ -2,11 +2,13 @@
 
 [中文](README_zh.md) | English
 
+> **Navigation note:** read the [five-paper route](../papers/README.md) for the narrative. This directory remains the evidence archive with full tables, raw outputs, configs and reproduction details.
+
 This directory is the experiment-report hub for TinySeek-Lab. The tutorial path
 is to revisit DeepSeek's language-model research route at a small scale, so each
 report should answer:
 
-> Read results in context through the [integrated course](../course/README.md). This directory preserves full tables, raw evidence and reproduction details; the course explains which model change each experiment accepts or rejects.
+> Read results in context through the [five-paper route](../papers/README.md). This directory preserves full tables, raw evidence and reproduction details; the historical course remains available for experiment-unit lookup.
 
 - What changed: architecture, recipe, data, post-training objective, or eval?
 - What did it cost: GPU, GPU hours, rental cost, peak VRAM, rough FLOPs?
