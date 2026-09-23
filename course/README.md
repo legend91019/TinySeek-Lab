@@ -2,7 +2,9 @@
 
 [中文主线](README_zh.md) | English
 
-This is the canonical reading path for TinySeek-Lab. It follows a **research decision loop**, not a list of Transformer components:
+> **Navigation note:** the recommended route is now the [five-paper path](../papers/README.md). This directory remains as the historical experiment-unit course.
+
+This is the historical experiment-unit course for TinySeek-Lab. The new paper-first route lives in `papers/`; these s01-s08 pages follow a **research decision loop**, not a list of Transformer components:
 
 ```text
 observe a bottleneck -> read the paper clue -> write the smallest code change

@@ -2,7 +2,9 @@
 
 [中文参考手册](zh/README.md) | English
 
-The recommended learning path is now the integrated [`course/s01-s08`](../course/README.md) track. It keeps the model change, controlled experiment, measured result and architecture decision in one unit.
+> **Navigation note:** start with the [five-paper route](../papers/README.md). This directory remains the reference library for formulas, code walkthroughs, runbooks and historical notes.
+
+The recommended learning path is now the five-paper [`papers/README.md`](../papers/README.md) route. This directory keeps formulas, code walkthroughs, runbooks and historical notes.
 
 This directory is the **reference library** opened from that course. The files remain stable so existing links and citations do not break.
 

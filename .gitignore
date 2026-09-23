@@ -6,3 +6,4 @@ data/*.jsonl
 data/*.bin
 wandb/
 runs/
+.worktrees/

@@ -12,9 +12,13 @@
 
 TinySeek-Lab is a bilingual, code-first course from model implementation through training and experiment reports. You write a complete Dense LM, evolve it into DeepSeekMoE, DeepSeek-V2, and DeepSeek-V3, then connect that base model to R1-style SFT and educational GRPO.
 
+> **New canonical route:** start with the [five DeepSeek paper tutorials](papers/README.md). `course/`, `docs/`, and `experiments/` remain as historical units, reference notes, and evidence archives; paper articles link to their code and results when needed.
+
+The historical experiment course remains at [`course/README.md`](course/README.md); the reference library is [`docs/README.md`](docs/README.md), and the evidence archive is [`experiments/README.md`](experiments/README.md).
+
 This repository is language-model-only. It excludes multimodal, vision, video, OCR, embodied, and agent tracks. The goal is to reproduce research questions and experimental method, not DeepSeek scale or final capability.
 
-> **Start here:** [the eight-unit experiment-driven course](course/README.md) keeps model code, controlled experiments, measured results and architecture decisions in one continuous path. [中文主线](course/README_zh.md)
+> **Start here:** the [five DeepSeek paper tutorials](papers/README.md) put paper claims, paper figures, existing code and supplemental measurements in one article. [中文主线](papers/README_zh.md)
 
 Keep the [Math-to-PyTorch reference](docs/24_math_to_pytorch.md) nearby when a unit introduces a new formula or tensor operation; SFT and GRPO use the separate [post-training code walkthrough](docs/19_posttraining_code_walkthrough.md).
 
@@ -28,7 +32,7 @@ previous baseline -> measurable bottleneck -> research hypothesis
 -> upgrade / retain the previous stage
 ```
 
-DeepSeek papers provide problems, methods, and paper-scale evidence; TinySeek provides small-model code and runnable tests. The [canonical course](course/README.md) places each code change beside its preregistered comparison and measured decision. The [four-generation architecture map](docs/20_architecture_evolution_overview.md) and [fair experiment plan](experiments/06_architecture_evolution_plan.md) remain reference documents.
+DeepSeek papers provide problems, methods, and paper-scale evidence; TinySeek provides small-model code and existing supplemental measurements. The [paper route](papers/README.md) places these together. The [four-generation architecture map](docs/20_architecture_evolution_overview.md) and [fair experiment plan](experiments/06_architecture_evolution_plan.md) remain reference documents.
 
 ## Four Generations, One Code Path
 
@@ -39,7 +43,7 @@ DeepSeek papers provide problems, methods, and paper-scale evidence; TinySeek pr
 | DeepSeek-V2 | [`stage2_deepseek_v2.py`](model/stages/stage2_deepseek_v2.py) | MoE plus educational MLA | [MoE to V2](docs/22_from_moe_to_deepseek_v2.md) |
 | DeepSeek-V3 | [`stage3_deepseek_v3.py`](model/stages/stage3_deepseek_v3.py) | auxiliary-loss-free routing bias and MTP | [V2 to V3](docs/23_from_v2_to_deepseek_v3.md) |
 
-Start with [s01 Dense baseline](course/s01_dense_baseline/README.md). Stage files teach the code; the unified [`model/tinyseek.py`](model/tinyseek.py) runs matched formal experiments, and each course unit joins the two with actual evidence.
+Start with the [DeepSeek LLM paper tutorial](papers/01-deepseek-llm/README.md). Stage files teach the code; the unified [`model/tinyseek.py`](model/tinyseek.py) and existing reports provide supplemental evidence.
 
 ## Current Results: Formal RTX 4090 Suite Complete
 
@@ -66,11 +70,11 @@ These are TinySeek small-model measurements, not claims about DeepSeek-scale cap
 
 | Path | Best for | Entry command |
 | --- | --- | --- |
-| Guided course | Learn code and experiments as one research path | [Start at s01](course/s01_dense_baseline/README.md) |
+| Paper route | Learn each DeepSeek paper with its evidence | [Start with DeepSeek LLM](papers/01-deepseek-llm/README.md) |
 | Small GPU teaching run | Try tiny dense -> SFT -> GRPO | [Final GPU checklist](docs/18_gpu_fill_only_checklist.md) |
 | RTX 4090 research run | Reproduce formal training and multi-seed architecture comparisons | [Experiment hub](experiments/README.md) |
 
-The main route is the [eight-unit course](course/README.md). Formula, trainer and runbook documents under `docs/` are opened from the unit that needs them, so a reader does not have to assemble a second timeline by hand.
+The main route is the [five-paper tutorial](papers/README.md). Formula, trainer and runbook documents under `docs/` are linked from the relevant paper article; `course/` remains an experiment-unit archive.
 
 ## Why "TinySeek"
 
@@ -207,16 +211,13 @@ The preregistered paid-GPU plan that produced the formal suite is archived in
 
 ## First Reading Path
 
-Read one integrated path; open reference chapters only when the unit links them:
+Read the paper path; open historical unit pages only when an article links them:
 
-1. [s01 Dense LM: build the whole model](course/s01_dense_baseline/README.md)
-2. [s02 Training recipe: LR/batch search](course/s02_training_recipe/README.md)
-3. [s03 GQA: reduce K/V state](course/s03_gqa/README.md)
-4. [s04 DeepSeekMoE: sparse FFN experiments](course/s04_deepseek_moe/README.md)
-5. [s05 MLA: test latent KV compression](course/s05_mla/README.md)
-6. [s06 DeepSeek-V3: routing bias and MTP](course/s06_v3_routing_mtp/README.md)
-7. [s07 Cold-start SFT: teach the response format](course/s07_cold_start_sft/README.md)
-8. [s08 GRPO and evaluation: let evidence stop the story](course/s08_grpo_and_evaluation/README.md)
+1. [DeepSeek LLM](papers/01-deepseek-llm/README.md)
+2. [DeepSeekMoE](papers/02-deepseek-moe/README.md)
+3. [DeepSeek-V2](papers/03-deepseek-v2/README.md)
+4. [DeepSeek-V3](papers/04-deepseek-v3/README.md)
+5. [DeepSeek-R1](papers/05-deepseek-r1/README.md)
 
 Use [`docs/README.md`](docs/README.md) as the English reference library and [`docs/zh/README.md`](docs/zh/README.md) for Chinese references. They contain the expanded formulas, full source walkthroughs, trainer internals, runbooks and historical reports.
 
