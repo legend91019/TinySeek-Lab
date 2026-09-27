@@ -4,6 +4,8 @@ This is the repository's only recommended reading entry. It separates the archit
 
 Each article combines the paper's method and evidence with the existing TinySeek implementation and small-scale results. No new training or ablation runs are introduced. TinySeek measurements supplement, but never replace, paper-scale evidence.
 
+Each article now follows one analytical order: identify the bottleneck, explain why the proposed mechanism should help, decompose controls and ablations, test what the reported results actually support, and state what TinySeek can and cannot transfer. The goal is to learn how to read the experiment logic, not to memorize abbreviations.
+
 ## Main architecture route
 
 1. [DeepSeek LLM: training recipes and scaling laws](01-deepseek-llm/README.md)

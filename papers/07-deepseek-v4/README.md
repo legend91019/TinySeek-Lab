@@ -40,4 +40,36 @@ V4 is a coordinated design for million-token context: attention avoids unnecessa
 - [PDF](https://arxiv.org/pdf/2606.19348)
 - [Hugging Face collection](https://huggingface.co/collections/deepseek-ai/deepseek-v4)
 - [Source ledger](../assets/deepseek-v4/SOURCES.md)
++## Deep reading: V4 is joint million-context optimization
 
+### 1. Why three changes appear together
+
+At million-token context, reducing KV cache alone is insufficient. Attention compute, residual-flow stability, and optimizer convergence become coupled bottlenecks. V4 presents CSA/HCA, mHC, and Muon together because the engineering target is a coordinated system, not three independent plugins.
+
+### 2. Information hierarchy in CSA/HCA
+
+CSA provides finer sparse access while HCA provides more aggressive historical compression. The useful mental model is precise local evidence plus low-cost remote summaries. The key experiment is whether summaries preserve cross-segment dependencies while local access covers task-critical positions.
+
+### 3. Interpreting 27% FLOPs and 10% KV cache
+
+These are system-level ratios at the 1M setting relative to V3.2, not fixed constants for every length or a single attention-kernel complexity claim. They depend on layout, indexing, kernels, batching, and decode mode.
+
+### 4. The role of mHC
+
+mHC targets residual dynamics. It does not reduce attention FLOPs or directly add knowledge; its evidence should be training stability, activation/gradient statistics, convergence, and final quality. A final benchmark cannot isolate mHC from Muon, data, or schedule.
+
+### 5. Muon attribution
+
+Changing the optimizer usually requires retuning learning rate, batch, and schedule. V4's end-to-end gain therefore cannot be attributed to Muon without controlled optimizer ablations using token-to-loss curves and final quality.
+
+### 6. TinySeek transfer
+
+A useful small-scale transfer plots context length versus attention cost, compression versus task loss, and optimizer versus convergence separately. It should not claim to reproduce V4's million-context numbers.
++## Evidence map
+
+| Paper location | Question | Authors' conclusion | Reading boundary |
+| --- | --- | --- | --- |
+| CSA/HCA method | Can layered compression support 1M context? | Local precision and remote summaries cooperate | Long-range failure cases still matter |
+| mHC | Are residual connections a stability bottleneck? | Constrained mixing improves dynamics | Needs independent gradient/activation ablations |
+| Muon | Does the optimizer improve convergence? | Faster and more stable training is reported | Architecture/data/schedule must be controlled |
+| 1M comparison | Does cost fall relative to V3.2? | 27% FLOPs and 10% cache are reported | System ratios are not universal constants |

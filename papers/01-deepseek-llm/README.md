@@ -54,3 +54,35 @@ DeepSeek LLM establishes the recipe and scaling foundation. TinySeek supports th
 ## 9. Sources and next paper
 
 Paper: [arXiv:2401.02954](https://arxiv.org/abs/2401.02954). Continue to [DeepSeekMoE](../02-deepseek-moe/README.md).
++## Deep reading: what this paper actually establishes
+
+### 1. Fair comparison comes first
+
+The paper is easy to misread as “67B is better than 7B, so scale up.” Section 3 makes the opposite methodological point: if batch size and learning rate are not calibrated first, later model/data comparisons confound optimization mistakes with scaling gains. The authors therefore calibrate hyperparameters, build IsoFLOP profiles, and only then choose the 7B/67B configurations.
+
+### 2. How to read Figure 3
+
+Figure 3 is not a universal law. It is a trend estimate under a finite compute budget, used to narrow the next search space. The transferable lesson is the calibration workflow, not the exact exponent on the plot.
+
+### 3. Why non-embedding FLOPs matters
+
+Parameter count mixes embedding/output parameters with parameters that participate in every token computation. Non-embedding FLOPs/token is a control variable that makes models with different vocabularies more comparable. It prevents a vocabulary-size difference from masquerading as a scaling effect.
+
+### 4. Data quality changes the optimum
+
+The data-scaling experiments imply that high-quality data lets a larger model use extra capacity, while low-quality data can make additional parameters inefficient. The optimal model/data allocation is therefore corpus-dependent. The 89.8% cross-dump deduplication result matters because it changes the effective data distribution, not because the number itself is a universal target.
+
+### 5. Benchmark results are not the scaling proof
+
+Table 5 shows that the resulting models are useful, but cannot by itself prove the scaling fit. The evidence chain is profile, fit, large-model prediction, and prediction error. A high benchmark score and a successful scaling prediction should be evaluated separately.
+
+### 6. Transfer to TinySeek
+
+A local LR/batch sweep answers which recipe works for this data, model, and step budget; it does not estimate compute-optimal scaling. A faithful classroom transfer must hold tokenizer, data mix, optimizer, and token budget fixed while varying one budget axis.
++## Evidence map
+
+| Paper location | Question | Authors' conclusion | Reading boundary |
+| --- | --- | --- | --- |
+| Section 3.1 / Figure 3 | Do batch and learning rate change with compute? | Trends can narrow the search space | Supports calibration, not a universal law |
+| Section 3.2–3.3 | How should model/data scale? | Non-embedding FLOPs and data quality matter | Fit range and corpus limit extrapolation |
+| Section 5 / Table 5 | Does the recipe produce useful models? | 7B/67B outperform baselines on many tasks | Does not by itself prove the scaling mechanism |

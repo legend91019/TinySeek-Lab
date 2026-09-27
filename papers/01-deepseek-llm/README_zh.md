@@ -87,3 +87,36 @@ DeepSeek LLM 首先建立的是一套“把训练 recipe 当作科学问题”�
 - 代码：[`stage0_deepseek_llm.py`](../../model/stages/stage0_deepseek_llm.py)。
 - 现有报告：[`architecture_lab_runs/report_zh.md`](../../experiments/architecture_lab_runs/report_zh.md)、[`gpu_completion_runs/report_zh.md`](../../experiments/gpu_completion_runs/report_zh.md)。
 - 下一篇：[DeepSeekMoE](../02-deepseek-moe/README_zh.md)。
++## 深度解读：这篇论文真正证明了什么
+
+### 1. 先问比较条件是否公平
+
+论文最容易被误读成“67B 比 7B 好，所以扩大模型”。但 Section 3 的逻辑恰好相反：如果 batch size、learning rate 和训练 token 没有先调好，后面的 model/data scaling 比较就会把优化失误误认为规模收益。因此作者先做 hyperparameter scaling，再做 IsoFLOP profile，最后才决定 7B/67B 的深度、宽度和数据量。这是一个实验设计上的先后关系，不是章节排列。
+
+### 2. Figure 3 的曲线应该怎样读
+
+Figure 3 不是在宣称一个跨所有模型都成立的公式，而是在有限预算下观察最优 batch size 和 learning rate 的变化趋势。曲线的用途是缩小后续搜索空间：先用小模型和小预算估计趋势，再把候选配方迁移到大模型。真正可迁移的是“先做配方校准”的方法，不是图上某个指数的精确数值。
+
+### 3. 为什么引入 non-embedding FLOPs
+
+参数量会把 embedding 和输出层的大小混在一起，但这两部分不一定以同样方式参与每 token 计算。论文用 non-embedding FLOPs/token 作为规模坐标，是为了让不同词表、不同 embedding 设置的模型更可比。这个选择本身也是一个因果控制：作者试图避免“参数更多”只是因为词表更大而造成的假象。
+
+### 4. 数据质量改变的不是常数，而是最优方向
+
+论文的 data scaling 实验说明，高质量数据通常允许更大的模型从额外容量中获益；低质量数据则可能让继续堆参数变成过拟合或低效计算。于是 model/data allocation 不是一个脱离语料的普适比例。读 Table 1 的去重率时，重点不应是 89.8% 这个数字本身，而是：跨 dump 去重改变了有效数据分布，因而会改变 scaling 曲线。
+
+### 5. Table 5 的能力结果不能单独证明 scaling law
+
+Table 5 证明最终模型有用，但不能单独证明前面的拟合是因果来源。要支持 scaling 结论，还需要同时看到小规模 profile、拟合、对大规模模型的预测，以及预测与实际结果的误差。论文提供了这条链条，但开源读者应把“预测成功”与“benchmark 很高”分开评价。
+
+### 6. 训练配方如何迁移到 TinySeek
+
+TinySeek 的 LR/batch sweep 只能回答“在这个数据、模型、步数下哪个配方更好”；它不能回答 compute-optimal scaling。要做严谨迁移，应固定 tokenizer、数据混合、优化器和训练 token，只改变一个预算轴，并记录 validation loss、token 数和实际吞吐。本仓可以复现实验思想，不能把四点 sweep 写成论文定律。
++## 证据地图
+
+| 论文位置 | 实验问题 | 作者结论 | 解读与限制 |
+| --- | --- | --- | --- |
+| Section 3.1 / Figure 3 | batch size、learning rate 是否随 compute 改变 | 存在可用于缩小搜索空间的趋势 | 支持配方校准，不等于普适公式 |
+| Section 3.2 / scaling curves | model/data 如何分配 | non-embedding FLOPs 更适合作为规模轴 | 依赖数据质量和拟合范围 |
+| Section 3.3 / different data | 数据质量是否改变 scaling | 高质量数据更能利用大模型容量 | 不能外推到任意语料 |
+| Section 5 / Table 5 | 规模选择是否转化为能力 | 7B/67B 在多项任务超过基线 | 证明结果有用，不单独证明因果机制 |

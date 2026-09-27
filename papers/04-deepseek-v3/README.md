@@ -57,3 +57,36 @@ V3 decomposes large-scale MoE bottlenecks into routing, supervision, communicati
 ## 9. Sources and next paper
 
 Paper: [arXiv:2412.19437](https://arxiv.org/abs/2412.19437). Continue to [DeepSeek-R1](../05-deepseek-r1/README.md).
++## Deep reading: V3 is a co-designed system
+
+### 1. V3 extends V2 rather than replacing it
+
+Keeping MLA and DeepSeekMoE indicates that V2's direction survived. The new bottlenecks are scale bottlenecks: cross-node expert communication, balancing losses, low-precision stability, and pipeline bubbles. The architectural additions should be read together with the systems work that makes the old architecture scalable.
+
+### 2. The auxiliary-loss-free hypothesis
+
+An auxiliary balancing loss changes the language-model objective. V3 instead adds a dynamic expert bias that affects top-k selection but not the main loss, updated from observed loads. The intended separation is “which expert is selected” from “what language modeling optimizes.” The tradeoff is a batch-statistics control loop whose stability depends on update frequency and capacity.
+
+### 3. Read Table 5 on three axes
+
+The ablation is not only about loss. Check main-task quality, expert load, and token dropping/stability together. A single benchmark column cannot establish that bias routing is better than auxiliary loss.
+
+### 4. Why MTP may help
+
+MTP supplies supervision for future tokens and can support speculative decoding. Table 4 supports a benefit, but the mechanism could include regularization, richer supervision, or acceptance rate. “Predicts more tokens” is not by itself a proof of faster decoding.
+
+### 5. Separate FP8 and DualPipe from capability
+
+FP8, DualPipe, all-to-all kernels, and memory optimizations explain cost and scalability. They are not automatically language-quality improvements. The reported 2,788K H800 GPU-hours is an end-to-end system result, not a single-module attribution.
+
+### 6. The transition to V3.2
+
+V3 makes MoE plus MLA trainable at scale, but full attention still computes over long histories. V3.2 therefore moves the bottleneck from cached state to attention FLOPs through learned token selection.
++## Evidence map
+
+| Paper location | Question | Authors' conclusion | Reading boundary |
+| --- | --- | --- | --- |
+| Section 2.1.2 / Table 5 | Can balancing avoid an auxiliary loss? | Bias routing preserves load with less objective interference | Depends on update and capacity settings |
+| Section 2.2 / Table 4 | Does MTP help? | MTP improves evaluation and enables speculative decoding | Training and decoding gains differ |
+| Section 3 / Table 1 | Does systems co-design reduce cost? | FP8, DualPipe, and communication work jointly | Not a single-module attribution |
+| Section 4 | Does 671B capacity become capability? | V3 reaches strong open-model results | Benchmarks do not isolate every system factor |

@@ -80,3 +80,36 @@ DeepSeekMoE 的关键不是“把 Dense FFN 复制很多次”，而是用更细
 - 原文：[arXiv:2401.06066](https://arxiv.org/abs/2401.06066)。
 - 下一篇：[DeepSeek-V2：MLA](../03-deepseek-v2/README_zh.md)。
 - 现有完整报告：[`architecture_lab_runs/report_zh.md`](../../experiments/architecture_lab_runs/report_zh.md)。
++## 深度解读：MoE 的收益来自哪里
+
+### 1. 论文要隔离三个变量
+
+把 Dense FFN 换成 MoE 后，质量变化可能来自总参数变多、每 token 激活参数变化、路由产生了专家专门化。DeepSeekMoE 的 validation 设置因此尽量对齐 activated parameters 和训练条件，再比较 expert 粒度与 shared experts。否则“MoE 更好”可能只是“计算预算不同”。
+
+### 2. Fine-grained segmentation 的真实含义
+
+将一个宽 FFN 切成许多窄 expert，不是简单复制同一个网络。top-k 组合让每个 token 可以从更多小模块中选择；在相同 activated width 下，组合数增加，专家更容易形成分工。但这也提高了路由噪声和通信频率，所以论文的主张是质量/容量折中改善，而不是所有硬件上都更快。
+
+### 3. Shared experts 解决的不是负载均衡
+
+shared experts 对所有 token 激活，作用是承接语言模型普遍需要的模式，让 routed experts 不必重复学习 common knowledge。它不能自动解决热门 expert 或 all-to-all 通信；这些仍需 capacity、auxiliary loss 和 device-limited routing。把 shared expert 解释成“让路由更均匀”会混淆结构分工和系统约束。
+
+### 4. Figure 3 消融的证据强度
+
+Figure 3 的价值在于把 fine-grained 和 shared 两个改动拆开。若只报告最终 DeepSeekMoE，无法知道收益来自哪一项；消融让读者看到每个结构改动的边际贡献。不过这些消融主要是小规模 validation，不足以证明专家在 145B 规模仍以同样方式专门化，论文需要用更大模型结果补充外推。
+
+### 5. 145B 对比应看 activated compute 而非总参数
+
+论文把 DeepSeekMoE 16B/145B 与 Dense/GShard 模型比较时，核心叙事是相近 activated computation 下的质量。总参数代表可存储容量，activated parameters 代表每 token 的主要矩阵乘法成本，但真实训练成本还包括路由通信、padding、token dropping 和负载不均。因此论文的计算比例是模型级近似，不等价于任意集群的 wall-clock 比例。
+
+### 6. TinySeek 应怎样复核
+
+本仓 shared 路线 PPL 更好但慢约 35%，正好说明论文结论需要同时看质量和系统成本。更严谨的复核应报告 expert load CV、token drop、tokens/sec、显存和 PPL，并把 coarse/fine/shared 在相同训练 token 下比较；只看一张 PPL 表会把 MoE 的核心工程代价隐藏掉。
++## 证据地图
+
+| 论文位置 | 实验问题 | 作者结论 | 解读与限制 |
+| --- | --- | --- | --- |
+| Section 2 / Figure 2 | shared 与 routed experts 如何分工 | shared 承担共同知识，routed 负责专门化 | 结构解释合理，但不能直接测出知识边界 |
+| Section 3 / Table 1 | 细粒度 expert 是否改善质量/计算折中 | 在相近激活量下质量更好 | 需要同时检查通信和 token dropping |
+| Section 3 / Figure 3 | 两个设计是否各自贡献 | fine-grained 与 shared 都有边际收益 | 小规模消融对 145B 的外推有限 |
+| Section 4 / 大模型比较 | MoE 是否能扩大容量 | 16B/145B 展现容量—计算优势 | activated compute 不是完整 wall-clock 成本 |

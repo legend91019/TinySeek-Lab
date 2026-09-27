@@ -41,4 +41,32 @@ V3.2-Exp bridges compressed state and selected computation: MLA stores less per 
 - [Official repository](https://github.com/deepseek-ai/DeepSeek-V3.2-Exp)
 - [Technical report](https://raw.githubusercontent.com/deepseek-ai/DeepSeek-V3.2-Exp/main/DeepSeek_V3_2.pdf)
 - [Source ledger](../assets/deepseek-v3-2/SOURCES.md)
++## Deep reading: DSA is about learnable selection
 
+### 1. The bottleneck left after MLA
+
+MLA reduces the cached representation, but if every query still scores every historical position, long-context attention remains close to quadratic. V3.2-Exp changes the question from “how much do we store?” to “how much do we compute?”
+
+### 2. Indexer versus main attention
+
+The indexer performs candidate recall; the main attention computes the precise aggregation. This is analogous to retrieval and ranking. If the indexer is too cheap it misses critical tokens; if it is too expensive the sparse gain disappears. The real tradeoff is recall, index cost, and exact-attention cost.
+
+### 3. Why alignment against V3.1 matters
+
+Capability alignment provides a basic control: if quality is roughly preserved while long-context efficiency improves, DSA is a plausible explanation. It is still not a randomized ablation because the experimental release can change training, kernels, and serving together.
+
+### 4. Sparse-selection risks
+
+Top-k selection can miss long-range dependencies, rare entities, or multi-hop evidence. Stable average results only establish adequacy on the paper's training and evaluation distribution. Selection recall and failure cases matter as much as average FLOPs.
+
+### 5. TinySeek transfer
+
+Without the DSA kernel, TinySeek can only demonstrate the algorithmic shape. A useful classroom implementation must record selection recall, PPL, long-range accuracy, and wall-clock cost, not just the number of skipped dot products.
++## Evidence map
+
+| Paper location | Question | Authors' conclusion | Reading boundary |
+| --- | --- | --- | --- |
+| DSA method | Can an indexer recall useful history? | Sparse selection can replace full access | Selection recall and failures matter |
+| V3.1 comparisons | Is capability preserved? | Public benchmarks are broadly aligned | Not a randomized ablation |
+| Efficiency experiments | Do FLOPs and cache fall? | Long-context cost decreases | Requires specialized kernels and serving |
+| Analysis/ablations | How sparse should attention be? | Quality and cost must be balanced | Smaller top-k is not automatically better |

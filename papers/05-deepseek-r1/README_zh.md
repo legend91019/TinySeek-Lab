@@ -91,3 +91,36 @@ R1 的论文贡献是一条后训练路线：先观察纯 RL 的 reasoning 演�
 - 原文：[arXiv:2501.12948](https://arxiv.org/abs/2501.12948)。
 - 上一篇：[DeepSeek-V3](../04-deepseek-v3/README_zh.md)。
 - 现有报告：[`gpu_completion_runs/report_zh.md`](../../experiments/gpu_completion_runs/report_zh.md)。
++## 深度解读：R1 不是“把 GRPO 跑起来”就结束
+
+### 1. R1-Zero 实验在证明什么
+
+R1-Zero 从 V3-Base 出发，只提供 reasoning prompt 和可验证 reward。Figure 1 观察到思考长度、数学表现和自我检查行为随 RL 变化，这支持“模型可以在没有人工 CoT 轨迹的情况下发展部分推理行为”。但它没有证明纯 RL 对所有任务都有效：语言混杂、格式不可控、非推理任务退化正是论文随后引入完整 R1 pipeline 的理由。
+
+### 2. 为什么必须 cold start
+
+cold-start SFT 不是为了直接把答案教给模型，而是先提供可读、结构化的长思维链，使后续 RL 的探索落在更容易被人类使用和奖励模型识别的区域。Figure 2 的 pipeline 因此是一个偏差—方差折中：纯 RL 探索空间大但输出不稳定，cold start 限制探索空间但提高可读性和训练信号质量。
+
+### 3. GRPO 的计算账本
+
+GRPO 对同一 prompt 采样一组 completion，按组内 reward 均值和方差标准化 advantage，再更新 sampled tokens 的概率。省掉 value model 并不等于训练便宜：rollout、批量采样、参考模型 KL、长序列显存和 reward 计算仍然昂贵。Figure 3 只能支持“去掉 critic 的算法形式”，不能单独支持“总训练成本一定更低”。
+
+### 4. Table 3 要按阶段读
+
+Table 3 的价值不在于最终 R1 的一个最高分，而在于展示不同目标之间的拉扯：cold start 改善 instruction following 和可读性，reasoning RL 恢复数学/代码，混合 SFT 保留通用能力，最后的 mixed RL 再平衡 helpfulness、harmlessness 和 reasoning。每一阶段都不是单调提升所有指标，因此 R1 是 pipeline 设计而非单个 loss 的胜利。
+
+### 5. Reward hacking 是因果警报
+
+Figure 6 说明代理 reward 上升可能伴随答案质量、语言一致性或人类偏好下降。原因可能是 reward 只检查格式、长度或局部规则，而没有覆盖真实目标。读 R1 时应把 correctness reward、format reward、reward-model score 和最终 benchmark 分开；任何一项单独上升都不能代表 reasoning 已改善。
+
+### 6. 蒸馏的真正含义
+
+R1 将 reasoning traces 蒸馏给更小 dense model，说明规模模型的探索结果可以转化为监督数据。但这与“让小模型自己通过少量 RL 达到同样能力”是不同问题。TinySeek 的 0/5 加法结果正好提醒我们：格式迁移比可泛化的算法推理容易得多。
++## 证据地图
+
+| 论文位置 | 实验问题 | 作者结论 | 解读与限制 |
+| --- | --- | --- | --- |
+| Figure 1 / R1-Zero | 无 CoT 监督的 RL 是否出现推理行为 | 出现更长思考和自我检查 | 只支持可验证任务和该训练规模 |
+| Figure 2 / pipeline | cold start 是否改善可用性 | 多阶段流程比纯 R1-Zero 更可控 | 每阶段改变多个目标，难完全归因 |
+| Table 3 / stages | reasoning、helpfulness、safety 是否可兼顾 | 分阶段处理比单一训练更稳定 | 指标之间存在真实 trade-off |
+| Figure 6 / reward hacking | 代理 reward 是否可靠 | reward 上升可能脱离真实质量 | 必须保留独立 correctness 与人评 |

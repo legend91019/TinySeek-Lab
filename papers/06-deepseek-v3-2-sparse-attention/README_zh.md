@@ -57,3 +57,32 @@ V3.2-Exp 是从压缩状态到选择计算的桥梁：MLA 减少每个 token 要
 - [官方仓库](https://github.com/deepseek-ai/DeepSeek-V3.2-Exp)
 - [官方技术报告 PDF](https://raw.githubusercontent.com/deepseek-ai/DeepSeek-V3.2-Exp/main/DeepSeek_V3_2.pdf)
 - [来源台账](../assets/deepseek-v3-2/SOURCES.md)
++## 深度解读：DSA 的关键不是稀疏，而是选择是否可学习
+
+### 1. 它针对的是 MLA 之后剩下的瓶颈
+
+MLA 减少每个历史 token 的缓存表示，但如果 query 仍与所有历史位置计算相关性，长上下文的 attention FLOPs 仍近似随长度平方增长。V3.2-Exp 的问题因此从“存多少”变成“算多少”：能否用轻量 indexer 找到少量重要 token，再用主 attention 精算它们。
+
+### 2. Indexer 与主 attention 必须分工
+
+indexer 的分数不是最终 attention 权重。它负责候选召回，主 attention 负责精确聚合；这类似检索系统中的 recall stage 与 ranking stage。若 indexer 过于便宜，可能漏掉关键 token；若它和主 attention 一样昂贵，稀疏收益就消失。因此真正的实验对象是召回质量—索引成本—主 attention 成本的三方折中。
+
+### 3. 为什么能力对齐实验比单独长上下文分数重要
+
+V3.2-Exp 是实验版本，若能力提升同时来自数据、训练配方、kernel 或后训练，就不能把收益全归给 DSA。与 V3.1-Terminus 的公共 benchmark 对照提供了一个基本控制：在能力大致不变时，观察长上下文效率是否改善。仍需注意这不是随机化 ablation，版本间所有改变不一定都能完全拆开。
+
+### 4. 稀疏选择的风险
+
+固定 top-k 可能漏掉长距离依赖、少见实体或需要多跳检索的 token。论文的长上下文结果若稳定，只能说明在其训练分布和评测任务上选择器足够好，不能推出任意文档都能安全稀疏化。真正需要关注的是失败样本、选择覆盖率和不同位置距离的 recall，而不仅是平均 FLOPs。
+
+### 5. TinySeek 可以验证什么
+
+本仓没有 DSA kernel，所以只能验证算法形状：全量 attention 与候选选择 attention 的复杂度趋势，以及 top-k 选择对任务 loss 的影响。若未来实现教学版，必须同时记录选择 recall、PPL、长距离任务准确率和 wall-clock；只看“少算了矩阵乘法”是不够的。
++## 证据地图
+
+| 论文位置 | 实验问题 | 作者结论 | 解读与限制 |
+| --- | --- | --- | --- |
+| DSA method section | indexer 能否召回有用历史 token | 稀疏选择可替代全量访问 | 需要报告选择 recall 和失败样本 |
+| V3.1 comparison tables | 能力是否大致保持 | 公共 benchmark 可对齐 | 版本同时变化，非随机化消融 |
+| Long-context efficiency | FLOPs、KV cache、吞吐是否下降 | 长上下文成本降低 | 依赖专用 kernel 和部署设置 |
+| Ablation/analysis | 稀疏比例如何选择 | 需要在质量与成本间折中 | top-k 不是越小越好 |

@@ -43,4 +43,36 @@ DeepSeekMath is R1's training prehistory: it validates data engineering, continu
 - [arXiv](https://arxiv.org/abs/2402.03300)
 - [PDF](https://arxiv.org/pdf/2402.03300)
 - [Source ledger](../assets/deepseek-math/SOURCES.md)
++## Deep reading: DeepSeekMath validates the recipe before R1 scales it
 
+### 1. Data engineering is a method contribution
+
+The paper builds mathematical text with classifiers, heuristics, deduplication, and quality filters before RL. This order matters: without mathematical symbols, problem types, and solution language in the base distribution, a verifier only searches a poor policy space.
+
+### 2. Why continued pretraining and SFT are separate
+
+Continued pretraining changes the probability distribution over mathematical text; SFT turns problem/solution formats and reasoning traces into explicit behavior. MATH gains should therefore not be attributed to GRPO alone; the pipeline and stepwise ablations matter.
+
+### 3. GRPO's conditions
+
+GRPO needs multiple samples per prompt and relative group rewards. Mathematical verifiers make rewards cleaner than open-ended preference scores, but all-wrong groups still provide little learning signal. Removing a critic lowers one memory/parameter cost, not exploration or rollout cost.
+
+### 4. Interpreting 51.7% versus 60.9%
+
+Single-sample accuracy and 64-sample self-consistency measure different capabilities. The latter includes test-time compute and voting; it is not a single-generation accuracy claim.
+
+### 5. The bridge to R1
+
+DeepSeekMath validates verifiable rewards and GRPO in mathematics. R1 broadens the verifiable-task setting and adds cold start, mixed SFT, general rewards, and distillation. It is a staged research progression, not two unrelated RL papers.
+
+### 6. TinySeek's boundary case
+
+TinySeek improves format score while held-out addition remains 0/5. This does not refute DeepSeekMath because data, model, verifier, and rollout scale differ; it teaches the reader to separate format learning from reasoning generalization.
++## Evidence map
+
+| Paper location | Question | Authors' conclusion | Reading boundary |
+| --- | --- | --- | --- |
+| Data construction | Does filtering improve math data? | The pipeline raises data density | Classifiers can shift the distribution |
+| Continued pretraining / SFT | Can knowledge and format be established? | Both provide the RL foundation | RL cannot be isolated from the pipeline |
+| GRPO | Does relative reward work without a critic? | Math reasoning improves while removing the value model | Rollouts and sampling remain expensive |
+| MATH evaluation | How do single-shot and self-consistency differ? | 51.7% versus 60.9% is reported | The latter includes test-time compute |
