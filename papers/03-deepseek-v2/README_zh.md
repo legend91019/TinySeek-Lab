@@ -82,3 +82,36 @@ V2 的重要转折是把“每 token 激活多少参数”和“每 token 缓存
 - 原文：[arXiv:2405.04434](https://arxiv.org/abs/2405.04434)。
 - 下一篇：[DeepSeek-V3](../04-deepseek-v3/README_zh.md)。
 - 现有报告：[`architecture_lab_runs/report_zh.md`](../../experiments/architecture_lab_runs/report_zh.md)。
++## 深度解读：MLA 为什么不是随便做个低秩投影
+
+### 1. V2 同时解决两个不同瓶颈
+
+DeepSeekMoE 解决的是训练时 FFN 的 activated compute；MLA 解决的是自回归解码时随序列增长的 KV cache。两者位于不同阶段：MoE 主要减少每 token 的训练和前向计算，MLA 主要减少生成时每个历史 token 的存储和带宽。把 V2 说成“MoE 加一个更省内存的 attention”会漏掉这个系统分工。
+
+### 2. MLA 的关键约束来自 RoPE
+
+如果只把 K/V 压缩成 latent，再从 latent 重建，确实可以省缓存；但 RoPE 依赖 token 的位置，并且在每个 attention head 上有旋转结构。论文因此把 content 表示和位置表示拆成两条路径：低秩 latent 负责可压缩的 content，decoupled RoPE key/query 负责相对位置。这个拆分解释了为什么 MLA 不是普通 low-rank factorization：它要同时满足表示能力、位置编码和缓存可合并性。
+
+### 3. Table 1 的 KV/token 是结构上限，不是端到端速度
+
+Table 1 比较的是每 token 每层需要保存的 K/V 维度，适合回答“理论 cache 规模如何变化”。但实际吞吐还受 kernel、batch、带宽、prefill/decode 比例和量化影响。因此“KV cache 降 93.3%”不能直接改写成“延迟降低 93.3%”。论文另外报告吞吐和成本，读者应把这两类指标分开。
+
+### 4. 为什么还要保留 device-limited routing 和 token dropping
+
+MoE 的专家数扩大后，瓶颈可能从矩阵乘法变成跨设备 all-to-all。V2 的 device-limited routing 不是质量模块，而是把路由限制在可控的设备集合；token dropping 则在容量不足时牺牲少量 token 处理完整性以保持系统可运行。这说明 V2 的经济来自架构与通信策略共同成立，而不是只来自 MLA。
+
+### 5. Long-context extension 的因果边界
+
+V2 先在基础上下文训练，再做长上下文 extension。若长上下文评测提升，不能简单归因于 MLA；还可能来自 extension 数据、位置插值、训练步数和评测分布。论文把这些作为完整 pipeline 报告，教程中应明确：MLA 解释 cache 侧效率，不能单独解释所有长上下文能力。
+
+### 6. TinySeek 的 MLA 退化说明什么
+
+本仓教学 MLA 的理论 cache 从 192 降到 72，但 PPL 变差，说明低秩容量不足或实现路径会造成表达损失。这不是对论文 MLA 的反例，因为论文有不同 rank、训练规模和 fused implementation；它只说明迁移时必须做 rank/质量曲线，而不能只凭 cache 数字升级架构。
++## 证据地图
+
+| 论文位置 | 实验问题 | 作者结论 | 解读与限制 |
+| --- | --- | --- | --- |
+| Section 2.1 / Table 1 | MLA 能否减少 KV cache | latent + decoupled RoPE 显著降低缓存 | 这是结构账本，不是延迟保证 |
+| Section 2.2 / routing sections | MoE 在多设备上能否运行 | device-limited routing 控制通信 | 可能引入路由约束和容量损失 |
+| Section 3 / Table 2 | 低激活参数能否保持能力 | V2 达到开源模型前列 | 质量来自完整训练配方，不只 MLA |
+| Section 3.2.3 / efficiency | cache、训练成本、吞吐是否同时改善 | 报告 42.5% 成本节省和 5.76 倍吞吐 | 依赖硬件、kernel 和部署设置 |

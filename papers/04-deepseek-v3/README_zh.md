@@ -83,3 +83,36 @@ V3 的方法论是“把一个大模型的系统瓶颈拆成可隔离的实验�
 - 原文：[arXiv:2412.19437](https://arxiv.org/abs/2412.19437)。
 - 下一篇：[DeepSeek-R1](../05-deepseek-r1/README_zh.md)。
 - 现有报告：[`architecture_lab_runs/report_zh.md`](../../experiments/architecture_lab_runs/report_zh.md)。
++## 深度解读：V3 是一次系统协同设计
+
+### 1. V3 没有推翻 V2，而是暴露 V2 的规模瓶颈
+
+V3 保留 MLA 和 DeepSeekMoE，说明 V2 的基本方向被验证；新的问题转向超大规模训练：专家跨节点通信、负载均衡损失、低精度数值稳定性和 pipeline bubble。读 V3 时应把新结构与让旧结构能扩到 671B 的工程配套放在一起。
+
+### 2. Auxiliary-loss-free balancing 的因果假设
+
+传统 auxiliary loss 直接把均衡目标加入训练目标，可能让语言模型为了均衡而改变 token 的自然路由。V3 的做法是给每个 expert 一个动态 bias，只影响 top-k 选择，不进入主 loss；每隔一段时间根据 expert load 更新 bias。它试图把选择谁和优化语言建模解耦。这个方法的代价是引入依赖 batch 统计的控制环，稳定性取决于 bias 更新速度、路由粒度和容量设置。
+
+### 3. Table 5 的比较要看三个轴
+
+Table 5 不只是在比较 loss。需要同时看负载均衡、主任务 loss 和训练稳定性：auxiliary-loss-free 是否减少了质量损失，是否仍保持可接受的 expert load，是否避免 token dropping。若只看某一列的 benchmark，无法判断 bias routing 是否真正优于 aux loss。
+
+### 4. MTP 为什么可能帮助推理
+
+MTP 在主 next-token head 之外预测未来多个 token，训练时增加了更远的监督信号；推理时这些预测头还可以用于 speculative decoding。论文 Table 4 的 ablation 支持加入 MTP 有益，但收益可能来自训练正则化、额外 supervision 或推理接受率，不能笼统写成多预测几个 token 所以一定更快。
+
+### 5. FP8、DualPipe 与模型质量不能混为一谈
+
+V3 报告的成本优势来自 FP8 mixed precision、DualPipe、跨节点 all-to-all kernel、内存优化等多项系统技术。它们主要改变训练效率和可扩展性，不直接等价于语言能力提升。论文的 2,788K H800 GPU hours 是整套系统的结果，不能拆成某一个模块的单独贡献。
+
+### 6. 从 V3 过渡到 V3.2
+
+V3 解决如何让 MoE 加 MLA 训练得起，但 MLA 仍面对长上下文的全量 attention 计算。V3.2-Exp 因而把问题推进到 token 选择和稀疏注意力；这不是 V3 失败，而是瓶颈从 cache 容量转移到了 attention FLOPs。
++## 证据地图
+
+| 论文位置 | 实验问题 | 作者结论 | 解读与限制 |
+| --- | --- | --- | --- |
+| Section 2.1.2 / Table 5 | 无辅助损失是否保留均衡 | bias routing 可接近或超过 aux loss | 依赖更新规则和负载统计 |
+| Section 2.2 / Figure 3, Table 4 | MTP 是否带来收益 | MTP 改善评测并支持 speculative decoding | 训练收益与解码收益要分开 |
+| Section 3 / Table 1 | 系统优化是否降低总成本 | FP8、DualPipe、通信优化共同降低成本 | 不能归因给单个模块 |
+| Section 4 / main results | 671B MoE 是否转化为能力 | V3 Base/Chat 达到强开源水平 | benchmark 不能隔离所有系统因素 |

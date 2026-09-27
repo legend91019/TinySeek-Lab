@@ -12,13 +12,13 @@
 
 TinySeek-Lab is a bilingual, code-first course from model implementation through training and experiment reports. You write a complete Dense LM, evolve it into DeepSeekMoE, DeepSeek-V2, and DeepSeek-V3, then connect that base model to R1-style SFT and educational GRPO.
 
-> **New canonical route:** start with the [five DeepSeek paper tutorials](papers/README.md). `course/`, `docs/`, and `experiments/` remain as historical units, reference notes, and evidence archives; paper articles link to their code and results when needed.
+> **New canonical route:** start with the [DeepSeek paper tutorials](papers/README.md). The architecture route now includes V3.2-Exp and V4, while the reasoning-training route connects DeepSeekMath to R1. `course/`, `docs/`, and `experiments/` remain as historical units, reference notes, and evidence archives.
 
 The historical experiment course remains at [`course/README.md`](course/README.md); the reference library is [`docs/README.md`](docs/README.md), and the evidence archive is [`experiments/README.md`](experiments/README.md).
 
 This repository is language-model-only. It excludes multimodal, vision, video, OCR, embodied, and agent tracks. The goal is to reproduce research questions and experimental method, not DeepSeek scale or final capability.
 
-> **Start here:** the [five DeepSeek paper tutorials](papers/README.md) put paper claims, paper figures, existing code and supplemental measurements in one article. [中文主线](papers/README_zh.md)
+> **Start here:** the [DeepSeek paper tutorials](papers/README.md) put paper claims, paper figures, existing code and supplemental measurements in one article. [中文主线](papers/README_zh.md)
 
 Keep the [Math-to-PyTorch reference](docs/24_math_to_pytorch.md) nearby when a unit introduces a new formula or tensor operation; SFT and GRPO use the separate [post-training code walkthrough](docs/19_posttraining_code_walkthrough.md).
 
@@ -99,7 +99,9 @@ flowchart LR
   A["DeepSeek LLM<br/>Dense"] --> B["DeepSeekMoE<br/>Sparse FFN"]
   B --> C["DeepSeek-V2<br/>MLA"]
   C --> D["DeepSeek-V3<br/>Bias + MTP"]
-  D --> E["DeepSeek-R1<br/>SFT + GRPO"]
+  D --> E["DeepSeek-V3.2-Exp<br/>DSA"]
+  E --> F["DeepSeek-V4<br/>CSA/HCA + 1M"]
+  M["DeepSeekMath<br/>GRPO"] --> N["DeepSeek-R1<br/>Reasoning RL"]
 ```
 
 ## Model Evolution
@@ -217,7 +219,13 @@ Read the paper path; open historical unit pages only when an article links them:
 2. [DeepSeekMoE](papers/02-deepseek-moe/README.md)
 3. [DeepSeek-V2](papers/03-deepseek-v2/README.md)
 4. [DeepSeek-V3](papers/04-deepseek-v3/README.md)
-5. [DeepSeek-R1](papers/05-deepseek-r1/README.md)
+5. [DeepSeek-V3.2-Exp](papers/06-deepseek-v3-2-sparse-attention/README.md)
+6. [DeepSeek-V4](papers/07-deepseek-v4/README.md)
+
+Reasoning-training route:
+
+1. [DeepSeekMath](papers/08-deepseek-math/README.md)
+2. [DeepSeek-R1](papers/05-deepseek-r1/README.md)
 
 Use [`docs/README.md`](docs/README.md) as the English reference library and [`docs/zh/README.md`](docs/zh/README.md) for Chinese references. They contain the expanded formulas, full source walkthroughs, trainer internals, runbooks and historical reports.
 

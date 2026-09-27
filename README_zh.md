@@ -12,13 +12,13 @@
 
 TinySeek-Lab 是一套从代码、训练到实验报告的双语教程。你不会只调用现成模型，而是先写出完整 Dense LM，再沿论文路线逐代改造成 DeepSeekMoE、DeepSeek-V2 和 DeepSeek-V3，最后进入 R1 风格的 SFT 与 GRPO 教学实验。
 
-> **新的唯一主线：** 请从[五篇 DeepSeek 论文教程](papers/README_zh.md)开始。`course/`、`docs/` 和 `experiments/` 现在分别是历史单元、参考手册和证据档案；它们仍然保留，论文文章会在需要时直接链接到其中的代码和结果。
+> **新的唯一主线：** 请从[DeepSeek 论文教程](papers/README_zh.md)开始。主架构线覆盖 V3.2-Exp 与 V4，推理训练线覆盖 DeepSeekMath 与 R1；`course/`、`docs/` 和 `experiments/` 仍分别是历史单元、参考手册和证据档案。
 
 历史实验课程入口仍是 [`course/README_zh.md`](course/README_zh.md)，参考手册入口是 [`docs/zh/README.md`](docs/zh/README.md)，实验档案入口是 [`experiments/README_zh.md`](experiments/README_zh.md)。
 
 本仓只做语言模型，不进入多模态、视觉、视频、OCR、具身和 Agent 主线。目标是复现研究问题与实验方法，不是复现 DeepSeek 的参数规模或最终能力。
 
-> **从这里开始：**[五篇 DeepSeek 论文教程](papers/README_zh.md)把论文问题、论文图表、现有代码和补充实测放在同一篇文章中。[English paper route](papers/README.md)
+> **从这里开始：**[DeepSeek 论文教程](papers/README_zh.md)把论��问题、论文图表、现有代码和补充实测放在同一篇文章中。[English paper route](papers/README.md)
 
 单元中出现新公式或张量操作时，可以随时打开[数学到 PyTorch 工具箱](docs/zh/24_math_to_pytorch.md)；SFT 和 GRPO 的逐行实现另见[后训练代码细读](docs/zh/19_posttraining_code_walkthrough.md)。
 
@@ -73,7 +73,7 @@ TinyStories -> tiny base -> dense 35M/115M -> LR/batch sweep
 | 小 GPU 教学 run | 想体验 tiny dense -> SFT -> GRPO | [上卡前最终 Checklist](docs/zh/18_gpu_fill_only_checklist.md) |
 | RTX 4090 研究 run | 想复现完整训练与多 seed 架构对照 | [实验报告中心](experiments/README_zh.md) |
 
-推荐入口是[五篇论文主线](papers/README_zh.md)。公式、训练器和 runbook 文档由论文文章按需链接；`course/` 保留为按实验单元阅读的历史版本。
+推荐入口是[DeepSeek 论文主线](papers/README_zh.md)。公式、训练器和 runbook 文档由论文文章按需链接；`course/` 保留为按实验单元阅读的历史版本。
 
 ## 一图看懂路线
 
@@ -82,7 +82,9 @@ flowchart LR
   A["DeepSeek LLM<br/>Dense"] --> B["DeepSeekMoE<br/>稀疏 FFN"]
   B --> C["DeepSeek-V2<br/>MLA"]
   C --> D["DeepSeek-V3<br/>Bias + MTP"]
-  D --> E["DeepSeek-R1<br/>SFT + GRPO"]
+  D --> E["DeepSeek-V3.2-Exp<br/>DSA"]
+  E --> F["DeepSeek-V4<br/>CSA/HCA + 1M"]
+  M["DeepSeekMath<br/>GRPO"] --> N["DeepSeek-R1<br/>Reasoning RL"]
 ```
 
 ## 模型升级路线
@@ -115,7 +117,7 @@ flowchart TB
 
 ```text
 TinySeek-Lab/
-  papers/               五篇论文唯一推荐主线
+  papers/               DeepSeek 论文唯一推荐主线
   course/               s01-s08 历史实验课程
   configs/              小模型和实验配置
   dataset/              数据集封装和 byte tokenizer
@@ -202,7 +204,13 @@ v1 预训练 -> SFT -> GRPO 链路实测报告见：
 2. [DeepSeekMoE](papers/02-deepseek-moe/README_zh.md)
 3. [DeepSeek-V2](papers/03-deepseek-v2/README_zh.md)
 4. [DeepSeek-V3](papers/04-deepseek-v3/README_zh.md)
-5. [DeepSeek-R1](papers/05-deepseek-r1/README_zh.md)
+5. [DeepSeek-V3.2-Exp](papers/06-deepseek-v3-2-sparse-attention/README_zh.md)
+6. [DeepSeek-V4](papers/07-deepseek-v4/README_zh.md)
+
+推理训练线：
+
+1. [DeepSeekMath](papers/08-deepseek-math/README_zh.md)
+2. [DeepSeek-R1](papers/05-deepseek-r1/README_zh.md)
 
 [`docs/zh/README.md`](docs/zh/README.md) 现在是中文参考手册入口，[`docs/README.md`](docs/README.md) 是英文参考手册入口；其中保留展开公式、完整代码走读、训练器内部、runbook 和历史报告。
 

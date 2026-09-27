@@ -53,3 +53,36 @@ V2 separates activated compute from cached history. TinySeek makes the cache led
 ## 9. Sources and next paper
 
 Paper: [arXiv:2405.04434](https://arxiv.org/abs/2405.04434). Continue to [DeepSeek-V3](../04-deepseek-v3/README.md).
++## Deep reading: MLA is not an arbitrary low-rank projection
+
+### 1. V2 solves two different bottlenecks
+
+DeepSeekMoE targets activated FFN compute during training; MLA targets KV-cache storage and bandwidth during autoregressive decoding. They operate at different stages. Calling V2 merely “MoE plus a smaller attention cache” misses this systems decomposition.
+
+### 2. RoPE creates the key constraint
+
+A latent K/V projection can save memory, but RoPE depends on token position and has per-head rotational structure. MLA therefore separates compressible content from a decoupled RoPE path. This is why MLA is not ordinary low-rank factorization: the representation must remain expressive, position-aware, and cacheable.
+
+### 3. KV/token is not end-to-end latency
+
+Table 1 reports the structural cache size per token and layer. Actual throughput also depends on kernels, batch size, bandwidth, prefill/decode mix, and quantization. A 93.3% cache reduction cannot be rewritten as a 93.3% latency reduction.
+
+### 4. Why routing constraints remain
+
+As expert count grows, communication can dominate matrix multiplication. Device-limited routing constrains where tokens go; token dropping keeps capacity feasible when buffers fill. V2's economy is therefore a joint architecture/communication result, not an MLA-only result.
+
+### 5. Long-context attribution
+
+V2 trains a base context and then performs long-context extension. Gains in long-context evaluation can also reflect extension data, position treatment, extra steps, and evaluation distribution. MLA explains cache-side efficiency, not every capability gain.
+
+### 6. TinySeek's MLA degradation
+
+TinySeek reduces theoretical cache from 192 to 72 but worsens PPL. This is not a counterexample to the paper because rank, scale, training, and kernels differ. It does show that migration requires a rank/quality curve rather than a cache number alone.
++## Evidence map
+
+| Paper location | Question | Authors' conclusion | Reading boundary |
+| --- | --- | --- | --- |
+| Section 2.1 / Table 1 | Can MLA reduce KV cache? | Latent content plus decoupled RoPE saves cache | Structural size is not latency |
+| Section 2.2 | Can MoE route economically? | Device limits control communication | Constraints can introduce capacity effects |
+| Section 3 / Table 2 | Does low activation preserve quality? | V2 is strong at low activated parameters | Quality reflects the full training recipe |
+| Efficiency section | Do cost and throughput improve? | Reports major gains versus DeepSeek 67B | Hardware and kernels matter |

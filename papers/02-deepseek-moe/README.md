@@ -54,3 +54,35 @@ DeepSeekMoE is a separation of capacity, activation and specialization, not a bl
 ## 9. Sources and next paper
 
 Paper: [arXiv:2401.06066](https://arxiv.org/abs/2401.06066). Continue to [DeepSeek-V2](../03-deepseek-v2/README.md).
++## Deep reading: where the MoE gain comes from
+
+### 1. The comparison must isolate variables
+
+Replacing a Dense FFN changes total parameters, activated parameters, and routing specialization at once. The validation setup therefore tries to align activated computation and training conditions before comparing expert granularity and shared experts. Otherwise “MoE is better” may only mean “the compute budget changed.”
+
+### 2. Fine-grained experts are compositional
+
+Splitting one wide FFN into many narrow experts is not mere replication. Top-k routing creates more combinations at similar activated width, which can sharpen specialization. It also increases routing and communication pressure, so the paper argues for a quality/capacity tradeoff, not universal speedup.
+
+### 3. Shared experts are not a balancing mechanism
+
+Shared experts absorb common language patterns so routed experts can specialize. They do not automatically fix hot experts or all-to-all communication; capacity, auxiliary loss, and device-limited routing still matter. Structural separation and load balancing solve different problems.
+
+### 4. What the ablation proves
+
+Figure 3 separates fine-grained segmentation from shared-expert isolation. That makes marginal contributions visible, but the small validation ablation cannot by itself establish identical specialization at 145B. The larger-model comparison is needed for that extrapolation.
+
+### 5. Read 145B through activated compute
+
+Total parameters describe stored capacity; activated parameters approximate the main per-token matrix work. Real wall-clock cost also includes routing communication, padding, token dropping, and imbalance. The paper's compute ratios are model-level approximations, not hardware-independent speed guarantees.
+
+### 6. Transfer to TinySeek
+
+TinySeek's shared route improves PPL but is about 35% slower, illustrating why quality and systems cost must be reported together. A useful replication ledger includes expert-load CV, dropped tokens, tokens/sec, memory, and PPL under the same token budget.
++## Evidence map
+
+| Paper location | Question | Authors' conclusion | Reading boundary |
+| --- | --- | --- | --- |
+| Section 2 / Figure 2 | How do shared and routed experts differ? | Shared experts carry common patterns | Structure does not directly measure knowledge boundaries |
+| Section 3 / Table 1 and Figure 3 | Do fine-grained and shared experts help? | Both improve the quality/capacity tradeoff | Communication and small-scale extrapolation remain |
+| Section 4 | Does the design scale? | 16B/145B show activated-compute advantages | Activated compute is not wall-clock cost |
